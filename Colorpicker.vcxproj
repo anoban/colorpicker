@@ -33,9 +33,13 @@
   <ItemGroup>
     <ClCompile Include="src\handlers.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\settings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="resources\colorpicker.xml" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

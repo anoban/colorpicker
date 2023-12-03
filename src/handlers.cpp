@@ -11,7 +11,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, [[maybe_unused]] 
 
         case WM_COMMAND :
             if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
-                EndDialog(hDlg, LOWORD(wParam));
+                ::EndDialog(hDlg, LOWORD(wParam));
                 return (INT_PTR) TRUE;
             }
             break;
@@ -20,18 +20,19 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, [[maybe_unused]] 
 }
 
 LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    INT64 iId = GetWindowLongPtrW(hWnd, GWLP_ID);
+    INT64 iId = ::GetWindowLongPtrW(hWnd, GWLP_ID);
     switch (message) {
         case WM_KEYDOWN :
-            if (wParam == VK_TAB) SetFocus(GetDlgItem(GetParent(hWnd), (iId + (GetKeyState(VK_SHIFT) < 0 ? 2 : 1)) % 3));
+            if (wParam == VK_TAB) ::SetFocus(::GetDlgItem(::GetParent(hWnd), (iId + (::GetKeyState(VK_SHIFT) < 0 ? 2 : 1)) % 3));
             break;
         case WM_SETFOCUS : idFocus = iId; break;
         default          : break;
     }
-    return CallWindowProcW(oldScroll[iId], hWnd, message, wParam, lParam);
+    return ::CallWindowProcW(oldScroll[iId], hWnd, message, wParam, lParam);
 }
 
 LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    
     static COLORREF     crPrim[3] { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255) };
     static HBRUSH       hBrush[3] {}, hStaticBrush {};
     static HWND         hwndScroll[3] {}, hwndLabel[3] {}, hwndValue[3] {}, hwndRect {};
@@ -46,8 +47,9 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     switch (message) {
         case WM_CREATE :
             {
-                hInstance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
-                hwndRect  = CreateWindowExW(
+                hInstance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
+                ::SetMenu(hWnd, nullptr); // hide the menu bar
+                hwndRect  = ::CreateWindowExW(
                     0L,
                     L"static",
                     nullptr,
@@ -63,7 +65,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 );
 
                 for (i = 0; i < 3; ++i) {
-                    hwndScroll[i] = CreateWindowExW(
+                    hwndScroll[i] = ::CreateWindowExW(
                         0L,
                         L"scrollbar",
                         nullptr,
@@ -78,10 +80,10 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         nullptr
                     );
 
-                    SetScrollRange(hwndScroll[i], SB_CTL, 0, 255, FALSE);
-                    SetScrollPos(hwndScroll[i], SB_CTL, 0, FALSE);
+                    ::SetScrollRange(hwndScroll[i], SB_CTL, 0, 255, FALSE);
+                    ::SetScrollPos(hwndScroll[i], SB_CTL, 0, FALSE);
 
-                    hwndLabel[i] = CreateWindowExW(
+                    hwndLabel[i] = ::CreateWindowExW(
                         0L,
                         L"static",
                         wszColorLabel[i],
@@ -96,7 +98,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         nullptr
                     );
 
-                    hwndValue[i] = CreateWindowExW(
+                    hwndValue[i] = ::CreateWindowExW(
                         0L,
                         L"static",
                         L"0",
@@ -111,7 +113,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         nullptr
                     );
 
-                    oldScroll[i] = reinterpret_cast<WNDPROC>(SetWindowLongPtrW(
+                    oldScroll[i] = reinterpret_cast<WNDPROC>(::SetWindowLongPtrW(
                         hwndScroll[i],
                         GWLP_WNDPROC,
                         reinterpret_cast<
@@ -119,11 +121,11 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                             ScrollHandler
                         )
                     ));
-                    hBrush[i]    = CreateSolidBrush(crPrim[i]);
+                    hBrush[i]    = ::CreateSolidBrush(crPrim[i]);
                 }
 
-                hStaticBrush = CreateSolidBrush(GetSysColor(COLOR_BTNHIGHLIGHT));
-                cyChar       = HIWORD(GetDialogBaseUnits());
+                hStaticBrush = ::CreateSolidBrush(::GetSysColor(COLOR_BTNHIGHLIGHT));
+                cyChar       = HIWORD(::GetDialogBaseUnits());
                 break;
             }
 
@@ -135,30 +137,30 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 SetRect(&rcColor, 0, 0, cxClient, cyClient);
 
                 for (i = 0; i < 3; ++i) {
-                    MoveWindow(hwndScroll[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
-                    MoveWindow(hwndLabel[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
-                    MoveWindow(hwndValue[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
+                    ::MoveWindow(hwndScroll[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
+                    ::MoveWindow(hwndLabel[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
+                    ::MoveWindow(hwndValue[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
                 }
 
-                SetFocus(hWnd);
+                ::SetFocus(hWnd);
                 break;
             }
 
         case WM_SETFOCUS :
             {
-                SetFocus(hwndScroll[idFocus]);
+                ::SetFocus(hwndScroll[idFocus]);
                 break;
             }
 
         case WM_VSCROLL :
             {
-                i = GetWindowLongPtrW(reinterpret_cast<HWND>(lParam), GWLP_ID);
+                i = ::GetWindowLongPtrW(reinterpret_cast<HWND>(lParam), GWLP_ID);
 
                 switch
                     LOWORD(wParam) {
-                        case SB_PAGEDOWN      : color[i] += 15; [[fallthrough]];
+                        case SB_PAGEDOWN      : color[i] += 20; [[fallthrough]];
                         case SB_LINEDOWN      : color[i] = std::min<INT32>(255, color[i] + 1); break;
-                        case SB_PAGEUP        : color[i] -= 15; [[fallthrough]];
+                        case SB_PAGEUP        : color[i] -= 20; [[fallthrough]];
                         case SB_LINEUP        : color[i] = std::max(0, color[i] - 1); break;
                         case SB_TOP           : color[i] = 0; break;
                         case SB_BOTTOM        : color[i] = 255; break;
@@ -167,13 +169,13 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         default               : break;
                     }
 
-                SetScrollPos(hwndScroll[i], SB_CTL, color[i], TRUE);
-                wsprintfW(wszBuffer, L"%i", color[i]);
-                SetWindowTextW(hwndValue[i], wszBuffer);
-                DeleteObject(reinterpret_cast<HBRUSH>(
-                    SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(CreateSolidBrush(RGB(color[0], color[1], color[2]))))
+                ::SetScrollPos(hwndScroll[i], SB_CTL, color[i], TRUE);
+                ::wsprintfW(wszBuffer, L"%i", color[i]);
+                ::SetWindowTextW(hwndValue[i], wszBuffer);
+                ::DeleteObject(reinterpret_cast<HBRUSH>(
+                    ::SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(::CreateSolidBrush(RGB(color[0], color[1], color[2]))))
                 ));
-                InvalidateRect(hWnd, &rcColor, TRUE);
+                ::InvalidateRect(hWnd, &rcColor, TRUE);
                 break;
             }
 
@@ -183,26 +185,27 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 // Parse the menu selections:
                 switch (wmId) {
                     case IDM_ABOUT : DialogBoxW(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About); break;
-                    case IDM_EXIT  : DestroyWindow(hWnd); break;
-                    default        : return DefWindowProcW(hWnd, message, wParam, lParam);
+                    case IDM_EXIT  : ::DestroyWindow(hWnd);
+                        break;
+                    default        : break;
                 }
                 break;
             }
 
         case WM_DESTROY :
             {
-                DeleteObject(reinterpret_cast<HBRUSH>(
-                    SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(GetStockObject(WHITE_BRUSH)))
+                ::DeleteObject(reinterpret_cast<HBRUSH>(
+                    ::SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(::GetStockObject(WHITE_BRUSH)))
                 ));
-                DeleteObject(hStaticBrush);
+                ::DeleteObject(hStaticBrush);
 
-                for (i = 0; i < 3; ++i) DeleteObject(hBrush[i]);
+                for (i = 0; i < 3; ++i) ::DeleteObject(hBrush[i]);
 
-                PostQuitMessage(0);
+                ::PostQuitMessage(0);
                 break;
             }
 
-        default : return DefWindowProcW(hWnd, message, wParam, lParam);
+        default : return ::DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     return 0;
