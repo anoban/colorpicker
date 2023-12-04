@@ -4,21 +4,6 @@ extern HINSTANCE hInst;
 extern INT32     idFocus;
 extern WNDPROC          oldScroll[3];
 
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, [[maybe_unused]] LPARAM lParam) {
-    
-    switch (message) {
-        case WM_INITDIALOG : return (INT_PTR) TRUE;
-
-        case WM_COMMAND :
-            if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
-                ::EndDialog(hDlg, LOWORD(wParam));
-                return (INT_PTR) TRUE;
-            }
-            break;
-    }
-    return (INT_PTR) FALSE;
-}
-
 LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     INT64 iId = ::GetWindowLongPtrW(hWnd, GWLP_ID);
     switch (message) {
@@ -42,7 +27,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
     HINSTANCE           hInstance {};
     INT64               i {}, cxClient {}, cyClient {};
-    WCHAR               wszBuffer[20] {};
+    WCHAR               wszBuffer[5] {};
 
     switch (message) {
         case WM_CREATE :
@@ -69,7 +54,8 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         0L,
                         L"scrollbar",
                         nullptr,
-                        WS_CHILD | WS_VISIBLE | WS_TABSTOP | SBS_VERT,
+                        // WS_CHILD | WS_VISIBLE | WS_TABSTOP | SBS_VERT,
+                        WS_CHILD | WS_VISIBLE | WS_VISIBLE | SBS_VERT| WS_TABSTOP,
                         0,
                         0,
                         0,
@@ -170,7 +156,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     }
 
                 ::SetScrollPos(hwndScroll[i], SB_CTL, color[i], TRUE);
-                ::wsprintfW(wszBuffer, L"%i", color[i]);
+                ::wsprintfW(wszBuffer, L"%3d", color[i]);
                 ::SetWindowTextW(hwndValue[i], wszBuffer);
                 ::DeleteObject(reinterpret_cast<HBRUSH>(
                     ::SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(::CreateSolidBrush(RGB(color[0], color[1], color[2]))))
@@ -184,7 +170,6 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 int wmId = LOWORD(wParam);
                 // Parse the menu selections:
                 switch (wmId) {
-                    case IDM_ABOUT : DialogBoxW(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About); break;
                     case IDM_EXIT  : ::DestroyWindow(hWnd);
                         break;
                     default        : break;
