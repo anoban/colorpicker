@@ -19,5 +19,10 @@
     #include <SDKDDKVer.h>
     #include <tchar.h>
     #include <windows.h>
+    #include <dwmapi.h>
+    
+    #pragma comment(lib, "Dwmapi.lib")
+    #pragma comment(lib, "Gdi32.lib")
+    #pragma comment(lib, "User32.lib")
 
 #endif // !__FRAMEWORK_H__

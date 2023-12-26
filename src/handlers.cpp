@@ -18,9 +18,11 @@ LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     
-    static COLORREF     crPrim[3] { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255) };
+    static COLORREF     crPrim[3] { RGB(32, 32, 32), RGB(32, 32, 32), RGB(32, 32, 32) };
+    static COLORREF     crTitleBar { RGB(32, 32, 32) };
     static HBRUSH       hBrush[3] {}, hStaticBrush {};
-    static HWND         hwndScroll[3] {}, hwndLabel[3] {}, hwndValue[3] {}, hwndRect {};
+    static HWND         hwndScroll[3] {} /* scroll bars */, hwndLabel[3] {} /* labels */, hwndValue[3] {} /* label texts */, hwndRect {} /* the main window */;
+    static HWND         hwndTextBox {};
     static INT32        color[3] {}, cyChar {};
     static RECT         rcColor {};
     static const WCHAR* wszColorLabel[] { L"Red", L"Green", L"Blue" };
@@ -34,6 +36,12 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             {
                 hInstance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
                 ::SetMenu(hWnd, nullptr); // hide the menu bar
+                
+                BOOL bUseDarkMode = TRUE;       // make the title bar 
+                // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
+                DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
+                DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));                
+
                 hwndRect  = ::CreateWindowExW(
                     0L,
                     L"static",
@@ -45,6 +53,21 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     0,
                     hWnd,
                     reinterpret_cast<HMENU>(9),
+                    hInstance,
+                    nullptr
+                );
+
+                hwndTextBox = ::CreateWindowExW(
+                    0L,
+                    L"textbox",
+                    nullptr,
+                    WS_CHILD | WS_VISIBLE | SS_WHITERECT,
+                    0,
+                    0,
+                    20,
+                    10,
+                    hWnd,
+                    reinterpret_cast<HMENU>(10),
                     hInstance,
                     nullptr
                 );
@@ -138,7 +161,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 break;
             }
 
-        case WM_VSCROLL :
+        case WM_VSCROLL :   // when the vertical scroll bars are moved
             {
                 i = ::GetWindowLongPtrW(reinterpret_cast<HWND>(lParam), GWLP_ID);
 
@@ -161,6 +184,14 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 ::DeleteObject(reinterpret_cast<HBRUSH>(
                     ::SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(::CreateSolidBrush(RGB(color[0], color[1], color[2]))))
                 ));
+
+                crTitleBar = RGB(color[0], color[1], color[2]);
+                // DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
+                // the line above colours the borders, not the complete title bar.
+
+                // colours the title bar 
+                DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crTitleBar, sizeof(COLORREF));
+
                 ::InvalidateRect(hWnd, &rcColor, TRUE);
                 break;
             }
