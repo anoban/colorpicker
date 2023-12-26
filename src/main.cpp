@@ -10,11 +10,10 @@ INT32                 idFocus {};
 WNDPROC               oldScroll[3] {};
 
 
-ATOM MyRegisterClass(HINSTANCE hInstance) {
+[[msvc::forceinline]] static ATOM __stdcall RegisterWindowClassExtW(HINSTANCE hInstance) noexcept {
     WNDCLASSEXW wcex {};
 
     wcex.cbSize        = sizeof(WNDCLASSEX);
-
     wcex.style         = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc   = WindowHandler;
     wcex.cbClsExtra    = 0;
@@ -30,7 +29,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
     return ::RegisterClassExW(&wcex);
 }
 
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+[[msvc::forceinline]] static BOOL __stdcall InitInstance(HINSTANCE hInstance, int nCmdShow) noexcept {
     hInst     = hInstance; // Store instance handle in our global variable
 
     HWND hWnd = ::CreateWindowExW(
@@ -65,7 +64,7 @@ int APIENTRY wWinMain(
     // Initialize global strings
     ::LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     ::LoadStringW(hInstance, IDC_COLORPICKER, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+    RegisterWindowClassExtW(hInstance);
 
     // Perform application initialization:
     if (!::InitInstance(hInstance, nCmdShow)) return FALSE;

@@ -19,7 +19,7 @@
     #include <SDKDDKVer.h>
     #include <tchar.h>
     #include <windows.h>
-    #include <dwmapi.h>
+    #include <dwmapi.h>     // Desktop Window Manager header, implements dark mode features.
     
     #pragma comment(lib, "Dwmapi.lib")
     #pragma comment(lib, "Gdi32.lib")

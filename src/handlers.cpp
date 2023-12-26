@@ -4,7 +4,7 @@ extern HINSTANCE hInst;
 extern INT32     idFocus;
 extern WNDPROC          oldScroll[3];
 
-LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+[[nodiscard, msvc::noinline]] LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     INT64 iId = ::GetWindowLongPtrW(hWnd, GWLP_ID);
     switch (message) {
         case WM_KEYDOWN :
@@ -16,7 +16,7 @@ LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     return ::CallWindowProcW(oldScroll[iId], hWnd, message, wParam, lParam);
 }
 
-LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+[[nodiscard, msvc::noinline]] LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     
     static COLORREF     crPrim[3] { RGB(32, 32, 32), RGB(32, 32, 32), RGB(32, 32, 32) };
     static COLORREF     crTitleBar { RGB(32, 32, 32) };
@@ -58,14 +58,14 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 );
 
                 hwndTextBox = ::CreateWindowExW(
-                    0L,
-                    L"textbox",
+                    WS_EX_CLIENTEDGE,
+                    L"listbox",
                     nullptr,
-                    WS_CHILD | WS_VISIBLE | SS_WHITERECT,
-                    0,
-                    0,
-                    20,
+                    WS_CHILD | WS_VISIBLE | WS_BORDER| WS_OVERLAPPED,
+                    100,
                     10,
+                    200,
+                    20,
                     hWnd,
                     reinterpret_cast<HMENU>(10),
                     hInstance,
@@ -77,8 +77,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         0L,
                         L"scrollbar",
                         nullptr,
-                        // WS_CHILD | WS_VISIBLE | WS_TABSTOP | SBS_VERT,
-                        WS_CHILD | WS_VISIBLE | WS_VISIBLE | SBS_VERT| WS_TABSTOP,
+                        WS_CHILD | WS_VISIBLE | SBS_VERT| WS_TABSTOP,
                         0,
                         0,
                         0,
