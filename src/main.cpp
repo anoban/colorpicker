@@ -9,7 +9,6 @@ WCHAR                 szWindowClass[MAX_LOADSTRING] {}; // the main window class
 INT32                 idFocus {};
 WNDPROC               oldScroll[3] {};
 
-
 [[msvc::forceinline]] static ATOM __stdcall RegisterWindowClassExtW(HINSTANCE hInstance) noexcept {
     WNDCLASSEXW wcex {};
 
@@ -58,9 +57,6 @@ WNDPROC               oldScroll[3] {};
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance, _In_opt_ [[maybe_unused]] HINSTANCE hPrevInstance, _In_ [[maybe_unused]] LPWSTR lpCmdLine, _In_ int nCmdShow
 ) {
-
-    // TODO: Place code here.
-
     // Initialize global strings
     ::LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     ::LoadStringW(hInstance, IDC_COLORPICKER, szWindowClass, MAX_LOADSTRING);

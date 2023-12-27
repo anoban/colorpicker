@@ -14,13 +14,14 @@
     #include <cstdint>
     #include <cstdlib>
 
+    #include <dwmapi.h> // Desktop Window Manager header, implements dark mode features.
     #include <malloc.h>
     #include <memory.h>
     #include <SDKDDKVer.h>
+    #include <strsafe.h>
     #include <tchar.h>
     #include <windows.h>
-    #include <dwmapi.h>     // Desktop Window Manager header, implements dark mode features.
-    
+
     #pragma comment(lib, "Dwmapi.lib")
     #pragma comment(lib, "Gdi32.lib")
     #pragma comment(lib, "User32.lib")

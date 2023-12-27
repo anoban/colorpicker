@@ -1,8 +1,8 @@
 #include <colorpicker.hpp>
 
-extern HINSTANCE hInst;
-extern INT32     idFocus;
-extern WNDPROC          oldScroll[3];
+extern HINSTANCE                               hInst;
+extern INT32                                   idFocus;
+extern WNDPROC                                 oldScroll[3];
 
 [[nodiscard, msvc::noinline]] LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     INT64 iId = ::GetWindowLongPtrW(hWnd, GWLP_ID);
@@ -17,32 +17,35 @@ extern WNDPROC          oldScroll[3];
 }
 
 [[nodiscard, msvc::noinline]] LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    
-    static COLORREF     crPrim[3] { RGB(32, 32, 32), RGB(32, 32, 32), RGB(32, 32, 32) };
-    static COLORREF     crTitleBar { RGB(32, 32, 32) };
-    static HBRUSH       hBrush[3] {}, hStaticBrush {};
-    static HWND         hwndScroll[3] {} /* scroll bars */, hwndLabel[3] {} /* labels */, hwndValue[3] {} /* label texts */, hwndRect {} /* the main window */;
-    static HWND         hwndTextBox {};
-    static INT32        color[3] {}, cyChar {};
-    static RECT         rcColor {};
-    static const WCHAR* wszColorLabel[] { L"Red", L"Green", L"Blue" };
-
-    HINSTANCE           hInstance {};
-    INT64               i {}, cxClient {}, cyClient {};
-    WCHAR               wszBuffer[5] {};
+    static COLORREF crPrim[3] { RGB(32, 32, 32), RGB(32, 32, 32), RGB(32, 32, 32) };
+    static COLORREF crTitleBar { RGB(32, 32, 32) };
+    static HBRUSH   hBrush[3] {}, hStaticBrush {};
+    static HWND     hwndScroll[3] {} /* scroll bars */, hwndLabel[3] {} /* labels */, hwndValue[3] {} /* label texts */,
+        hwndRect {} /* the main window */;
+    static HWND                   hwndTextBox {};
+    static INT32                  color[3] {}, cyChar {};
+    static RECT                   rcColor {};
+    static constexpr const WCHAR* wszColorLabel[] { L"Red", L"Green", L"Blue" };
+    static WCHAR                  pswzHexColour[8] {};
+    // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
+    static constexpr LOGFONT      lfFontAttrs {};
+    static const HFONT            hFont { CreateFontIndirectW(&lfFontAttrs) };
+    HINSTANCE                     hInstance {};
+    INT64                         i {}, cxClient {}, cyClient {};
+    WCHAR                         wszBuffer[8] {};
 
     switch (message) {
         case WM_CREATE :
             {
                 hInstance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
                 ::SetMenu(hWnd, nullptr); // hide the menu bar
-                
-                BOOL bUseDarkMode = TRUE;       // make the title bar 
-                // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
-                DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
-                DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));                
 
-                hwndRect  = ::CreateWindowExW(
+                BOOL bUseDarkMode = TRUE; // make the title bar
+                // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
+                ::DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
+                ::DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
+
+                hwndRect = ::CreateWindowExW(
                     0L,
                     L"static",
                     nullptr,
@@ -59,13 +62,13 @@ extern WNDPROC          oldScroll[3];
 
                 hwndTextBox = ::CreateWindowExW(
                     WS_EX_CLIENTEDGE,
-                    L"listbox",
+                    L"edit",
                     nullptr,
-                    WS_CHILD | WS_VISIBLE | WS_BORDER| WS_OVERLAPPED,
-                    100,
+                    WS_CHILD | WS_VISIBLE | WS_BORDER | WS_OVERLAPPED,
+                    300,
                     10,
-                    200,
-                    20,
+                    100,
+                    22,
                     hWnd,
                     reinterpret_cast<HMENU>(10),
                     hInstance,
@@ -77,7 +80,7 @@ extern WNDPROC          oldScroll[3];
                         0L,
                         L"scrollbar",
                         nullptr,
-                        WS_CHILD | WS_VISIBLE | SBS_VERT| WS_TABSTOP,
+                        WS_CHILD | WS_VISIBLE | SBS_VERT | WS_TABSTOP,
                         0,
                         0,
                         0,
@@ -126,7 +129,7 @@ extern WNDPROC          oldScroll[3];
                         GWLP_WNDPROC,
                         reinterpret_cast<
                             uintptr_t /* Petzold's example uses a LONG (4 bytes) here, that throws an access violation SEH in x64 */>(
-                            ScrollHandler
+                            ::ScrollHandler
                         )
                     ));
                     hBrush[i]    = ::CreateSolidBrush(crPrim[i]);
@@ -160,7 +163,7 @@ extern WNDPROC          oldScroll[3];
                 break;
             }
 
-        case WM_VSCROLL :   // when the vertical scroll bars are moved
+        case WM_VSCROLL : // when the vertical scroll bars are moved
             {
                 i = ::GetWindowLongPtrW(reinterpret_cast<HWND>(lParam), GWLP_ID);
 
@@ -178,18 +181,40 @@ extern WNDPROC          oldScroll[3];
                     }
 
                 ::SetScrollPos(hwndScroll[i], SB_CTL, color[i], TRUE);
-                ::wsprintfW(wszBuffer, L"%3d", color[i]);
+                ::StringCbPrintfExW(
+                    wszBuffer,
+                    sizeof(wszBuffer),
+                    reinterpret_cast<STRSAFE_LPWSTR*>(wszBuffer + 8),
+                    nullptr,
+                    STRSAFE_FILL_ON_FAILURE | STRSAFE_FILL_BEHIND_NULL,
+                    L"%03d",
+                    color[i]
+                );
                 ::SetWindowTextW(hwndValue[i], wszBuffer);
-                ::DeleteObject(reinterpret_cast<HBRUSH>(
-                    ::SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(::CreateSolidBrush(RGB(color[0], color[1], color[2]))))
-                ));
+                ::DeleteObject(reinterpret_cast<HBRUSH>(::SetClassLongPtrW(
+                    hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(::CreateSolidBrush(RGB(color[0], color[1], color[2])))
+                )));
 
                 crTitleBar = RGB(color[0], color[1], color[2]);
                 // DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
                 // the line above colours the borders, not the complete title bar.
 
-                // colours the title bar 
-                DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crTitleBar, sizeof(COLORREF));
+                // colours the title bar
+                ::DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crTitleBar, sizeof(COLORREF));
+
+                // update the hex colour code
+                ::StringCbPrintfExW(
+                    pswzHexColour,
+                    sizeof(pswzHexColour) /* in bytes */,
+                    reinterpret_cast<STRSAFE_LPWSTR*>(pswzHexColour + 8) /* end of buffer */,
+                    nullptr,
+                    STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
+                    L"#%02X%02X%02X",
+                    color[0],
+                    color[1],
+                    color[2]
+                );
+                ::SetWindowTextW(hwndTextBox, pswzHexColour);
 
                 ::InvalidateRect(hWnd, &rcColor, TRUE);
                 break;
@@ -200,9 +225,8 @@ extern WNDPROC          oldScroll[3];
                 int wmId = LOWORD(wParam);
                 // Parse the menu selections:
                 switch (wmId) {
-                    case IDM_EXIT  : ::DestroyWindow(hWnd);
-                        break;
-                    default        : break;
+                    case IDM_EXIT : ::DestroyWindow(hWnd); break;
+                    default       : break;
                 }
                 break;
             }
