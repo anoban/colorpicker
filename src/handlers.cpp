@@ -20,27 +20,26 @@ extern WNDPROC                                 oldScroll[3];
     static COLORREF crPrim[3] { RGB(32, 32, 32), RGB(32, 32, 32), RGB(32, 32, 32) };
     static COLORREF crTitleBar { RGB(32, 32, 32) };
     static HBRUSH   hBrush[3] {}, hStaticBrush {};
-    static HWND     hwndScroll[3] {} /* scroll bars */, hwndLabel[3] {} /* labels */, hwndValue[3] {} /* label texts */,
-        hwndRect {} /* the main window */;
-    static HWND                   hwndTextBox {};
-    static INT32                  color[3] {}, cyChar {};
-    static RECT                   rcColor {};
+    static HWND     hwndScroll[3] {} /* scroll bars */, hwndLabel[3] {} /* labels */, hwndValue[3] {} /* label texts */, hwndRect {};
+    static HWND     hwndTextBox {};
+    static INT32    color[3] {}, cyChar {};
+    static RECT     rcColor {};
     static constexpr const WCHAR* wszColorLabel[] { L"Red", L"Green", L"Blue" };
-    static WCHAR                  pswzHexColour[8] {};
+    static WCHAR                  pswzHexColour[8] {};  // needs to be in the static memory since these are used even wehn the callback isn't invoked
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
     static constexpr LOGFONT      lfFontAttrs {};
     static const HFONT            hFont { CreateFontIndirectW(&lfFontAttrs) };
     HINSTANCE                     hInstance {};
     INT64                         i {}, cxClient {}, cyClient {};
-    WCHAR                         wszBuffer[8] {};
+    static WCHAR                  wszBuffer[8] {};   // needs to be in the static memory since these are used even wehn the callback isn't invoked
+    static constexpr BOOL         bUseDarkMode = TRUE; // make the title bar
 
     switch (message) {
         case WM_CREATE :
             {
                 hInstance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
-                ::SetMenu(hWnd, nullptr); // hide the menu bar
+                ::SetMenu(hWnd, nullptr);              // hide the menu bar
 
-                BOOL bUseDarkMode = TRUE; // make the title bar
                 // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
                 ::DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
                 ::DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
@@ -183,7 +182,7 @@ extern WNDPROC                                 oldScroll[3];
                 ::SetScrollPos(hwndScroll[i], SB_CTL, color[i], TRUE);
                 ::StringCbPrintfExW(
                     wszBuffer,
-                    sizeof(wszBuffer),
+                    sizeof(wszBuffer), // in bytes
                     reinterpret_cast<STRSAFE_LPWSTR*>(wszBuffer + 8),
                     nullptr,
                     STRSAFE_FILL_ON_FAILURE | STRSAFE_FILL_BEHIND_NULL,
@@ -197,7 +196,7 @@ extern WNDPROC                                 oldScroll[3];
 
                 crTitleBar = RGB(color[0], color[1], color[2]);
                 // DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
-                // the line above colours the borders, not the complete title bar.
+                // the line above colours the window borders, not the complete title bar.
 
                 // colours the title bar
                 ::DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crTitleBar, sizeof(COLORREF));
