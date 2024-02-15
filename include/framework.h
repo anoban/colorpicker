@@ -17,6 +17,7 @@
     #include <stdint.h>
     #include <stdlib.h>
     #include <strsafe.h>
+    #include <math.h>
     #include <tchar.h>
     #include <windows.h>
 

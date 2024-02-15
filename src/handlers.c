@@ -29,7 +29,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     static WCHAR   pswzHexColour[8] = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
     static LOGFONT lfFontAttrs      = { 0 };
-    static const HFONT hFont        = CreateFontIndirectW(&lfFontAttrs);
+    const HFONT hFont        = CreateFontIndirectW(&lfFontAttrs);
     HINSTANCE          hInstance    = { 0 };
     INT64              i = 0, cxClient = 0, cyClient = 0;
     static WCHAR       wszBuffer[8] = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
@@ -145,13 +145,13 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
                 switch
                     LOWORD(wParam) {
-                        case SB_PAGEDOWN      : color[i] += 20; [[fallthrough]];
-                        case SB_LINEDOWN      : color[i] = stdmin<INT32>(255, color[i] + 1); break;
-                        case SB_PAGEUP        : color[i] -= 20; [[fallthrough]];
-                        case SB_LINEUP        : color[i] = stdmax(0, color[i] - 1); break;
+                        case SB_PAGEDOWN      : color[i] += 20; // fallthrough
+                        case SB_LINEDOWN      : color[i] = min(255, color[i] + 1); break;
+                        case SB_PAGEUP        : color[i] -= 20; // fallthrough;
+                        case SB_LINEUP        : color[i] = max(0, color[i] - 1); break;
                         case SB_TOP           : color[i] = 0; break;
                         case SB_BOTTOM        : color[i] = 255; break;
-                        case SB_THUMBPOSITION : [[fallthrough]];
+                        case SB_THUMBPOSITION : // fallthrough
                         case SB_THUMBTRACK    : color[i] = HIWORD(wParam); break;
                         default               : break;
                     }
