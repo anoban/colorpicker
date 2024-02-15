@@ -1,6 +1,6 @@
-#include <colorpicker.hpp>
+#include <colorpicker.h>
 
-constexpr std::size_t MAX_LOADSTRING { 100 };
+const size_t MAX_LOADSTRING =100 ;
 
 HINSTANCE             hInst {};                         // current instance
 WCHAR                 szTitle[MAX_LOADSTRING] {};       // The title bar text

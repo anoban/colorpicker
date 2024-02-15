@@ -10,14 +10,12 @@
 // If you wish to build your application for a previous Windows platform, include WinSDKVer.h and
 // set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
 
-    #include <algorithm>
-    #include <cstdint>
-    #include <cstdlib>
-
     #include <dwmapi.h> // Desktop Window Manager header, implements dark mode features.
     #include <malloc.h>
     #include <memory.h>
     #include <SDKDDKVer.h>
+    #include <stdint.h>
+    #include <stdlib.h>
     #include <strsafe.h>
     #include <tchar.h>
     #include <windows.h>

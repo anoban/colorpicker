@@ -3,4 +3,4 @@
     And loading these custom settings at startup.
 */
 
-#include <colorpicker.hpp>
+#include <colorpicker.h>

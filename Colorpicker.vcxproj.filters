@@ -28,13 +28,13 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\handlers.cpp">
+    <ClCompile Include="src\handlers.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\settings.cpp">
+    <ClCompile Include="src\settings.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,13 +47,13 @@
     </Xml>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\colorpicker.hpp">
+    <ClInclude Include="include\colorpicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\framework.hpp">
+    <ClInclude Include="include\framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\resource.hpp">
+    <ClInclude Include="include\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

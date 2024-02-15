@@ -2,8 +2,8 @@
 #ifndef __COLORPICKER_H__
     #define __COLORPICKER_H__
 
-    #include <framework.hpp>
-    #include <resource.hpp>
+    #include <framework.h>
+    #include <resource.h>
 
 // prototypes of procs in handlers.cpp
 
