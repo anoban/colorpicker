@@ -1,16 +1,16 @@
 #include <colorpicker.h>
 
-const size_t MAX_LOADSTRING =100 ;
+#define MAX_LOADSTRING 100LLU
 
-HINSTANCE             hInst {};                         // current instance
-WCHAR                 szTitle[MAX_LOADSTRING] {};       // The title bar text
-WCHAR                 szWindowClass[MAX_LOADSTRING] {}; // the main window class name
+HINSTANCE hInst                         = { 0 }; // current instance
+WCHAR     szTitle[MAX_LOADSTRING]       = { 0 }; // The title bar text
+WCHAR     szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
 
-INT32                 idFocus {};
-WNDPROC               oldScroll[3] {};
+INT32     idFocus                       = 0;
+WNDPROC   oldScroll[3]                  = { 0 };
 
-[[msvc::forceinline]] static ATOM __stdcall RegisterWindowClassExtW(HINSTANCE hInstance) noexcept {
-    WNDCLASSEXW wcex {};
+static ATOM __stdcall RegisterWindowClassExtW(HINSTANCE hInstance) {
+    WNDCLASSEXW wcex   = { 0 };
 
     wcex.cbSize        = sizeof(WNDCLASSEX);
     wcex.style         = CS_HREDRAW | CS_VREDRAW;
@@ -19,19 +19,19 @@ WNDPROC               oldScroll[3] {};
     wcex.cbWndExtra    = 0;
     wcex.hInstance     = hInstance;
     wcex.hIcon         = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_COLORPICKER));
-    wcex.hCursor       = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground = ::CreateSolidBrush(COLOR_WINDOW);
+    wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = CreateSolidBrush(COLOR_WINDOW);
     wcex.lpszMenuName  = MAKEINTRESOURCEW(IDC_COLORPICKER);
     wcex.lpszClassName = szWindowClass;
     wcex.hIconSm       = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-    return ::RegisterClassExW(&wcex);
+    return RegisterClassExW(&wcex);
 }
 
-[[msvc::forceinline]] static BOOL __stdcall InitInstance(HINSTANCE hInstance, int nCmdShow) noexcept {
+static BOOL __stdcall InitInstance(HINSTANCE hInstance, int nCmdShow) {
     hInst     = hInstance; // Store instance handle in our global variable
 
-    HWND hWnd = ::CreateWindowExW(
+    HWND hWnd = CreateWindowExW(
         WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_APPWINDOW | WS_EX_DLGMODALFRAME,
         szWindowClass,
         szTitle,
@@ -40,16 +40,16 @@ WNDPROC               oldScroll[3] {};
         CW_USEDEFAULT,
         470,
         240,
-        nullptr,
-        nullptr,
+        NULL,
+        NULL,
         hInstance,
-        nullptr
+        NULL
     );
 
     if (!hWnd) return FALSE;
 
-    ::ShowWindow(hWnd, nCmdShow);
-    ::UpdateWindow(hWnd);
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
 
     return TRUE;
 }
@@ -58,22 +58,22 @@ int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance, _In_opt_ [[maybe_unused]] HINSTANCE hPrevInstance, _In_ [[maybe_unused]] LPWSTR lpCmdLine, _In_ int nCmdShow
 ) {
     // Initialize global strings
-    ::LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    ::LoadStringW(hInstance, IDC_COLORPICKER, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_COLORPICKER, szWindowClass, MAX_LOADSTRING);
     RegisterWindowClassExtW(hInstance);
 
     // Perform application initialization:
-    if (!::InitInstance(hInstance, nCmdShow)) return FALSE;
+    if (!InitInstance(hInstance, nCmdShow)) return FALSE;
 
-    HACCEL hAccelTable = ::LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_COLORPICKER));
+    HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_COLORPICKER));
 
     MSG    msg;
 
     // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        if (!::TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg)) {
-            ::TranslateMessage(&msg);
-            ::DispatchMessageW(&msg);
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg)) {
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
         }
     }
 

@@ -141,7 +141,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
         case WM_VSCROLL : // when the vertical scroll bars are moved
             {
-                i = GetWindowLongPtrW(reinterpret_cast<HWND>(lParam), GWLP_ID);
+                i = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
 
                 switch
                     LOWORD(wParam) {
@@ -160,16 +160,16 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 StringCbPrintfExW(
                     wszBuffer,
                     sizeof(wszBuffer), // in bytes
-                    reinterpret_cast<STRSAFE_LPWSTR*>(wszBuffer + 8),
+                    (STRSAFE_LPWSTR*) (wszBuffer + 8),
                     NULL,
                     STRSAFE_FILL_ON_FAILURE | STRSAFE_FILL_BEHIND_NULL,
                     L"%03d",
                     color[i]
                 );
                 SetWindowTextW(hwndValue[i], wszBuffer);
-                DeleteObject(reinterpret_cast<HBRUSH>(SetClassLongPtrW(
-                    hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(CreateSolidBrush(RGB(color[0], color[1], color[2])))
-                )));
+                DeleteObject(
+                    (HBRUSH) (SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, (uintptr_t) (CreateSolidBrush(RGB(color[0], color[1], color[2])))))
+                );
 
                 crTitleBar = RGB(color[0], color[1], color[2]);
                 // DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
@@ -182,7 +182,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 StringCbPrintfExW(
                     pswzHexColour,
                     sizeof(pswzHexColour) /* in bytes */,
-                    reinterpret_cast<STRSAFE_LPWSTR*>(pswzHexColour + 8) /* end of buffer */,
+                    (STRSAFE_LPWSTR*) (pswzHexColour + 8) /* end of buffer */,
                     NULL,
                     STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
                     L"#%02X%02X%02X",
@@ -209,9 +209,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
         case WM_DESTROY :
             {
-                DeleteObject(reinterpret_cast<HBRUSH>(
-                    SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, reinterpret_cast<uintptr_t>(GetStockObject(WHITE_BRUSH)))
-                ));
+                DeleteObject((HBRUSH) (SetClassLongPtrW(hWnd, GCLP_HBRBACKGROUND, (uintptr_t) (GetStockObject(WHITE_BRUSH)))));
                 DeleteObject(hStaticBrush);
 
                 for (i = 0; i < 3; ++i) DeleteObject(hBrush[i]);
