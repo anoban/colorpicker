@@ -1,5 +1,6 @@
 #include <colorpicker.h>
 
+// referencing globals defined in main.c
 extern HINSTANCE hInst;
 extern INT32     idFocus;
 extern WNDPROC   oldScroll[3];
@@ -29,17 +30,17 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     static WCHAR   pswzHexColour[8] = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
     static LOGFONT lfFontAttrs      = { 0 };
-    const HFONT hFont        = CreateFontIndirectW(&lfFontAttrs);
-    HINSTANCE          hInstance    = { 0 };
-    INT64              i = 0, cxClient = 0, cyClient = 0;
-    static WCHAR       wszBuffer[8] = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
-    static const BOOL  bUseDarkMode = TRUE;  // make the title bar
+    const HFONT    hFont            = CreateFontIndirectW(&lfFontAttrs);
+    HINSTANCE      hInstance        = { 0 };
+    INT64          i = 0, cxClient = 0, cyClient = 0;
+    static WCHAR   wszBuffer[8]    = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
+    static const BOOL bUseDarkMode = TRUE;  // make the title bar
 
     switch (message) {
         case WM_CREATE :
             {
                 hInstance = (HINSTANCE) (GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
-                SetMenu(hWnd, NULL);         // hide the menu bar
+                SetMenu(hWnd, NULL);        // hide the menu bar
 
                 // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
                 DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
@@ -139,7 +140,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 break;
             }
 
-        case WM_VSCROLL : // when the vertical scroll bars are moved
+        case WM_VSCROLL :                                       // when the vertical scroll bars are moved
             {
                 i = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
 
@@ -151,7 +152,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         case SB_LINEUP        : color[i] = max(0, color[i] - 1); break;
                         case SB_TOP           : color[i] = 0; break;
                         case SB_BOTTOM        : color[i] = 255; break;
-                        case SB_THUMBPOSITION : // fallthrough
+                        case SB_THUMBPOSITION :                 // fallthrough
                         case SB_THUMBTRACK    : color[i] = HIWORD(wParam); break;
                         default               : break;
                     }

@@ -7,11 +7,10 @@ WCHAR     szTitle[MAX_LOADSTRING]       = { 0 }; // The title bar text
 WCHAR     szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
 
 INT32     idFocus                       = 0;
-WNDPROC   oldScroll[3]                  = { 0 };
+WNDPROC   oldScroll[3]                  = { 0 };    // function pointers
 
 static ATOM __stdcall RegisterWindowClassExtW(HINSTANCE hInstance) {
     WNDCLASSEXW wcex   = { 0 };
-
     wcex.cbSize        = sizeof(WNDCLASSEX);
     wcex.style         = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc   = WindowHandler;
@@ -54,9 +53,7 @@ static BOOL __stdcall InitInstance(HINSTANCE hInstance, int nCmdShow) {
     return TRUE;
 }
 
-int APIENTRY wWinMain(
-    _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow
-) {
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_COLORPICKER, szWindowClass, MAX_LOADSTRING);

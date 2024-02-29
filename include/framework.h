@@ -12,14 +12,14 @@
 
     #include <dwmapi.h> // Desktop Window Manager header, implements dark mode features.
     #include <malloc.h>
+    #include <math.h>
     #include <memory.h>
     #include <SDKDDKVer.h>
     #include <stdint.h>
     #include <stdlib.h>
     #include <strsafe.h>
-    #include <math.h>
     #include <tchar.h>
-    #include <windows.h>
+    #include <Windows.h>
 
     #pragma comment(lib, "Dwmapi.lib")
     #pragma comment(lib, "Gdi32.lib")
