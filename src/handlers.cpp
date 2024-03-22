@@ -1,4 +1,4 @@
-#include <colorpicker.h>
+#include <colorpicker.hpp>
 #define VSPACE_TRACKBARS 30LLU // space the track bars at this vertical distances
 
 // globals defined in main.c
@@ -176,9 +176,9 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 switch
                     LOWORD(wParam) {
                         case SB_PAGEDOWN      : color[i] += 20; // fallthrough
-                        case SB_LINEDOWN      : color[i] = min(255, color[i] + 1); break;
+                        case SB_LINEDOWN      : color[i] = std::min<int>(255, color[i] + 1); break;
                         case SB_PAGEUP        : color[i] -= 20; // fallthrough;
-                        case SB_LINEUP        : color[i] = max(0, color[i] - 1); break;
+                        case SB_LINEUP        : color[i] = std::max<int>(0, color[i] - 1); break;
                         case SB_TOP           : color[i] = 0; break;
                         case SB_BOTTOM        : color[i] = 255; break;
                         case SB_THUMBPOSITION :                 // fallthrough

@@ -26,9 +26,8 @@
     <ResourceCompile Include="resources\Colorpicker.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\handlers.c" />
-    <ClCompile Include="src\main.c" />
-    <ClCompile Include="src\settings.c" />
+    <ClCompile Include="src\handlers.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -37,9 +36,8 @@
     <Xml Include="resources\colorpicker.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\colorpicker.h" />
-    <ClInclude Include="include\framework.h" />
-    <ClInclude Include="include\resource.h" />
+    <ClInclude Include="include\colorpicker.hpp" />
+    <ClInclude Include="include\resource.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -146,7 +144,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointExceptions>true</FloatingPointExceptions>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
@@ -168,7 +166,7 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions512</EnableEnhancedInstructionSet>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>None</DebugInformationFormat>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

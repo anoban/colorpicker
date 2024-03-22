@@ -1,4 +1,4 @@
-#include <colorpicker.h>
+#include <colorpicker.hpp>
 
 #define MAX_LOADSTRING 100LLU
 
