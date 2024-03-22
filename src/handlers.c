@@ -1,10 +1,12 @@
 #include <colorpicker.h>
+#define VSPACE_TRACKBARS 30LLU // space the track bars at this vertical distances
 
-// referencing globals defined in main.c
+// globals defined in main.c
 extern HINSTANCE hInst;
 extern INT32     idFocus;
 extern WNDPROC   oldScroll[3];
 
+// callback that handles movements of the slider on the track bar
 LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     INT64 iId = GetWindowLongPtrW(hWnd, GWLP_ID);
     switch (message) {
@@ -21,19 +23,34 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     static COLORREF crPrim[3]  = { RGB(32, 32, 32), RGB(32, 32, 32), RGB(32, 32, 32) };
     static COLORREF crTitleBar = { RGB(32, 32, 32) };
     static HBRUSH   hBrush[3] = { 0 }, hStaticBrush = { 0 };
-    static HWND     hwndScroll[3] = { 0 } /* scroll bars */, hwndLabel[3] = { 0 } /* labels */, hwndValue[3] = { 0 } /* label texts */,
-                hwndRect            = { 0 };
-    static HWND         hwndTextBox = { 0 };
+    static HWND     hwndTrack[3] = { 0 } /* track bars */, hwndLabel[3] = { 0 } /* track bar labels */,
+                hwndValue[3] = { 0 } /* track bar label texts */, hwndRect = { 0 };
+    static HWND         hwndTextBox = { 0 };  // the text box that shows the hex representation of the RGB colour of choice
     static INT32        color[3] = { 0 }, cyChar = 0;
     static RECT         rcColor         = { 0 };
     static const WCHAR* wszColorLabel[] = { L"Red", L"Green", L"Blue" };
-    static WCHAR   pswzHexColour[8] = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
+    static WCHAR pswzHexColour[8]    = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
+
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
-    static LOGFONT lfFontAttrs      = { 0 };
-    const HFONT    hFont            = CreateFontIndirectW(&lfFontAttrs);
-    HINSTANCE      hInstance        = { 0 };
-    INT64          i = 0, cxClient = 0, cyClient = 0;
-    static WCHAR   wszBuffer[8]    = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
+    static const LOGFONTW lfFontLato = { .lfHeight         = 0, // font mapper uses a default height value when it searches for a match.
+                                         .lfWidth          = 0,
+                                         .lfEscapement     = 0,
+                                         .lfOrientation    = 0,
+                                         .lfWeight         = FW_MEDIUM,
+                                         .lfItalic         = FALSE,
+                                         .lfUnderline      = FALSE,
+                                         .lfStrikeOut      = FALSE,
+                                         .lfCharSet        = ANSI_CHARSET,
+                                         .lfOutPrecision   = OUT_TT_PRECIS,
+                                         .lfClipPrecision  = CLIP_DEFAULT_PRECIS,
+                                         .lfQuality        = ANTIALIASED_QUALITY,
+                                         .lfPitchAndFamily = VARIABLE_PITCH | FF_SWISS,
+                                         .lfFaceName       = L"Lato" }; // assumes Lato is installed on the system
+    const HFONT           hFont      = CreateFontIndirectW(&lfFontLato);
+
+    HINSTANCE             hInstance  = { 0 };
+    INT32                 i = 0, cxClient = 0, cyClient = 0;
+    static WCHAR      wszBuffer[8] = { 0 }; // needs to be in the static memory since these are used even wehn the callback isn't invoked
     static const BOOL bUseDarkMode = TRUE;  // make the title bar
 
     switch (message) {
@@ -56,9 +73,9 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     NULL,
                     WS_CHILD | WS_VISIBLE | WS_BORDER | WS_OVERLAPPED,
                     300,
-                    10,
+                    150,
                     100,
-                    22,
+                    30, // 30 looks good with Lato
                     hWnd,
                     (HMENU) (10),
                     hInstance,
@@ -66,45 +83,52 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 );
 
                 for (i = 0; i < 3; ++i) {
-                    hwndScroll[i] = CreateWindowExW(
+                    hwndTrack[i] = CreateWindowExW(
                         0L,
-                        L"scrollbar",
+                        TRACKBAR_CLASSW, // horizontal track bar (WinGDI calls horizontal bars with a tracking cursor track bars)
                         NULL,
-                        WS_CHILD | WS_VISIBLE | SBS_VERT | WS_TABSTOP,
+                        WS_CHILD | WS_VISIBLE | TBS_FIXEDLENGTH | TBS_NOTICKS,
                         0,
-                        0,
-                        0,
-                        0,
+                        i * VSPACE_TRACKBARS,
+                        150,
+                        25,
                         hWnd,
-                        (HMENU) (i),
+                        (HMENU) i,
                         hInstance,
                         NULL
                     );
 
-                    SetScrollRange(hwndScroll[i], SB_CTL, 0, 255, FALSE);
-                    SetScrollPos(hwndScroll[i], SB_CTL, 0, FALSE);
+                    SendMessageW(hwndTrack[i], TBM_SETRANGE, TRUE, MAKELONG(0, 255));
+                    SendMessageW(hwndTrack[i], TBM_SETPAGESIZE, 0, 20);
+                    SendMessageW(hwndTrack[i], TBM_SETTICFREQ, 20, 0);
+                    SendMessageW(hwndTrack[i], TBM_SETPOS, TRUE, 150);
 
-                    hwndLabel[i] = CreateWindowExW(
-                        0L,
-                        L"static",
-                        wszColorLabel[i],
-                        WS_CHILD | WS_VISIBLE | SS_CENTER,
-                        0,
-                        0,
-                        0,
-                        0,
-                        hWnd,
-                        (HMENU) (i + 3),
-                        hInstance,
-                        NULL
-                    );
+                    // SetScrollRange(hwndScroll[i], SB_CTL, 0, 255, FALSE);
+                    // SetScrollPos(hwndScroll[i], SB_CTL, 0, FALSE);
 
-                    hwndValue[i] = CreateWindowExW(
-                        0L, L"static", L"0", WS_CHILD | WS_VISIBLE | SS_CENTER, 0, 0, 0, 0, hWnd, (HMENU) (i + 6), hInstance, NULL
-                    );
+                    // hwndLabel[i] = CreateWindowExW(
+                    //     0L,
+                    //     L"static",
+                    //     wszColorLabel[i],
+                    //     WS_CHILD | WS_VISIBLE | SS_CENTER,
+                    //     0,
+                    //     0,
+                    //     0,
+                    //     30,
+                    //     hWnd,
+                    //     (HMENU) (i + 3),
+                    //     hInstance,
+                    //     NULL
+                    // );
+
+                    // hwndValue[i] = CreateWindowExW(
+                    //     0L, L"static", L"0", WS_CHILD | WS_VISIBLE | SS_CENTER, 0, 0, 0, 30, hWnd, (HMENU) (i + 6), hInstance, NULL
+                    // );
+
+                    SendMessageW(hwndValue[i], WM_SETFONT, (WPARAM) hFont, TRUE);
 
                     oldScroll[i] = (WNDPROC) (SetWindowLongPtrW(
-                        hwndScroll[i],
+                        hwndTrack[i],
                         GWLP_WNDPROC,
                         (uintptr_t /* Petzold's example uses a LONG (4 bytes) here, that throws an access violation SEH in x64 */)
                             ScrollHandler
@@ -114,6 +138,11 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
                 hStaticBrush = CreateSolidBrush(GetSysColor(COLOR_BTNHIGHLIGHT));
                 cyChar       = HIWORD(GetDialogBaseUnits());
+
+                // immediately after the window creation, we nned to change the font, this must be done after the corresponding GDI windows
+                // have been drawn to the screen
+                SendMessageW(hwndTextBox, WM_SETFONT, (WPARAM) hFont, TRUE);
+
                 break;
             }
 
@@ -125,7 +154,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 SetRect(&rcColor, 0, 0, cxClient, cyClient);
 
                 for (i = 0; i < 3; ++i) {
-                    MoveWindow(hwndScroll[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
+                    MoveWindow(hwndTrack[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
                     MoveWindow(hwndLabel[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
                     MoveWindow(hwndValue[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
                 }
@@ -136,11 +165,11 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
         case WM_SETFOCUS :
             {
-                SetFocus(hwndScroll[idFocus]);
+                SetFocus(hwndTrack[idFocus]);
                 break;
             }
 
-        case WM_VSCROLL :                                       // when the vertical scroll bars are moved
+        case WM_HSCROLL :                                       // when the vertical scroll bars are moved
             {
                 i = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
 
@@ -157,7 +186,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         default               : break;
                     }
 
-                SetScrollPos(hwndScroll[i], SB_CTL, color[i], TRUE);
+                SetScrollPos(hwndTrack[i], SB_CTL, color[i], TRUE);
                 StringCbPrintfExW(
                     wszBuffer,
                     sizeof(wszBuffer), // in bytes

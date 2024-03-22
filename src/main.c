@@ -7,7 +7,7 @@ WCHAR     szTitle[MAX_LOADSTRING]       = { 0 }; // The title bar text
 WCHAR     szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
 
 INT32     idFocus                       = 0;
-WNDPROC   oldScroll[3]                  = { 0 };    // function pointers
+WNDPROC   oldScroll[3]                  = { 0 }; // function pointers
 
 static ATOM __stdcall RegisterWindowClassExtW(HINSTANCE hInstance) {
     WNDCLASSEXW wcex   = { 0 };
@@ -67,7 +67,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     MSG    msg;
 
     // Main message loop:
-    while (GetMessage(&msg, NULL, 0, 0)) {
+    while (GetMessageW(&msg, NULL, 0, 0)) {
         if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg)) {
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
