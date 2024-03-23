@@ -1,7 +1,19 @@
 #include <colorpicker.h>
 
-#define VSPACE_TRACKBARS 50LLU // space subsequent track bars at this vertical distances
-#define NTRACKBARS       3     // number of track bars used in the application
+#define VSPACE_TRACKBARS             40LLU // space subsequent track bars at this vertical distances
+#define NTRACKBARS                   3     // number of track bars used in the application
+
+#define TRACKBAR_WIDTH               200LLU
+#define TRACKBAR_HEIGHT              25LLU
+#define TRACKBAR_LEFTPAD             20LLU
+#define TRACKBARGRID_VERTICAL_MARGIN 85LLU
+
+#define TRACKBAR_LABEL_LEFTPAD       20LLU
+#define TRACKBAR_LABEL_WIDTH         50LLU
+#define TRACKBAR_LABEL_HEIGHT        30LLU
+
+#define HEXSTRING_TEXTBOX_WIDTH      120LLU
+#define HEXSTRING_TEXTBOX_HEIGHT     30LLU
 
 // globals defined in main.c
 extern HINSTANCE hApplicationInst;
@@ -23,53 +35,48 @@ LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    static COLORREF           crPrim[3];
-    static COLORREF           crefTitleBar; // color of the title bar
+    static COLORREF       crPrim[3];
+    static COLORREF       crefTitleBar; // color of the title bar
 
-    static HBRUSH             hBrush[3], hStaticBrush;
+    static HBRUSH         hBrush[3], hStaticBrush;
 
-    static HWND               hTrackBars[NTRACKBARS];         // track bars
-    static HWND               hTrackBarLabel[NTRACKBARS];     // track bar labels
-    static HWND               hTrackBarLabelText[NTRACKBARS]; // track bar label texts
-    static HWND               hTextBox;                       // the text box that shows the hex representation of the RGB colour of choice
+    static HWND           hTrackBars[NTRACKBARS];     // track bars
+    static HWND           hTrackBarLabel[NTRACKBARS]; // track bar labels
+    static HWND           hTextBox;                   // the text box that shows the hex representation of the RGB colour of choice
 
     // iTrackBarCaret is an array of
-    static INT32              iTrackBarCaret[NTRACKBARS], cyChar;
-    static RECT               rcColor;
-
-    // names for the three track bars
-    static const WCHAR* const wszColorLabel[] = { L"Red", L"Green", L"Blue" };
+    static INT32          iTrackBarCaret[NTRACKBARS], cyChar;
+    static RECT           rcColor;
 
     // needs to be in the static memory since these are used even when this callback isn't invoked
-    static WCHAR              wszHexColourString[8]; // the hex string shown inside the text box
+    static WCHAR          wszHexColourString[8]; // the hex string shown inside the text box
 
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
     // defining a logical font object to override the fugly default font
-    static const LOGFONTW     lfFontLato = { .lfHeight         = 0, // font mapper uses a default height value when it searches for a match.
-                                             .lfWidth          = 0,
-                                             .lfEscapement     = 0,
-                                             .lfOrientation    = 0,
-                                             .lfWeight         = FW_MEDIUM, // medium font weight
-                                             .lfItalic         = FALSE,
-                                             .lfUnderline      = FALSE,
-                                             .lfStrikeOut      = FALSE,
-                                             .lfCharSet        = ANSI_CHARSET, // we don't need any non-ASCII alphabets, so
-                                             .lfOutPrecision   = OUT_TT_PRECIS,
-                                             .lfClipPrecision  = CLIP_DEFAULT_PRECIS,
-                                             .lfQuality        = ANTIALIASED_QUALITY,
-                                             .lfPitchAndFamily = VARIABLE_PITCH | FF_SWISS,
-                                             .lfFaceName       = L"Lato" }; // assumes Lato is installed on the system
+    static const LOGFONTW lfFontLato = { .lfHeight         = 0, // font mapper uses a default height value when it searches for a match.
+                                         .lfWidth          = 0,
+                                         .lfEscapement     = 0,
+                                         .lfOrientation    = 0,
+                                         .lfWeight         = FW_BOLD, // bold font weight
+                                         .lfItalic         = FALSE,
+                                         .lfUnderline      = FALSE,
+                                         .lfStrikeOut      = FALSE,
+                                         .lfCharSet        = ANSI_CHARSET, // we don't need any non-ASCII alphabets, so
+                                         .lfOutPrecision   = OUT_TT_PRECIS,
+                                         .lfClipPrecision  = CLIP_DEFAULT_PRECIS,
+                                         .lfQuality        = ANTIALIASED_QUALITY,
+                                         .lfPitchAndFamily = VARIABLE_PITCH | FF_SWISS,
+                                         .lfFaceName       = L"Lato" }; // assumes Lato is installed on the system
     // handle to the the materialized logical font object
-    const HFONT               hFont      = CreateFontIndirectW(&lfFontLato);
+    const HFONT           hfLato     = CreateFontIndirectW(&lfFontLato);
 
-    INT32                     i = 0, cxClient = 0, cyClient = 0;
+    INT32                 i = 0, iClientWindowWidth = 0, iClientWindowHeight = 0;
 
     // needs to be in the static memory since these are used even wehn the callback isn't invoked
-    static WCHAR              wszTrackBarLabelText[5]; // the decimal colour value diplayed next to the track bars
-    static const BOOL         bUseDarkMode = TRUE;     // make the title bar dark
+    static WCHAR          wszTrackBarLabelText[5]; // the decimal colour value diplayed next to the track bars
+    static const BOOL     bUseDarkMode = TRUE;     // make the title bar dark
 
-    INITCOMMONCONTROLSEX      CommCtrlEx   = { .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_BAR_CLASSES };
-
+    INITCOMMONCONTROLSEX  CommCtrlEx   = { .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_BAR_CLASSES };
     InitCommonControlsEx(&CommCtrlEx);
 
     switch (message) {
@@ -88,10 +95,10 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     L"edit",
                     nullptr,
                     WS_CHILD | WS_VISIBLE | WS_BORDER | WS_OVERLAPPED,
-                    300, // hardcoded position, makes the UI unresponsive to resizing
-                    150, // hardcoded position, makes the UI unresponsive to resizing
-                    100,
-                    30,  // 30 looks good with Lato
+                    TRACKBAR_LEFTPAD * 2 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
+                    VSPACE_TRACKBARS * 2 + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
+                    HEXSTRING_TEXTBOX_WIDTH,
+                    HEXSTRING_TEXTBOX_HEIGHT,
                     hWnd,
                     (HMENU) (10),
                     hApplicationInst,
@@ -105,10 +112,11 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         TRACKBAR_CLASSW, // horizontal track bar (WinGDI calls horizontal bars with a tracking cursor track bars)
                         nullptr,
                         WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_FIXEDLENGTH | WS_OVERLAPPED,
-                        40,
-                        i * VSPACE_TRACKBARS,
-                        150,
-                        25,
+                        TRACKBAR_LEFTPAD,
+                        i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
+                        // + 25 padding because we don't want the first track bar being really close to the title bar
+                        TRACKBAR_WIDTH,
+                        TRACKBAR_HEIGHT,
                         hWnd,
                         (HMENU) (i),
                         hApplicationInst,
@@ -123,35 +131,20 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     hTrackBarLabel[i] = CreateWindowExW(
                         0L,
                         L"static",
-                        wszColorLabel[i],
+                        L"0",
                         WS_CHILD | WS_VISIBLE | SS_CENTER,
-                        CW_USEDEFAULT,
-                        CW_USEDEFAULT,
-                        0,
-                        50,
+                        TRACKBAR_LEFTPAD + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD,
+                        i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
+                        TRACKBAR_LABEL_WIDTH,
+                        TRACKBAR_LABEL_HEIGHT,
                         hWnd,
                         (HMENU) (i + 3),
                         hApplicationInst,
                         nullptr
                     );
 
-                    hTrackBarLabelText[i] = CreateWindowExW(
-                        0L,
-                        L"static",
-                        L"0",
-                        WS_CHILD | WS_VISIBLE | SS_CENTER,
-                        100,
-                        20,
-                        100,
-                        30,
-                        hWnd,
-                        (HMENU) (i + 6),
-                        hApplicationInst,
-                        nullptr
-                    );
-
                     // set the customized font for use in the track bar label texts
-                    SendMessageW(hTrackBarLabelText[i], WM_SETFONT, (WPARAM) hFont, TRUE);
+                    SendMessageW(hTrackBarLabel[i], WM_SETFONT, (WPARAM) hfLato, TRUE);
 
                     oldScroll[i] = (WNDPROC) (SetWindowLongPtrW(
                         hTrackBars[i],
@@ -166,23 +159,26 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 cyChar       = HIWORD(GetDialogBaseUnits());
 
                 // override the default font with the customized one for the text box
-                SendMessageW(hTextBox, WM_SETFONT, (WPARAM) hFont, TRUE);
+                SendMessageW(hTextBox, WM_SETFONT, (WPARAM) hfLato, TRUE);
 
                 break;
             }
 
-        case WM_SIZE :
+        case WM_SIZE : // when the window is resized
             {
-                cxClient = LOWORD(lParam);
-                cyClient = HIWORD(lParam);
+                // low-order word of lParam specifies the new width of the client area.
+                // high-order word of lParam specifies the new height of the client area.
 
-                SetRect(&rcColor, 0, 0, cxClient, cyClient);
+                iClientWindowWidth  = LOWORD(lParam);
+                iClientWindowHeight = HIWORD(lParam);
 
-                for (i = 0; i < 3; ++i) {
-                    MoveWindow(hTrackBars[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
-                    MoveWindow(hTrackBarLabel[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
-                    MoveWindow(hTrackBarLabelText[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
-                }
+                SetRect(&rcColor, 0, 0, iClientWindowWidth, iClientWindowHeight);
+
+                // for (i = 0; i < 3; ++i) {
+                //     MoveWindow(hTrackBars[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
+                //     MoveWindow(hTrackBarLabel[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
+                //     MoveWindow(hTrackBarLabelText[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
+                // }
 
                 SetFocus(hWnd);
                 break;
@@ -200,13 +196,13 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
                 switch
                     LOWORD(wParam) {
-                        case TB_PAGEDOWN      : iTrackBarCaret[i] += 20; // [[fallthrough]];
+                        case TB_PAGEDOWN      : iTrackBarCaret[i] += 20; // fallthrough
                         case TB_LINEDOWN      : iTrackBarCaret[i] = min(255, iTrackBarCaret[i] + 1); break;
-                        case TB_PAGEUP        : iTrackBarCaret[i] -= 20; // [[fallthrough]];
+                        case TB_PAGEUP        : iTrackBarCaret[i] -= 20; // fallthrough
                         case TB_LINEUP        : iTrackBarCaret[i] = max(0, iTrackBarCaret[i] - 1); break;
                         case TB_TOP           : iTrackBarCaret[i] = 0; break;
                         case TB_BOTTOM        : iTrackBarCaret[i] = 255; break;
-                        case TB_THUMBPOSITION : // [[fallthrough]];
+                        case TB_THUMBPOSITION : // fallthrough
                         case TB_THUMBTRACK    : iTrackBarCaret[i] = HIWORD(wParam); break;
                         default               : break;
                     }
@@ -224,7 +220,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     L"%3d",
                     iTrackBarCaret[i]
                 );
-                SetWindowTextW(hTrackBarLabelText[i], wszTrackBarLabelText);
+                SetWindowTextW(hTrackBarLabel[i], wszTrackBarLabelText);
 
                 DeleteObject((HBRUSH) (SetClassLongPtrW(
                     hWnd, GCLP_HBRBACKGROUND, (uintptr_t) (CreateSolidBrush(RGB(iTrackBarCaret[0], iTrackBarCaret[1], iTrackBarCaret[2])))
@@ -252,17 +248,6 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 SetWindowTextW(hTextBox, wszHexColourString);
 
                 InvalidateRect(hWnd, &rcColor, TRUE);
-                break;
-            }
-
-        case WM_COMMAND :
-            {
-                int wmId = LOWORD(wParam);
-                // Parse the menu selections:
-                switch (wmId) {
-                    case IDM_EXIT : DestroyWindow(hWnd); break;
-                    default       : break;
-                }
                 break;
             }
 

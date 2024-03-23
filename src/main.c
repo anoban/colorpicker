@@ -1,7 +1,9 @@
 #include <colorpicker.h>
 #define UNICODE
+#define MAX_LOADSTRING    50LLU
 
-#define MAX_LOADSTRING 50LLU
+#define MAINWINDOW_HEIGHT 260LLU
+#define MAINWINDOW_WIDTH  490LLU
 
 static WCHAR szTitle[MAX_LOADSTRING]       = { 0 }; // The title bar text
 static WCHAR szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
@@ -42,11 +44,12 @@ static inline BOOL __stdcall DrawMainWindow(HINSTANCE hInstance, INT nCmdShow) {
         WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_APPWINDOW | WS_EX_DLGMODALFRAME,
         szWindowClass,
         szTitle,
-        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_VISIBLE,
+        WS_OVERLAPPED | WS_CLIPCHILDREN | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, // we do not want the maximize button
+        // specifying WS_MINIMIZEBOX requires WS_SYSMENU
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        470,
-        250,
+        MAINWINDOW_WIDTH,
+        MAINWINDOW_HEIGHT,
         nullptr,
         nullptr,
         hInstance,
