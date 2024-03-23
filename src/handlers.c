@@ -200,13 +200,13 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
                 switch
                     LOWORD(wParam) {
-                        case TB_PAGEDOWN      : iTrackBarCaret[i] += 20; [[fallthrough]];
+                        case TB_PAGEDOWN      : iTrackBarCaret[i] += 20; // [[fallthrough]];
                         case TB_LINEDOWN      : iTrackBarCaret[i] = min(255, iTrackBarCaret[i] + 1); break;
-                        case TB_PAGEUP        : iTrackBarCaret[i] -= 20; [[fallthrough]];
+                        case TB_PAGEUP        : iTrackBarCaret[i] -= 20; // [[fallthrough]];
                         case TB_LINEUP        : iTrackBarCaret[i] = max(0, iTrackBarCaret[i] - 1); break;
                         case TB_TOP           : iTrackBarCaret[i] = 0; break;
                         case TB_BOTTOM        : iTrackBarCaret[i] = 255; break;
-                        case TB_THUMBPOSITION : [[fallthrough]];
+                        case TB_THUMBPOSITION : // [[fallthrough]];
                         case TB_THUMBTRACK    : iTrackBarCaret[i] = HIWORD(wParam); break;
                         default               : break;
                     }
