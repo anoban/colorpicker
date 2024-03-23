@@ -26,8 +26,8 @@
     <ResourceCompile Include="resources\Colorpicker.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\handlers.cpp" />
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\handlers.c" />
+    <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -36,8 +36,8 @@
     <Xml Include="resources\colorpicker.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\colorpicker.hpp" />
-    <ClInclude Include="include\resource.hpp" />
+    <ClInclude Include="include\colorpicker.h" />
+    <ClInclude Include="include\resource.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -144,8 +144,9 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointExceptions>true</FloatingPointExceptions>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <ExceptionHandling>false</ExceptionHandling>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <CallingConvention>StdCall</CallingConvention>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -166,7 +167,7 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions512</EnableEnhancedInstructionSet>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAs>CompileAsC</CompileAs>
       <DebugInformationFormat>None</DebugInformationFormat>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -174,7 +175,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CallingConvention>StdCall</CallingConvention>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
