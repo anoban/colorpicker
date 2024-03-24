@@ -1,52 +1,39 @@
 #include <colorpicker.h>
 
-#define VSPACE_TRACKBARS             40LLU // space subsequent track bars at this vertical distances
-#define NTRACKBARS                   3     // number of track bars used in the application
+#define VSPACE_TRACKBARS             40LL // space subsequent track bars at this vertical distances
+#define NTRACKBARS                   3LL  // number of track bars used in the application
 
-#define TRACKBAR_WIDTH               200LLU
-#define TRACKBAR_HEIGHT              25LLU
-#define TRACKBAR_LEFTPAD             20LLU
-#define TRACKBARGRID_VERTICAL_MARGIN 85LLU
+#define TRACKBAR_WIDTH               200LL
+#define TRACKBAR_HEIGHT              25LL
+#define TRACKBAR_LEFTPAD             20LL // padding between the left end of the track bars and the left edge of the client window
+#define TRACKBARGRID_VERTICAL_MARGIN 85LL // margin betwen the first track bar and the bottom edge of the title bar
 
-#define TRACKBAR_LABEL_LEFTPAD       20LLU
-#define TRACKBAR_LABEL_WIDTH         50LLU
-#define TRACKBAR_LABEL_HEIGHT        30LLU
+#define TRACKBAR_LABEL_LEFTPAD       20LL // padding between the right end of the track bar and the left edge of it's cognate label box
+#define TRACKBAR_LABEL_WIDTH         50LL
+#define TRACKBAR_LABEL_HEIGHT        30LL
 
-#define HEXSTRING_TEXTBOX_WIDTH      120LLU
-#define HEXSTRING_TEXTBOX_HEIGHT     30LLU
+#define HEXSTRING_TEXTBOX_WIDTH      120LL
+#define HEXSTRING_TEXTBOX_HEIGHT     30LL
+
+#define PAGE_UPDOWN_STEP             17LL // distance to move the slider on the track bar, when page-up or page-down keys were pressed
 
 // globals defined in main.c
 extern HINSTANCE hApplicationInst;
-extern INT32     idFocus;
+extern INT32     iFocusedItemId;
 extern WNDPROC   oldScroll[3];
-
-// static inline constexpr COLORREF AlphaBlend(_In_ const COLORREF rgbColor, _In_ const float alpha)  { }
-
-LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    INT64 iId = GetWindowLongPtrW(hWnd, GWLP_ID);
-    switch (message) {
-        case WM_KEYDOWN :
-            if (wParam == VK_TAB) SetFocus(GetDlgItem(GetParent(hWnd), (iId + (GetKeyState(VK_SHIFT) < 0 ? 2 : 1)) % 3));
-            break;
-        case WM_SETFOCUS : idFocus = iId; break;
-        default          : break;
-    }
-    return CallWindowProcW(oldScroll[iId], hWnd, message, wParam, lParam);
-}
 
 LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     static COLORREF       crPrim[3];
-    static COLORREF       crefTitleBar; // color of the title bar
+    static COLORREF       crefWindowBackground; // color of the title bar
 
     static HBRUSH         hBrush[3], hStaticBrush;
 
-    static HWND           hTrackBars[NTRACKBARS];     // track bars
+    static HWND           hTrackBars[NTRACKBARS];
     static HWND           hTrackBarLabel[NTRACKBARS]; // track bar labels
     static HWND           hTextBox;                   // the text box that shows the hex representation of the RGB colour of choice
 
-    // iTrackBarCaret is an array of
-    static INT32          iTrackBarCaret[NTRACKBARS], cyChar;
-    static RECT           rcColor;
+    // iTrackBarCaret is an array of integers
+    static INT32          iTrackBarSliderPos[NTRACKBARS];
 
     // needs to be in the static memory since these are used even when this callback isn't invoked
     static WCHAR          wszHexColourString[8]; // the hex string shown inside the text box
@@ -70,7 +57,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     // handle to the the materialized logical font object
     const HFONT           hfLato     = CreateFontIndirectW(&lfFontLato);
 
-    INT32                 i = 0, iClientWindowWidth = 0, iClientWindowHeight = 0;
+    INT64                 i = 0, iMovedTrackbarId = 0;
 
     // needs to be in the static memory since these are used even wehn the callback isn't invoked
     static WCHAR          wszTrackBarLabelText[5]; // the decimal colour value diplayed next to the track bars
@@ -88,22 +75,26 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 // enable immersive dark mode, where the colour of the title bar becomes customizeable
                 DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
                 // set the colour of title bar to the same colour as the client window (stored in crefTitleBar)
-                DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crefTitleBar, sizeof(COLORREF));
+                DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
                 hTextBox = CreateWindowExW( // the text window that displays the hex RGB string
                     WS_EX_CLIENTEDGE,
                     L"edit",
                     nullptr,
-                    WS_CHILD | WS_VISIBLE | WS_BORDER | WS_OVERLAPPED,
+                    WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | SS_CENTER,
+                    // SS_CENTER overlays the text at the center of the textbox
                     TRACKBAR_LEFTPAD * 2 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
                     VSPACE_TRACKBARS * 2 + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
                     HEXSTRING_TEXTBOX_WIDTH,
                     HEXSTRING_TEXTBOX_HEIGHT,
                     hWnd,
-                    (HMENU) (10),
+                    (HMENU) (10), // id = 10
                     hApplicationInst,
                     nullptr
                 );
+
+                // override the default font with the customized one for the text box
+                SendMessageW(hTextBox, WM_SETFONT, (WPARAM) hfLato, TRUE);
 
                 // creation of the three track bars, their labels and their corresponding label texts
                 for (i = 0; i < NTRACKBARS; ++i) {
@@ -111,22 +102,28 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         0L,
                         TRACKBAR_CLASSW, // horizontal track bar (WinGDI calls horizontal bars with a tracking cursor track bars)
                         nullptr,
-                        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_FIXEDLENGTH | WS_OVERLAPPED,
+                        WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | TBS_AUTOTICKS | TBS_HORZ,
                         TRACKBAR_LEFTPAD,
                         i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
                         // + 25 padding because we don't want the first track bar being really close to the title bar
                         TRACKBAR_WIDTH,
                         TRACKBAR_HEIGHT,
                         hWnd,
-                        (HMENU) (i),
+                        (HMENU) (i), // ids = 0 - 2
                         hApplicationInst,
                         nullptr
                     );
 
-                    SendMessageW(hTrackBars[i], TBM_SETRANGE, TRUE, MAKELONG(0, 255));
-                    SendMessageW(hTrackBars[i], TBM_SETPAGESIZE, 0, 20);
-                    SendMessageW(hTrackBars[i], TBM_SETTICFREQ, 20, 0);
+                    // messages prefixed with TBM_* are related to track bar controls
+                    SendMessageW(hTrackBars[i], TBM_SETRANGE, TRUE /* redraw window */, MAKELONG(0, 255));
+                    // the slider range from 0 to 255
+                    SendMessageW(hTrackBars[i], TBM_SETPAGESIZE, FALSE, PAGE_UPDOWN_STEP);
+                    // the number of logical positions the trackbar's slider moves in response to keyboard input, such as the or keys, or
+                    // mouse input, such as clicks in the trackbar's channel
+                    SendMessageW(hTrackBars[i], TBM_SETTICFREQ, TRUE, PAGE_UPDOWN_STEP);
+                    // set the spaces between adjacent ticks
                     SendMessageW(hTrackBars[i], TBM_SETPOS, TRUE, 0);
+                    // set the slider position at window launch
 
                     hTrackBarLabel[i] = CreateWindowExW(
                         0L,
@@ -138,7 +135,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         TRACKBAR_LABEL_WIDTH,
                         TRACKBAR_LABEL_HEIGHT,
                         hWnd,
-                        (HMENU) (i + 3),
+                        (HMENU) (i + 3), // ids = 3 - 5
                         hApplicationInst,
                         nullptr
                     );
@@ -146,69 +143,43 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     // set the customized font for use in the track bar label texts
                     SendMessageW(hTrackBarLabel[i], WM_SETFONT, (WPARAM) hfLato, TRUE);
 
-                    oldScroll[i] = (WNDPROC) (SetWindowLongPtrW(
-                        hTrackBars[i],
-                        GWLP_WNDPROC,
-                        (uintptr_t /* Petzold's example uses a LONG (4 bytes) here, that throws an SEH access violation on x64 machines */)
-                            ScrollHandler
-                    ));
-                    hBrush[i]    = CreateSolidBrush(crPrim[i]);
+                    hBrush[i] = CreateSolidBrush(crPrim[i]);
                 }
 
                 hStaticBrush = CreateSolidBrush(GetSysColor(COLOR_BTNHIGHLIGHT));
-                cyChar       = HIWORD(GetDialogBaseUnits());
 
-                // override the default font with the customized one for the text box
-                SendMessageW(hTextBox, WM_SETFONT, (WPARAM) hfLato, TRUE);
-
-                break;
-            }
-
-        case WM_SIZE : // when the window is resized
-            {
-                // low-order word of lParam specifies the new width of the client area.
-                // high-order word of lParam specifies the new height of the client area.
-
-                iClientWindowWidth  = LOWORD(lParam);
-                iClientWindowHeight = HIWORD(lParam);
-
-                SetRect(&rcColor, 0, 0, iClientWindowWidth, iClientWindowHeight);
-
-                // for (i = 0; i < 3; ++i) {
-                //     MoveWindow(hTrackBars[i], (2 * i + 1) * cxClient / 14, 2 * cyChar, cxClient / 14, cyClient - 4 * cyChar, TRUE);
-                //     MoveWindow(hTrackBarLabel[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
-                //     MoveWindow(hTrackBarLabelText[i], (4 * i + 1) * cxClient / 28, cyChar / 2, cxClient / 7, cyChar, TRUE);
-                // }
-
-                SetFocus(hWnd);
                 break;
             }
 
         case WM_SETFOCUS :
             {
-                SetFocus(hTrackBars[idFocus]);
+                SetFocus(hTrackBars[iFocusedItemId]);
                 break;
             }
 
-        case WM_HSCROLL :                                        // when the horizontal track bars are adjusted,
+        case WM_HSCROLL : // when the horizontal track bars are adjusted,
             {
-                i = GetWindowLongPtrW((HWND) (lParam), GWLP_ID); // capture which track bar was adjusted
+                iMovedTrackbarId = GetWindowLongPtrW((HWND) (lParam), GWLP_ID /* Retrieves the identifier of the window. */);
+                // capture which track bar was adjusted in the variable i
 
                 switch
                     LOWORD(wParam) {
-                        case TB_PAGEDOWN      : iTrackBarCaret[i] += 20; // fallthrough
-                        case TB_LINEDOWN      : iTrackBarCaret[i] = min(255, iTrackBarCaret[i] + 1); break;
-                        case TB_PAGEUP        : iTrackBarCaret[i] -= 20; // fallthrough
-                        case TB_LINEUP        : iTrackBarCaret[i] = max(0, iTrackBarCaret[i] - 1); break;
-                        case TB_TOP           : iTrackBarCaret[i] = 0; break;
-                        case TB_BOTTOM        : iTrackBarCaret[i] = 255; break;
-                        case TB_THUMBPOSITION : // fallthrough
-                        case TB_THUMBTRACK    : iTrackBarCaret[i] = HIWORD(wParam); break;
-                        default               : break;
+                            // TB_LINEUP, TB_LINEDOWN cases hanlde mouse scrolls
+                        case TB_LINEDOWN : iTrackBarSliderPos[iMovedTrackbarId] = min(255, iTrackBarSliderPos[iMovedTrackbarId]); break;
+                        case TB_LINEUP :
+                            iTrackBarSliderPos[iMovedTrackbarId] = max(0, iTrackBarSliderPos[iMovedTrackbarId]);
+                            break;
+                            // TB_TOP, TB_BOTTOM cases handle strokes of Home and End buttons
+                        case TB_TOP           : iTrackBarSliderPos[iMovedTrackbarId] = 0; break;
+                        case TB_BOTTOM        : iTrackBarSliderPos[iMovedTrackbarId] = 255; break;
+
+                        case TB_THUMBPOSITION : // fallthrough to TB_THUMBTRACK
+                        case TB_THUMBTRACK    : iTrackBarSliderPos[iMovedTrackbarId] = HIWORD(wParam); break;
+                        default               : break;        // TB_PAGEUP, TB_PAGEDOWN
                     }
 
                 // if the horizontal adjustment came from the keyboard, move the slider to appropriate position
-                SetScrollPos(hTrackBars[i], SB_CTL, iTrackBarCaret[i], TRUE);
+                SendMessageW(hTrackBars[iMovedTrackbarId], TBM_SETPOS, TRUE, iTrackBarSliderPos[iMovedTrackbarId]);
 
                 // if a slider is moved, use the new position of the slider to update the label texts
                 StringCbPrintfExW(
@@ -218,20 +189,20 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     nullptr,
                     STRSAFE_FILL_ON_FAILURE | STRSAFE_FILL_BEHIND_NULL,
                     L"%3d",
-                    iTrackBarCaret[i]
+                    iTrackBarSliderPos[iMovedTrackbarId]
                 );
-                SetWindowTextW(hTrackBarLabel[i], wszTrackBarLabelText);
+                SetWindowTextW(hTrackBarLabel[iMovedTrackbarId], wszTrackBarLabelText);
 
                 DeleteObject((HBRUSH) (SetClassLongPtrW(
-                    hWnd, GCLP_HBRBACKGROUND, (uintptr_t) (CreateSolidBrush(RGB(iTrackBarCaret[0], iTrackBarCaret[1], iTrackBarCaret[2])))
+                    hWnd,
+                    GCLP_HBRBACKGROUND,
+                    (uintptr_t) (CreateSolidBrush(RGB(iTrackBarSliderPos[0], iTrackBarSliderPos[1], iTrackBarSliderPos[2])))
                 )));
 
-                crefTitleBar = RGB(iTrackBarCaret[0], iTrackBarCaret[1], iTrackBarCaret[2]);
-                // DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crTitleBar, sizeof(COLORREF));
-                // the line above colours the window borders, not the complete title bar.
+                crefWindowBackground = RGB(iTrackBarSliderPos[0], iTrackBarSliderPos[1], iTrackBarSliderPos[2]);
 
                 // this line colours the title bar
-                DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crefTitleBar, sizeof(COLORREF));
+                DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
                 // update the hex colour code
                 StringCbPrintfExW(
@@ -241,13 +212,18 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     nullptr,
                     STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
                     L"#%02X%02X%02X",
-                    iTrackBarCaret[0],
-                    iTrackBarCaret[1],
-                    iTrackBarCaret[2]
+                    iTrackBarSliderPos[0],
+                    iTrackBarSliderPos[1],
+                    iTrackBarSliderPos[2]
                 );
                 SetWindowTextW(hTextBox, wszHexColourString);
 
-                InvalidateRect(hWnd, &rcColor, TRUE);
+                InvalidateRect( // trigger a whole window redraw
+                    hWnd,
+                    nullptr,    // nullptr because we want the entire client area to be redrawn
+                    TRUE        // erase the background too
+                );
+
                 break;
             }
 
@@ -257,7 +233,7 @@ LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 DeleteObject(hStaticBrush);
 
                 for (i = 0; i < 3; ++i) DeleteObject(hBrush[i]);
-
+                DeleteObject(hfLato);
                 PostQuitMessage(0);
                 break;
             }

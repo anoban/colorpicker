@@ -27,7 +27,6 @@
     #pragma comment(lib, "User32.lib")
     #pragma comment(lib, "comctl32.lib")
 
-LRESULT CALLBACK ScrollHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 #endif // !__COLORPICKER_H__

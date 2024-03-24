@@ -10,7 +10,7 @@ static WCHAR szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class nam
 
 // following are used in handlers.cpp
 HINSTANCE    hApplicationInst              = NULL;  // the main window instance
-INT32        idFocus                       = 0;
+INT32        iFocusedItemId                = 0;
 WNDPROC      oldScroll[3]                  = { 0 }; // event handlers
 
 // receives the handle to the current application instance, and registers it to WinGdi
@@ -58,9 +58,6 @@ static inline BOOL __stdcall DrawMainWindow(HINSTANCE hInstance, INT nCmdShow) {
 
     if (!hWnd) return FALSE;
 
-    // draw the main application window to the screen
-    // ShowWindow(hWnd, nCmdShow);
-    // UpdateWindow(hWnd);
     return TRUE;
 }
 
