@@ -27,7 +27,7 @@ static inline INT32 CALLBACK ParseTrackBarLabelUserInput(_In_) { }
 static inline INT32 CALLBACK ParseTrackHexStringUserInput() { }
 
 // DO NOT DO ANYTHING HEAVY INSIDE THE WINDOW PROCEDURE!!
-LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT message, _In_ const WPARAM wParam, _In_ const LPARAM lParam) {
+LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message, _In_ const WPARAM wParam, _In_ const LPARAM lParam) {
     static COLORREF   crefWindowBackground; // color of the title bar
 
     static HBRUSH     hOldBrush;
@@ -45,23 +45,23 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
     static INT64      i = 0, iMovedTrackbarId = 0;
 
     // needs to be in the static memory since these are used even wehn the callback isn't invoked
-    static WCHAR      wszTrackBarLabelText[5];      // the decimal colour value diplayed next to the track bars
-    static WCHAR      wszUserInput[10];             // buffer to receive user inputs from the edit boxes
-    static const BOOL bUseDarkMode          = TRUE; // make the title bar dark
-
-    static WORD       wChangedEditControlId = 0;
+    static WCHAR      wszTrackBarLabelText[5]; // the decimal colour value diplayed next to the track bars
+    static WCHAR      wszUserInput[10];        // buffer to receive user inputs from the edit boxes
+    static const BOOL bUseDarkMode = TRUE;     // make the title bar dark
+    static BOOL       bSliderMoved;
+    static WORD       wChangedEditControlId = 0, wCognateTrackbarId = 0;
     static HWND       hChangedEditBox;
 
     switch (message) {
         case WM_CREATE :
             {
-                SetMenu(hWnd, nullptr); // hide the menu bar
+                SetMenu(hParentWindow, nullptr); // hide the menu bar
 
                 // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
                 // enable immersive dark mode, where the colour of the title bar becomes customizeable
-                DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
+                DwmSetWindowAttribute(hParentWindow, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
                 // set the colour of title bar to the same colour as the client window (stored in crefTitleBar)
-                DwmSetWindowAttribute(hWnd, DWMWA_BORDER_COLOR, &crefWindowBackground, sizeof(COLORREF));
+                DwmSetWindowAttribute(hParentWindow, DWMWA_BORDER_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
                 hTextBox = CreateWindowExW( // the text window that displays the hex RGB string
                     WS_EX_CLIENTEDGE,
@@ -73,7 +73,7 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
                     VSPACE_TRACKBARS * 2 + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
                     HEXSTRING_TEXTBOX_WIDTH,
                     HEXSTRING_TEXTBOX_HEIGHT,
-                    hWnd,
+                    hParentWindow,
                     (HMENU) 10, // id = 10
                     hApplicationInst,
                     nullptr
@@ -94,7 +94,7 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
                         // + 25 padding because we don't want the first track bar being really close to the title bar
                         TRACKBAR_WIDTH,
                         TRACKBAR_HEIGHT,
-                        hWnd,
+                        hParentWindow,
                         (HMENU) i, // ids = 0 - 2
                         hApplicationInst,
                         nullptr
@@ -120,7 +120,7 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
                         i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
                         TRACKBAR_LABEL_WIDTH,
                         TRACKBAR_LABEL_HEIGHT,
-                        hWnd,
+                        hParentWindow,
                         (HMENU) (i + 3), // ids = 3 - 5
                         hApplicationInst,
                         nullptr
@@ -130,11 +130,12 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
                     SendMessageW(hTrackBarLabel[i], WM_SETFONT, (WPARAM) hfLato, TRUE);
                 }
 
-                return DefWindowProcW(hWnd, message, wParam, lParam);
+                return DefWindowProcW(hParentWindow, message, wParam, lParam);
             }
 
-        case WM_HSCROLL : // when the horizontal track bars are adjusted,
+        case WM_HSCROLL :                // when the horizontal track bars are adjusted,
             {
+                bSliderMoved     = TRUE; // register that the even was triggered by a slider move
                 // lParam gives the handle to the scroll bar that sent the WM_HSCROLL message
                 iMovedTrackbarId = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
                 // capture which track bar was adjusted in the variable iMovedTrackbarId
@@ -180,20 +181,20 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
 
                 hOldBrush            = SetClassLongPtrW( // create a new brush, stores it in the WNDCLASSEXW of parent window
                                               // and captures the handle of the old brush in the variable hStaticBrush
-                    hWnd,
+                    hParentWindow,
                     GCLP_HBRBACKGROUND,
                     // handle to the newly created brush
                     (uintptr_t) CreateSolidBrush(crefWindowBackground)
                 );
                 InvalidateRect( // trigger a whole window redraw
-                    hWnd,
+                    hParentWindow,
                     nullptr,    // nullptr because we want the entire client area to be redrawn
                     TRUE        // erase the background too
                 );
                 DeleteObject(hOldBrush);   // give up the old brush
 
                 // this line colours the title bar
-                DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &crefWindowBackground, sizeof(COLORREF));
+                DwmSetWindowAttribute(hParentWindow, DWMWA_CAPTION_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
                 // update the hex colour code
                 StringCbPrintfExW(
@@ -208,7 +209,7 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
                     iTrackBarSliderPos[2]
                 );
                 SetWindowTextW(hTextBox, wszHexColourString);
-
+                bSliderMoved = FALSE; // before case break, set this flag to false
                 break;
             }
 
@@ -221,15 +222,64 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
 
         case WM_COMMAND :
             {
-                switch (HIWORD(wParam)) {
-                    case EN_UPDATE : // when the text in edit boxes have been altered
-                        wChangedEditControlId = LOWORD(wParam);
-                        hChangedEditBox       = lParam;
-                        GetWindowTextW(lParam, wszUserInput, __crt_countof(wszUserInput));
-                        // SendMessageW(hChangedEditBox, 0x00C4, 0, wszUserInput);
-                        MessageBoxW(nullptr, wszUserInput, L"", MB_OK);
-                    default : break;
+                if (!bSliderMoved) {     // only when the user has typed in something in the edit boxes,
+                    switch (HIWORD(wParam)) {
+                        case EN_UPDATE : // when the text in edit boxes have been altered
+                            wChangedEditControlId = LOWORD(wParam);
+                            wCognateTrackbarId    = wChangedEditControlId - 3;
+                            hChangedEditBox       = lParam;
+                            // capture the updated state of the edit box
+                            GetWindowTextW(hChangedEditBox, wszUserInput, __crt_countof(wszUserInput));
+                            // sanitization needed to differentiate hexstring edits from label edits
+                            iTrackBarSliderPos[wCognateTrackbarId] = wcstoul(wszUserInput, wszUserInput + __crt_countof(wszUserInput), 10);
+                            iTrackBarSliderPos[wCognateTrackbarId] =
+                                iTrackBarSliderPos[wCognateTrackbarId] > 255 ? 255 : iTrackBarSliderPos[wCognateTrackbarId];
+                            // MessageBoxW(nullptr, wszUserInput, L"", MB_OK);
+                            SendMessageW(
+                                hTrackBars[wCognateTrackbarId] /* TOdo: verify range 0 - 2*/,
+                                TBM_SETPOS,
+                                TRUE,
+                                iTrackBarSliderPos[wCognateTrackbarId]
+                            );
+
+                            crefWindowBackground = RGB(iTrackBarSliderPos[0], iTrackBarSliderPos[1], iTrackBarSliderPos[2]);
+
+                            hOldBrush            = SetClassLongPtrW( // create a new brush, stores it in the WNDCLASSEXW of parent window
+                                                          // and captures the handle of the old brush in the variable hStaticBrush
+                                hParentWindow,
+                                GCLP_HBRBACKGROUND,
+                                // handle to the newly created brush
+                                (uintptr_t) CreateSolidBrush(crefWindowBackground)
+                            );
+                            InvalidateRect( // trigger a whole window redraw
+                                hParentWindow,
+                                nullptr,    // nullptr because we want the entire client area to be redrawn
+                                TRUE        // erase the background too
+                            );
+                            DeleteObject(hOldBrush);   // give up the old brush
+
+                            // this line colours the title bar
+                            DwmSetWindowAttribute(hParentWindow, DWMWA_CAPTION_COLOR, &crefWindowBackground, sizeof(COLORREF));
+
+                            // update the hex colour code
+                            StringCbPrintfExW(
+                                wszHexColourString,
+                                sizeof(wszHexColourString) /* in bytes */,
+                                (STRSAFE_LPWSTR*) (wszHexColourString + __crt_countof(wszHexColourString)) /* end of buffer */,
+                                nullptr,
+                                STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
+                                L"#%02X%02X%02X", // #RRGGBB
+                                iTrackBarSliderPos[0],
+                                iTrackBarSliderPos[1],
+                                iTrackBarSliderPos[2]
+                            );
+                            SetWindowTextW(hTextBox, wszHexColourString);
+                            bSliderMoved = TRUE;
+                            break;
+                        default : break;
+                    }
                 }
+                break;
             }
 
         case WM_DESTROY :
@@ -240,7 +290,7 @@ LRESULT CALLBACK             WindowHandler(_In_ HWND hWnd, _In_ const UINT messa
                 break;
             }
 
-        default : return DefWindowProcW(hWnd, message, wParam, lParam);
+        default : return DefWindowProcW(hParentWindow, message, wParam, lParam);
     }
 
     return 0;

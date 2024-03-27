@@ -36,9 +36,9 @@ static inline ATOM CALLBACK RegisterMainWindowClass(_In_ const HINSTANCE hInstan
 
 // create and draw the main application window
 static inline BOOL CALLBACK DrawMainWindow(_In_ const HINSTANCE hInstance, _In_ const int nCmdShow) {
-    hApplicationInst = hInstance; // store the main window instance handle for global access
+    hApplicationInst   = hInstance; // store the main window instance handle for global access
 
-    HWND hWnd        = CreateWindowExW(
+    HWND hParentWindow = CreateWindowExW(
         // WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_APPWINDOW | WS_EX_DLGMODALFRAME,
         0,
         szWindowClass,
@@ -55,9 +55,9 @@ static inline BOOL CALLBACK DrawMainWindow(_In_ const HINSTANCE hInstance, _In_ 
         nullptr
     );
     SetProcessDPIAware();
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
-    if (!hWnd) return FALSE;
+    ShowWindow(hParentWindow, nCmdShow);
+    UpdateWindow(hParentWindow);
+    if (!hParentWindow) return FALSE;
 
     return TRUE;
 }

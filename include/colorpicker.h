@@ -16,6 +16,7 @@
     #include <dwmapi.h> // Desktop Window Manager header, implements dark mode features.
     #include <SDKDDKVer.h>
     #include <strsafe.h>
+    #include <string.h>
     #include <tchar.h>
     #include <wingdi.h>
     #include <WinUser.h>
@@ -29,6 +30,6 @@
     #pragma comment(lib, "User32.lib")
     #pragma comment(lib, "comctl32.lib")
 
-LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowHandler(HWND hParentWindow, UINT message, WPARAM wParam, LPARAM lParam);
 
 #endif // !__COLORPICKER_H__
