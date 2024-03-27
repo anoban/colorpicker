@@ -8,6 +8,7 @@
     #if (!(defined __clang__)) || (__STDC_VERSION__ != 202311L) // as of now, only clang supports C23 nullptr and attributes
         #define nullptr ((void*) (0))                           // not feeling good about this though :(
     #endif
+// #define _WIN32_IE_ 0x0600
 
 // clang-format off
     #include <windef.h>
@@ -18,6 +19,7 @@
     #include <tchar.h>
     #include <wingdi.h>
     #include <WinUser.h>
+    #include <windowsx.h>
     #include <CommCtrl.h>
     #include <math.h>
 // clang-format on
