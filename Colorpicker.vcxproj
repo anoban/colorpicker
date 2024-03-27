@@ -33,9 +33,6 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="resources\colorpicker.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="include\colorpicker.h" />
     <ClInclude Include="include\resource.h" />
   </ItemGroup>
