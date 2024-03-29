@@ -1,5 +1,5 @@
 #include <colorpicker.h>
-#define UNICODE
+
 #define MAX_LOADSTRING    50LLU
 
 #define MAINWINDOW_HEIGHT 330LLU
@@ -8,6 +8,7 @@
 static WCHAR                szTitle[MAX_LOADSTRING]       = { 0 }; // The title bar text
 static WCHAR                szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
 HFONT                       hfLato;
+HDC                         hMonitorContext;                       // used to pick colours from the screen
 
 // following are used in handlers.cpp
 HINSTANCE                   hApplicationInst = NULL; // the main window instance
@@ -98,6 +99,7 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_COLORPICKER));
 
     MSG    event;
+    hMonitorContext = GetWindowDC(nullptr);
 
     // the main event loop,
     while (GetMessageW(&event, nullptr, 0, 0)) {

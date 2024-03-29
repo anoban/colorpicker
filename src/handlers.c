@@ -18,13 +18,20 @@
 #define PAGE_UPDOWN_STEP             17LL // distance to move the slider on the track bar, when page-up or page-down keys were pressed
 
 // globals defined in main.c
-extern HINSTANCE             hApplicationInst;
-extern INT32                 iFocusedItemId;
-extern HFONT                 hfLato;
+extern HINSTANCE hApplicationInst;
+extern INT32     iFocusedItemId;
+extern HFONT     hfLato;
 
-static inline INT32 CALLBACK ParseTrackBarLabelUserInput(_In_) { }
-
-static inline INT32 CALLBACK ParseTrackHexStringUserInput() { }
+typedef enum {
+    ID_TRACKBAR_RED,
+    ID_TRACKBAR_GREEN,
+    ID_TRACKBAR_BLUE,
+    ID_TRACKBAR_RED_EDITBOX,
+    ID_TRACKBAR_GREEN_EDITBOX,
+    ID_TRACKBAR_BLUE_EDITBOX,
+    ID_HEXSTRING_EDITBOX,
+    ID_STAYONTOP_BUTTON
+} ELEMENTID;
 
 // DO NOT DO ANYTHING HEAVY INSIDE THE WINDOW PROCEDURE!!
 LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message, _In_ const WPARAM wParam, _In_ const LPARAM lParam) {
@@ -33,8 +40,9 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     static HBRUSH     hOldBrush;
 
     static HWND       hTrackBars[NTRACKBARS];
-    static HWND       hTrackBarLabel[NTRACKBARS]; // track bar labels
-    static HWND       hTextBox;                   // the text box that shows the hex representation of the RGB colour of choice
+    static HWND       hTrackBarLabel[NTRACKBARS];
+    static HWND       hTextBox; // the text box that shows the hex representation of the RGB colour of choice
+    static HWND       hStayOnTopButton;
 
     // iTrackBarCaret is an array of integers
     static INT32      iTrackBarSliderPos[NTRACKBARS];
@@ -63,8 +71,8 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 // set the colour of title bar to the same colour as the client window (stored in crefTitleBar)
                 DwmSetWindowAttribute(hParentWindow, DWMWA_BORDER_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
-                hTextBox = CreateWindowExW( // the text window that displays the hex RGB string
-                    WS_EX_CLIENTEDGE,
+                hTextBox         = CreateWindowExW( // the text window that displays the hex RGB string
+                    0L,
                     L"EDIT",
                     nullptr,
                     WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_BORDER | SS_CENTER,
@@ -74,7 +82,22 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     HEXSTRING_TEXTBOX_WIDTH,
                     HEXSTRING_TEXTBOX_HEIGHT,
                     hParentWindow,
-                    (HMENU) 10, // id = 10
+                    (HMENU) ID_HEXSTRING_EDITBOX,
+                    hApplicationInst,
+                    nullptr
+                );
+
+                hStayOnTopButton = CreateWindowExW( // the text window that displays the hex RGB string
+                    0L,
+                    L"BUTTON",
+                    nullptr,
+                    WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_BORDER | BS_PUSHBUTTON | BS_BITMAP | BS_ICON,
+                    TRACKBAR_LEFTPAD * 2 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
+                    VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
+                    30,
+                    HEXSTRING_TEXTBOX_HEIGHT,
+                    hParentWindow,
+                    (HMENU) ID_STAYONTOP_BUTTON,
                     hApplicationInst,
                     nullptr
                 );
@@ -95,7 +118,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                         TRACKBAR_WIDTH,
                         TRACKBAR_HEIGHT,
                         hParentWindow,
-                        (HMENU) i, // ids = 0 - 2
+                        (HMENU) (ID_TRACKBAR_RED + i), // 0 - 2 THE PARENTHESIS AROUND ID_TRACKBAR_RED + i IS CRITICAL
                         hApplicationInst,
                         nullptr
                     );
@@ -121,7 +144,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                         TRACKBAR_LABEL_WIDTH,
                         TRACKBAR_LABEL_HEIGHT,
                         hParentWindow,
-                        (HMENU) (i + 3), // ids = 3 - 5
+                        (HMENU) (ID_TRACKBAR_RED_EDITBOX + i), // 3 - 5
                         hApplicationInst,
                         nullptr
                     );
@@ -131,7 +154,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 }
 
                 return DefWindowProcW(hParentWindow, message, wParam, lParam);
-            }
+            } // END CASE WM_CREATE
 
         case WM_HSCROLL :                // when the horizontal track bars are adjusted,
             {
@@ -139,21 +162,49 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 // lParam gives the handle to the scroll bar that sent the WM_HSCROLL message
                 iMovedTrackbarId = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
                 // capture which track bar was adjusted in the variable iMovedTrackbarId
+#ifdef _DEBUG
+                if (iMovedTrackbarId > 2) MessageBoxW(nullptr, L"iMovedTrackbarId > 2", nullptr, MB_OK);
+#endif // DEBUG
 
                 switch
                     LOWORD(wParam) {
-                            // TB_LINEUP, TB_LINEDOWN cases hanlde mouse scrolls
-                        case TB_LINEDOWN : iTrackBarSliderPos[iMovedTrackbarId] = min(255, iTrackBarSliderPos[iMovedTrackbarId]); break;
-                        case TB_LINEUP :
-                            iTrackBarSliderPos[iMovedTrackbarId] = max(0, iTrackBarSliderPos[iMovedTrackbarId]);
+                            // https://learn.microsoft.com/en-us/cpp/mfc/slider-notification-messages?view=msvc-170
+                            // slider control sends the TB_BOTTOM, TB_LINEDOWN, TB_LINEUP, and TB_TOP notification codes only when
+                            // the user interacts with a slider control by using the keyboard
+                        case TB_LINEDOWN :
+                            iTrackBarSliderPos[iMovedTrackbarId] = min(255, iTrackBarSliderPos[iMovedTrackbarId] + 1);
                             break;
-                            // TB_TOP, TB_BOTTOM cases handle strokes of Home and End buttons
-                        case TB_TOP           : iTrackBarSliderPos[iMovedTrackbarId] = 0; break;
-                        case TB_BOTTOM        : iTrackBarSliderPos[iMovedTrackbarId] = 255; break;
+                            // TB_LINEDOWN - RIGHT ARROW OR DOWN ARROW
 
+                        case TB_LINEUP :
+                            iTrackBarSliderPos[iMovedTrackbarId] = max(0, iTrackBarSliderPos[iMovedTrackbarId] - 1);
+                            break;
+                            // TB_LINEUP - LEFT ARROW OR UP ARROW
+
+                        case TB_TOP : iTrackBarSliderPos[iMovedTrackbarId] = 0; break; // Home button
+
+                        case TB_BOTTOM :                                               // End button
+                            iTrackBarSliderPos[iMovedTrackbarId] = 255;
+                            break;
+
+                            // TB_THUMBPOSITION and TB_THUMBTRACK notification messages are only sent when the user is using the mouse
                         case TB_THUMBPOSITION : // fallthrough to TB_THUMBTRACK
-                        case TB_THUMBTRACK    : iTrackBarSliderPos[iMovedTrackbarId] = HIWORD(wParam); break;
-                        default               : break;        // TB_PAGEUP, TB_PAGEDOWN
+
+                        case TB_THUMBTRACK :
+                            // HIWORD specifies the current position of the slider only if the LOWORD is TB_THUMBPOSITION or TB_THUMBTRACK.
+                            iTrackBarSliderPos[iMovedTrackbarId] = HIWORD(wParam);
+                            break;
+
+                            // TB_ENDTRACK, TB_PAGEDOWN and TB_PAGEUP notification codes are sent in both cases
+                        case TB_PAGEUP :
+                            iTrackBarSliderPos[iMovedTrackbarId] = max(0, iTrackBarSliderPos[iMovedTrackbarId] - PAGE_UPDOWN_STEP);
+                            break;
+                            // TB_PAGEUP - user clicked the channel to the left of the slider or hit the Page Up key
+
+                        case TB_PAGEDOWN :
+                            iTrackBarSliderPos[iMovedTrackbarId] = min(255, iTrackBarSliderPos[iMovedTrackbarId] + PAGE_UPDOWN_STEP);
+                            break;
+                            // TB_PAGEDOWN - user clicked the channel to the RIGHT of the slider
                     }
 
                 // if the horizontal adjustment came from the keyboard, move the slider to appropriate position
@@ -200,7 +251,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 StringCbPrintfExW(
                     wszHexColourString,
                     sizeof(wszHexColourString) /* in bytes */,
-                    (STRSAFE_LPWSTR*) (wszHexColourString + __crt_countof(wszHexColourString)) /* end of buffer */,
+                    (STRSAFE_LPWSTR) (wszHexColourString + __crt_countof(wszHexColourString)) /* end of buffer */,
                     nullptr,
                     STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
                     L"#%02X%02X%02X", // #RRGGBB
@@ -211,11 +262,14 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 SetWindowTextW(hTextBox, wszHexColourString);
                 bSliderMoved = FALSE; // before case break, set this flag to false
                 break;
-            }
+            } // END CASE WM_HSCROLL
 
         case WM_SETFOCUS :
             {
                 iFocusedItemId = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
+#ifdef _DEBUG
+                if (iFocusedItemId > 2) MessageBoxW(nullptr, L"iFocusedItemId > 2", nullptr, MB_OK);
+#endif // _DEBUG
                 SetFocus(hTrackBars[iFocusedItemId]);
                 break;
             }
@@ -280,7 +334,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     }
                 }
                 break;
-            }
+            } // END CASE WM_COMMAND
 
         case WM_DESTROY :
             {
