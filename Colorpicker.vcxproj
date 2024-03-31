@@ -148,6 +148,9 @@
       <ExceptionHandling>false</ExceptionHandling>
       <CallingConvention>Cdecl</CallingConvention>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <ExternalWarningLevel>Level4</ExternalWarningLevel>
+      <DisableSpecificWarnings>4710;4711;5045;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -179,6 +182,9 @@
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <ExternalWarningLevel>Level4</ExternalWarningLevel>
+      <DisableSpecificWarnings>4710;4711;5045;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

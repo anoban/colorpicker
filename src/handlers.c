@@ -328,8 +328,9 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                                 iTrackBarSliderPos[2]
                             );
                             SetWindowTextW(hTextBox, wszHexColourString);
-                            bSliderMoved = TRUE;
+                            bSliderMoved = FALSE;
                             break;
+
                         default : break;
                     }
                 }

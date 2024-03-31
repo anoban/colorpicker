@@ -30,8 +30,6 @@
     #pragma comment(lib, "User32.lib")
     #pragma comment(lib, "comctl32.lib")
 
-    #pragma warning(disable : 4710)
-
 LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message, _In_ const WPARAM wParam, _In_ const LPARAM lParam);
 
 #endif // !__COLORPICKER_H__
