@@ -5,7 +5,7 @@
     #define WIN32_LEAN_AND_MEAN
     #define WIN32_EXTRA_MEAN
 
-    #if (!(defined __clang__)) || (__STDC_VERSION__ != 202311L) // as of now, only clang supports C23 nullptr and attributes
+    #if (!(defined __clang__)) && (__STDC_VERSION__ != 202311L) // as of now, only clang supports C23 nullptr and attributes
         #define nullptr ((void*) (0))                           // not feeling good about this though :(
     #endif
 // #define _WIN32_IE_ 0x0600
