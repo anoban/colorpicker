@@ -11,8 +11,9 @@ HFONT                       hfLato;
 HDC                         hMonitorContext;                       // used to pick colours from the screen
 
 // following are used in handlers.cpp
-HINSTANCE                   hApplicationInst = NULL; // the main window instance
-INT32                       iFocusedItemId   = 0;
+HINSTANCE                   hApplicationInst    = NULL; // the main window instance
+HINSTANCE                   hPickerToolInstance = NULL; // colour picker tool's window instance
+INT32                       iFocusedItemId      = 0;
 
 // receives the handle to the current application instance, and registers it to WinGdi
 static inline ATOM CALLBACK RegisterMainWindowClass(_In_ const HINSTANCE hInstance) {

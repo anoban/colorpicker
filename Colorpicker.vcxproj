@@ -28,7 +28,7 @@
   <ItemGroup>
     <ClCompile Include="src\handlers.c" />
     <ClCompile Include="src\main.c" />
-    <ClCompile Include="src\utilities.c" />
+    <ClCompile Include="src\picker.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

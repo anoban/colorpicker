@@ -19,6 +19,7 @@
 
 // globals defined in main.c
 extern HINSTANCE hApplicationInst;
+extern HINSTANCE hPickerToolInstance;
 extern INT32     iFocusedItemId;
 extern HFONT     hfLato;
 
@@ -30,7 +31,8 @@ typedef enum {
     ID_TRACKBAR_GREEN_EDITBOX,
     ID_TRACKBAR_BLUE_EDITBOX,
     ID_HEXSTRING_EDITBOX,
-    ID_STAYONTOP_BUTTON
+    ID_STAYONTOP_BUTTON,
+    ID_LAUNCHPICKERTOOL_BUTTON
 } ELEMENTID;
 
 // DO NOT DO ANYTHING HEAVY INSIDE THE WINDOW PROCEDURE!!
@@ -43,6 +45,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     static HWND       hTrackBarLabel[NTRACKBARS];
     static HWND       hTextBox; // the text box that shows the hex representation of the RGB colour of choice
     static HWND       hStayOnTopButton;
+    static HWND       hLaunchPickerToolButton;
 
     // iTrackBarCaret is an array of integers
     static INT32      iTrackBarSliderPos[NTRACKBARS];
@@ -71,7 +74,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 // set the colour of title bar to the same colour as the client window (stored in crefTitleBar)
                 DwmSetWindowAttribute(hParentWindow, DWMWA_BORDER_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
-                hTextBox         = CreateWindowExW( // the text window that displays the hex RGB string
+                hTextBox                = CreateWindowExW( // the text window that displays the hex RGB string
                     0L,
                     L"EDIT",
                     nullptr,
@@ -87,7 +90,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     nullptr
                 );
 
-                hStayOnTopButton = CreateWindowExW( // the text window that displays the hex RGB string
+                hStayOnTopButton        = CreateWindowExW( // the button to anchor the window on top of all other windows on screen
                     0L,
                     L"BUTTON",
                     nullptr,
@@ -98,6 +101,21 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     HEXSTRING_TEXTBOX_HEIGHT,
                     hParentWindow,
                     (HMENU) ID_STAYONTOP_BUTTON,
+                    hApplicationInst,
+                    nullptr
+                );
+
+                hLaunchPickerToolButton = CreateWindowExW( // the button that launches the screen colour picker tool
+                    0L,
+                    L"BUTTON",
+                    nullptr,
+                    WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_BORDER | BS_PUSHBUTTON | BS_BITMAP | BS_ICON,
+                    TRACKBAR_LEFTPAD * 4 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
+                    VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
+                    30,
+                    HEXSTRING_TEXTBOX_HEIGHT,
+                    hParentWindow,
+                    (HMENU) ID_LAUNCHPICKERTOOL_BUTTON,
                     hApplicationInst,
                     nullptr
                 );

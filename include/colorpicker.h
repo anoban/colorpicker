@@ -17,7 +17,6 @@
     #include <SDKDDKVer.h>
     #include <strsafe.h>
     #include <string.h>
-    #include <tchar.h>
     #include <wingdi.h>
     #include <WinUser.h>
     #include <windowsx.h>

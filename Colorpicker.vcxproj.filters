@@ -34,7 +34,7 @@
     <ClCompile Include="src\handlers.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utilities.c">
+    <ClCompile Include="src\picker.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
