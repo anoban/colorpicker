@@ -308,7 +308,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                                 iTrackBarSliderPos[wCognateTrackbarId] > 255 ? 255 : iTrackBarSliderPos[wCognateTrackbarId];
                             // MessageBoxW(nullptr, wszUserInput, L"", MB_OK);
                             SendMessageW(
-                                hTrackBars[wCognateTrackbarId] /* TOdo: verify range 0 - 2*/,
+                                hTrackBars[wCognateTrackbarId] /* TODO: verify range 0 - 2*/,
                                 TBM_SETPOS,
                                 TRUE,
                                 iTrackBarSliderPos[wCognateTrackbarId]

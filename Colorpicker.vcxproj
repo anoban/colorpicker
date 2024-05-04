@@ -19,10 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\Colorpicker.ico" />
-    <Image Include="resources\small.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="resources\Colorpicker.rc" />
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +32,9 @@
   <ItemGroup>
     <ClInclude Include="include\colorpicker.h" />
     <ClInclude Include="include\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\icon.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
