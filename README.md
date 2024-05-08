@@ -1,4 +1,4 @@
-## ___A mininal but complete C17 `Win32` colorpicker desktop application___
+## ___A `Win32` colorpicker desktop application___
 ------
 
 - A clone of the `Electron` based Colorpicker by [Toinane](https://github.com/Toinane).
