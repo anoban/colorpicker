@@ -1,8 +1,8 @@
 ## ___A `Win32` colorpicker desktop application___
 ------
 
-- A clone of the `Electron` based Colorpicker by [Toinane](https://github.com/Toinane).
-- Design credits goes to him. This is just a `Win32` C port of his [Colorpicker](https://github.com/Toinane/colorpicker).
+- A replica of the `Electron` based Colorpicker by [Toinane](https://github.com/Toinane).
+- All design credits goes to him. This is just a `Win32` based C implementation of his JavaScrpit [Colorpicker](https://github.com/Toinane/colorpicker).
 
 ### ___Features___
 -----

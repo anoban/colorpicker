@@ -1,5 +1,7 @@
 #include <colorpicker.h>
 
+#define HEXSTRING_SIZE               20LLU
+
 #define VSPACE_TRACKBARS             40LL // space subsequent track bars at this vertical distances
 #define NTRACKBARS                   3LL  // number of track bars used in the application
 
@@ -51,7 +53,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     static INT32      iTrackBarSliderPos[NTRACKBARS];
 
     // needs to be in the static memory since these are used even when this callback isn't invoked
-    static WCHAR      wszHexColourString[12]; // the hex string shown inside the text box
+    static WCHAR      wszHexColourString[HEXSTRING_SIZE]; // the hex string shown inside the text box
 
     static INT64      i = 0, iMovedTrackbarId = 0;
 
@@ -66,7 +68,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     switch (message) {
         case WM_CREATE :
             {
-                SetMenu(hParentWindow, nullptr); // hide the menu bar
+                SetMenu(hParentWindow, NULL); // hide the menu bar
 
                 // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
                 // enable immersive dark mode, where the colour of the title bar becomes customizeable
@@ -77,7 +79,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 hTextBox                = CreateWindowExW( // the text window that displays the hex RGB string
                     0L,
                     L"EDIT",
-                    nullptr,
+                    NULL,
                     WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_BORDER | SS_CENTER,
                     // SS_CENTER overlays the text at the center of the textbox
                     TRACKBAR_LEFTPAD * 2 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
@@ -87,13 +89,13 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     hParentWindow,
                     (HMENU) ID_HEXSTRING_EDITBOX,
                     hApplicationInst,
-                    nullptr
+                    NULL
                 );
 
                 hStayOnTopButton        = CreateWindowExW( // the button to anchor the window on top of all other windows on screen
                     0L,
                     L"BUTTON",
-                    nullptr,
+                    NULL,
                     WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_BORDER | BS_PUSHBUTTON | BS_BITMAP | BS_ICON,
                     TRACKBAR_LEFTPAD * 2 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
                     VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
@@ -102,13 +104,13 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     hParentWindow,
                     (HMENU) ID_STAYONTOP_BUTTON,
                     hApplicationInst,
-                    nullptr
+                    NULL
                 );
 
                 hLaunchPickerToolButton = CreateWindowExW( // the button that launches the screen colour picker tool
                     0L,
                     L"BUTTON",
-                    nullptr,
+                    NULL,
                     WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_BORDER | BS_PUSHBUTTON | BS_BITMAP | BS_ICON,
                     TRACKBAR_LEFTPAD * 4 + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD + TRACKBAR_LABEL_WIDTH,
                     VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN, // make the text box vertically align with the last track bar
@@ -117,7 +119,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     hParentWindow,
                     (HMENU) ID_LAUNCHPICKERTOOL_BUTTON,
                     hApplicationInst,
-                    nullptr
+                    NULL
                 );
 
                 // override the default font with the customized one for the text box
@@ -128,7 +130,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     hTrackBars[i] = CreateWindowExW(
                         0L,
                         TRACKBAR_CLASSW, // horizontal track bar (WinGDI calls horizontal bars with a tracking cursor track bars)
-                        nullptr,
+                        NULL,
                         WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | TBS_AUTOTICKS | TBS_HORZ,
                         TRACKBAR_LEFTPAD,
                         i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
@@ -138,7 +140,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                         hParentWindow,
                         (HMENU) (ID_TRACKBAR_RED + i), // 0 - 2 THE PARENTHESIS AROUND ID_TRACKBAR_RED + i IS CRITICAL
                         hApplicationInst,
-                        nullptr
+                        NULL
                     );
 
                     // messages prefixed with TBM_* are related to track bar controls
@@ -155,7 +157,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     hTrackBarLabel[i] = CreateWindowExW(
                         0L,
                         L"EDIT",
-                        nullptr,
+                        NULL,
                         WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
                         TRACKBAR_LEFTPAD + TRACKBAR_WIDTH + TRACKBAR_LABEL_LEFTPAD,
                         i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
@@ -164,7 +166,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                         hParentWindow,
                         (HMENU) (ID_TRACKBAR_RED_EDITBOX + i), // 3 - 5
                         hApplicationInst,
-                        nullptr
+                        NULL
                     );
 
                     // set the customized font for use in the track bar label texts
@@ -172,7 +174,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 }
 
                 return DefWindowProcW(hParentWindow, message, wParam, lParam);
-            } // END CASE WM_CREATE
+            }                            // END CASE WM_CREATE
 
         case WM_HSCROLL :                // when the horizontal track bars are adjusted,
             {
@@ -181,7 +183,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 iMovedTrackbarId = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
                 // capture which track bar was adjusted in the variable iMovedTrackbarId
 #ifdef _DEBUG
-                if (iMovedTrackbarId > 2) MessageBoxW(nullptr, L"iMovedTrackbarId > 2", nullptr, MB_OK);
+                if (iMovedTrackbarId > 2) MessageBoxW(NULL, L"iMovedTrackbarId > 2", NULL, MB_OK);
 #endif // DEBUG
 
                 switch
@@ -233,7 +235,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     wszTrackBarLabelText,
                     sizeof(wszTrackBarLabelText), // in bytes
                     (STRSAFE_LPWSTR*) (wszTrackBarLabelText + __crt_countof(wszTrackBarLabelText)),
-                    nullptr,
+                    NULL,
                     STRSAFE_FILL_ON_FAILURE | STRSAFE_FILL_BEHIND_NULL,
                     L"%3d",
                     iTrackBarSliderPos[iMovedTrackbarId]
@@ -257,7 +259,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 );
                 InvalidateRect( // trigger a whole window redraw
                     hParentWindow,
-                    nullptr,    // nullptr because we want the entire client area to be redrawn
+                    NULL,       // NULL because we want the entire client area to be redrawn
                     TRUE        // erase the background too
                 );
                 DeleteObject(hOldBrush);   // give up the old brush
@@ -270,7 +272,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     wszHexColourString,
                     sizeof(wszHexColourString) /* in bytes */,
                     (STRSAFE_LPWSTR) (wszHexColourString + __crt_countof(wszHexColourString)) /* end of buffer */,
-                    nullptr,
+                    NULL,
                     STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
                     L"#%02X%02X%02X", // #RRGGBB
                     iTrackBarSliderPos[0],
@@ -280,13 +282,13 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 SetWindowTextW(hTextBox, wszHexColourString);
                 bSliderMoved = FALSE; // before case break, set this flag to false
                 break;
-            } // END CASE WM_HSCROLL
+            }                         // END CASE WM_HSCROLL
 
         case WM_SETFOCUS :
             {
                 iFocusedItemId = GetWindowLongPtrW((HWND) (lParam), GWLP_ID);
 #ifdef _DEBUG
-                if (iFocusedItemId > 2) MessageBoxW(nullptr, L"iFocusedItemId > 2", nullptr, MB_OK);
+                if (iFocusedItemId > 2) MessageBoxW(NULL, L"iFocusedItemId > 2", NULL, MB_OK);
 #endif // _DEBUG
                 SetFocus(hTrackBars[iFocusedItemId]);
                 break;
@@ -306,7 +308,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                             iTrackBarSliderPos[wCognateTrackbarId] = wcstoul(wszUserInput, wszUserInput + __crt_countof(wszUserInput), 10);
                             iTrackBarSliderPos[wCognateTrackbarId] =
                                 iTrackBarSliderPos[wCognateTrackbarId] > 255 ? 255 : iTrackBarSliderPos[wCognateTrackbarId];
-                            // MessageBoxW(nullptr, wszUserInput, L"", MB_OK);
+                            // MessageBoxW(NULL, wszUserInput, L"", MB_OK);
                             SendMessageW(
                                 hTrackBars[wCognateTrackbarId] /* TODO: verify range 0 - 2*/,
                                 TBM_SETPOS,
@@ -325,7 +327,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                             );
                             InvalidateRect( // trigger a whole window redraw
                                 hParentWindow,
-                                nullptr,    // nullptr because we want the entire client area to be redrawn
+                                NULL,       // NULL because we want the entire client area to be redrawn
                                 TRUE        // erase the background too
                             );
                             DeleteObject(hOldBrush);   // give up the old brush
@@ -338,7 +340,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                                 wszHexColourString,
                                 sizeof(wszHexColourString) /* in bytes */,
                                 (STRSAFE_LPWSTR*) (wszHexColourString + __crt_countof(wszHexColourString)) /* end of buffer */,
-                                nullptr,
+                                NULL,
                                 STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
                                 L"#%02X%02X%02X", // #RRGGBB
                                 iTrackBarSliderPos[0],

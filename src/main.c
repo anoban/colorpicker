@@ -1,16 +1,19 @@
 #include <colorpicker.h>
 
-#define MAX_LOADSTRING    50LLU
+// STACK OVERFLOW HAPPENS WITH /LTCG !!! IN RELEASE MODE!
+// SETTLE IT!
 
-#define MAINWINDOW_HEIGHT 330LLU
-#define MAINWINDOW_WIDTH  610LLU
+#define MAX_LOADSTRING    50LLU                                    // maximum length limit for strings to load in from colorpicker.rc
 
-static WCHAR                szTitle[MAX_LOADSTRING]       = { 0 }; // The title bar text
+#define MAINWINDOW_HEIGHT 330LLU                                   // height of the application window
+#define MAINWINDOW_WIDTH  610LLU                                   // width of the application window
+
+static WCHAR                szTitle[MAX_LOADSTRING]       = { 0 }; // title bar text
 static WCHAR                szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
-HFONT                       hfLato;
+HFONT                       hfLato;                                // handle to font, our pick here is Lato
 HDC                         hMonitorContext;                       // used to pick colours from the screen
 
-// following are used in handlers.cpp
+// following globals are used in handlers.c
 HINSTANCE                   hApplicationInst    = NULL; // the main window instance
 HINSTANCE                   hPickerToolInstance = NULL; // colour picker tool's window instance
 INT32                       iFocusedItemId      = 0;
@@ -25,7 +28,7 @@ static inline ATOM CALLBACK RegisterMainWindowClass(_In_ const HINSTANCE hInstan
                                              .cbWndExtra    = 0,
                                              .hInstance     = hInstance,
                                              .hIcon         = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_COLORPICKER)),
-                                             .hCursor       = LoadCursorW(nullptr, (LPWSTR) (IDC_ARROW)),
+                                             .hCursor       = LoadCursorW(NULL, (LPWSTR) (IDC_ARROW)),
                                              .hbrBackground = CreateSolidBrush(RGB(0, 0, 0)), // startup background colour will be black
                                              // this will be the background colour of the main window and all it's child windows
                                              // unless those children are repainted with a different colour.
@@ -33,7 +36,7 @@ static inline ATOM CALLBACK RegisterMainWindowClass(_In_ const HINSTANCE hInstan
                                              .lpszClassName = szWindowClass,
                                              .hIconSm       = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_SMALL)) };
     // register the main window class instance
-    return RegisterClassExW(&wcxMainWindowClass);
+    return RegisterClassExW(&wcxMainWindowClass); // returns 0 upon failure
 }
 
 // create and draw the main application window
@@ -51,12 +54,12 @@ static inline BOOL CALLBACK DrawMainWindow(_In_ const HINSTANCE hInstance, _In_ 
         CW_USEDEFAULT,
         MAINWINDOW_WIDTH,
         MAINWINDOW_HEIGHT,
-        nullptr, // this is the parent window
-        nullptr,
+        NULL, // this is the parent window
+        NULL,
         hInstance,
-        nullptr
+        NULL
     );
-    SetProcessDPIAware();
+    SetProcessDPIAware(); // escalates the window dpi, improves clarity and increases pixel density in the window
     ShowWindow(hParentWindow, nCmdShow);
     UpdateWindow(hParentWindow);
     if (!hParentWindow) return FALSE;
@@ -70,10 +73,14 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     LoadStringW(hInstance, IDC_COLORPICKER, szWindowClass, MAX_LOADSTRING);
 
     // register the main window, hInstance is the handle to the main application passed to the program by the windows runtime
-    RegisterMainWindowClass(hInstance);
+    if (!RegisterMainWindowClass(hInstance)) {
+        // TODO
+    }
 
     static const INITCOMMONCONTROLSEX CommCtrlEx = { .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_WIN95_CLASSES };
-    InitCommonControlsEx(&CommCtrlEx);
+    if (!InitCommonControlsEx(&CommCtrlEx)) {
+        // TODO
+    }
 
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
     // defining a logical font object to override the fugly default font
@@ -100,10 +107,10 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_COLORPICKER));
 
     MSG    event;
-    hMonitorContext = GetWindowDC(nullptr);
+    hMonitorContext = GetWindowDC(NULL);
 
     // the main event loop,
-    while (GetMessageW(&event, nullptr, 0, 0)) {
+    while (GetMessageW(&event, NULL, 0, 0)) {
         // changes in the main window and it's child windows will be received and stored in the variable `event`
         if (!TranslateAcceleratorW(event.hwnd, hAccelTable, &event)) {
             TranslateMessage(&event); // process the received message
