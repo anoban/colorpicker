@@ -55,14 +55,14 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     // needs to be in the static memory since these are used even when this callback isn't invoked
     static WCHAR      wszHexColourString[HEXSTRING_SIZE]; // the hex string shown inside the text box
 
-    static INT64      i = 0, iMovedTrackbarId = 0;
+    INT64             i = 0, iMovedTrackbarId = 0;
 
     // needs to be in the static memory since these are used even wehn the callback isn't invoked
-    static WCHAR      wszTrackBarLabelText[5]; // the decimal colour value diplayed next to the track bars
-    static WCHAR      wszUserInput[10];        // buffer to receive user inputs from the edit boxes
-    static const BOOL bUseDarkMode = TRUE;     // make the title bar dark
-    static BOOL       bSliderMoved;
-    static WORD       wChangedEditControlId = 0, wCognateTrackbarId = 0;
+    static WCHAR      wszTrackBarLabelText[5];      // the decimal colour value diplayed next to the track bars
+    static WCHAR      wszUserInput[10];             // buffer to receive user inputs from the edit boxes
+    static const BOOL bUseDarkMode          = TRUE; // make the title bar dark
+    BOOL              bSliderMoved          = FALSE;
+    WORD              wChangedEditControlId = 0, wCognateTrackbarId = 0;
     static HWND       hChangedEditBox;
 
     switch (message) {
@@ -174,7 +174,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 }
 
                 return DefWindowProcW(hParentWindow, message, wParam, lParam);
-            }                            // END CASE WM_CREATE
+            } // END CASE WM_CREATE
 
         case WM_HSCROLL :                // when the horizontal track bars are adjusted,
             {
@@ -282,7 +282,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 SetWindowTextW(hTextBox, wszHexColourString);
                 bSliderMoved = FALSE; // before case break, set this flag to false
                 break;
-            }                         // END CASE WM_HSCROLL
+            } // END CASE WM_HSCROLL
 
         case WM_SETFOCUS :
             {
