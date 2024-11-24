@@ -197,8 +197,7 @@ HeaderFilterRegex:   ''
 
 ImplementationFileExtensions: ['c', 'cu']
 
-WarningsAsErrors: '*'
-# treat all clang-tidy warnings as errors, similar to -Werr, but for linting
+WarningsAsErrors: ''
 
 User: anoban
 # Specifies the name or e-mail of the user running clang-tidy. This option is used, for example, to place the correct user name

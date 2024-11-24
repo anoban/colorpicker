@@ -49,7 +49,6 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     static HWND       hStayOnTopButton;
     static HWND       hLaunchPickerToolButton;
 
-    // iTrackBarCaret is an array of integers
     static INT32      iTrackBarSliderPos[NTRACKBARS];
 
     // needs to be in the static memory since these are used even when this callback isn't invoked
@@ -191,40 +190,39 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                             // https://learn.microsoft.com/en-us/cpp/mfc/slider-notification-messages?view=msvc-170
                             // slider control sends the TB_BOTTOM, TB_LINEDOWN, TB_LINEUP, and TB_TOP notification codes only when
                             // the user interacts with a slider control by using the keyboard
-                        case TB_LINEDOWN :
+                        case TB_LINEDOWN : // TB_LINEDOWN - RIGHT ARROW OR DOWN ARROW
                             iTrackBarSliderPos[iMovedTrackbarId] = min(255, iTrackBarSliderPos[iMovedTrackbarId] + 1);
                             break;
-                            // TB_LINEDOWN - RIGHT ARROW OR DOWN ARROW
 
-                        case TB_LINEUP :
+                        case TB_LINEUP : // TB_LINEUP - LEFT ARROW OR UP ARROW
                             iTrackBarSliderPos[iMovedTrackbarId] = max(0, iTrackBarSliderPos[iMovedTrackbarId] - 1);
                             break;
-                            // TB_LINEUP - LEFT ARROW OR UP ARROW
 
                         case TB_TOP : iTrackBarSliderPos[iMovedTrackbarId] = 0; break; // Home button
 
                         case TB_BOTTOM :                                               // End button
-                            iTrackBarSliderPos[iMovedTrackbarId] = 255;
+                            iTrackBarSliderPos[iMovedTrackbarId] = UCHAR_MAX;
                             break;
 
                             // TB_THUMBPOSITION and TB_THUMBTRACK notification messages are only sent when the user is using the mouse
-                        case TB_THUMBPOSITION : // fallthrough to TB_THUMBTRACK
-
+                        case TB_THUMBPOSITION : [[fallthrough]];
                         case TB_THUMBTRACK :
                             // HIWORD specifies the current position of the slider only if the LOWORD is TB_THUMBPOSITION or TB_THUMBTRACK.
                             iTrackBarSliderPos[iMovedTrackbarId] = HIWORD(wParam);
                             break;
 
                             // TB_ENDTRACK, TB_PAGEDOWN and TB_PAGEUP notification codes are sent in both cases
-                        case TB_PAGEUP :
+                        case TB_PAGEUP : // TB_PAGEUP - user clicked the channel to the left of the slider or hit the Page Up key
                             iTrackBarSliderPos[iMovedTrackbarId] = max(0, iTrackBarSliderPos[iMovedTrackbarId] - PAGE_UPDOWN_STEP);
                             break;
-                            // TB_PAGEUP - user clicked the channel to the left of the slider or hit the Page Up key
 
-                        case TB_PAGEDOWN :
+                        case TB_PAGEDOWN : // user clicked the channel to the RIGHT of the slider
                             iTrackBarSliderPos[iMovedTrackbarId] = min(255, iTrackBarSliderPos[iMovedTrackbarId] + PAGE_UPDOWN_STEP);
                             break;
-                            // TB_PAGEDOWN - user clicked the channel to the RIGHT of the slider
+
+                        default :
+                            MessageBoxW(NULL, L"Warning! " __FUNCTIONW__ " has received an unknown signal fom user", NULL, MB_OK);
+                            break;
                     }
 
                 // if the horizontal adjustment came from the keyboard, move the slider to appropriate position

@@ -1,7 +1,7 @@
 #include <colorpicker.h>
 
 // STACK OVERFLOW HAPPENS WITH /LTCG !!! IN RELEASE MODE!
-// SETTLE IT!
+// FIX IT!
 
 #define MAX_LOADSTRING    50LLU                                    // maximum length limit for strings to load in from colorpicker.rc
 
@@ -10,13 +10,13 @@
 
 static WCHAR                szTitle[MAX_LOADSTRING]       = { 0 }; // title bar text
 static WCHAR                szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
-HFONT                       hfLato;                                // handle to font, our pick here is Lato
-HDC                         hMonitorContext;                       // used to pick colours from the screen
+HFONT                       hfLato                        = NULL;  // handle to font, our pick here is Lato
+HDC                         hMonitorContext               = NULL;  // used to pick colours from the screen
 
 // following globals are used in handlers.c
-HINSTANCE                   hApplicationInst    = NULL; // the main window instance
-HINSTANCE                   hPickerToolInstance = NULL; // colour picker tool's window instance
-INT32                       iFocusedItemId      = 0;
+HINSTANCE                   hApplicationInst              = NULL; // the main window instance
+HINSTANCE                   hPickerToolInstance           = NULL; // colour picker tool's window instance
+INT32                       iFocusedItemId                = 0;
 
 // receives the handle to the current application instance, and registers it to WinGdi
 static inline ATOM CALLBACK RegisterMainWindowClass(_In_ const HINSTANCE hInstance) {
@@ -59,7 +59,7 @@ static inline BOOL CALLBACK DrawMainWindow(_In_ const HINSTANCE hInstance, _In_ 
         hInstance,
         NULL
     );
-    SetProcessDPIAware(); // escalates the window dpi, improves clarity and increases pixel density in the window
+    // SetProcessDPIAware(); // escalates the window dpi, improves clarity and increases pixel density in the window
     ShowWindow(hParentWindow, nCmdShow);
     UpdateWindow(hParentWindow);
     if (!hParentWindow) return FALSE;
@@ -100,6 +100,8 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                                          .lfFaceName       = L"Lato" }; // assumes Lato is installed on the system
 
     hfLato                           = CreateFontIndirectW(&lfFontLato);
+
+    SetProcessDPIAware(); // makes the process aware of the monitor's DPI, improves clarity and increases pixel density in the window
 
     // perform application initialization:
     if (!DrawMainWindow(hInstance, nCmdShow)) return FALSE;
