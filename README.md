@@ -2,7 +2,7 @@
 ------
 
 - A replica of the `Electron` based Colorpicker by [Toinane](https://github.com/Toinane).
-- All design credits goes to him. This is just a `Win32` based C implementation of his JavaScrpit [Colorpicker](https://github.com/Toinane/colorpicker).
+- This is a `Win32` based C reimplementation of his JavaScrpit based [Colorpicker](https://github.com/Toinane/colorpicker).
 
 ### ___Features___
 -----

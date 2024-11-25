@@ -1,6 +1,4 @@
-// NO_DEPENDENCIES
-// Microsoft Visual C++ generated include file.
-// Used by Colorpicker.rc
+#pragma once // Microsoft Visual C++ generated include file, for use by Colorpicker.rc
 
 #define IDS_APP_TITLE          103
 
@@ -14,8 +12,8 @@
 #ifndef IDC_STATIC
     #define IDC_STATIC -1
 #endif
+
 // Next default values for new objects
-//
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS
 
