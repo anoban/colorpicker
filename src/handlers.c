@@ -10,7 +10,7 @@
 #define TRACKBAR_LEFTPAD             20LL  // padding between the left end of the track bars and the left edge of the client window
 #define TRACKBARGRID_VERTICAL_MARGIN 150LL // margin betwen the first track bar and the bottom edge of the title bar
 
-#define TRACKBAR_LABEL_LEFTPAD       20LL  // padding between the right end of the track bar and the left edge of it's cognate label box
+#define TRACKBAR_LABEL_LEFTPAD       20LL // padding between the right end of the track bar and the left edge of it's cognate label box
 #define TRACKBAR_LABEL_WIDTH         50LL
 #define TRACKBAR_LABEL_HEIGHT        30LL
 
@@ -39,22 +39,22 @@ typedef enum {
 
 // DO NOT DO ANYTHING HEAVY INSIDE THE WINDOW PROCEDURE!!
 LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message, _In_ const WPARAM wParam, _In_ const LPARAM lParam) {
-    static COLORREF   crefWindowBackground; // color of the title bar
+    static COLORREF crefWindowBackground; // color of the title bar
 
-    static HBRUSH     hOldBrush;
+    static HBRUSH hOldBrush;
 
-    static HWND       hTrackBars[NTRACKBARS];
-    static HWND       hTrackBarLabel[NTRACKBARS];
-    static HWND       hTextBox; // the text box that shows the hex representation of the RGB colour of choice
-    static HWND       hStayOnTopButton;
-    static HWND       hLaunchPickerToolButton;
+    static HWND hTrackBars[NTRACKBARS];
+    static HWND hTrackBarLabel[NTRACKBARS];
+    static HWND hTextBox; // the text box that shows the hex representation of the RGB colour of choice
+    static HWND hStayOnTopButton;
+    static HWND hLaunchPickerToolButton;
 
-    static INT32      iTrackBarSliderPos[NTRACKBARS];
+    static INT32 iTrackBarSliderPos[NTRACKBARS];
 
     // needs to be in the static memory since these are used even when this callback isn't invoked
-    static WCHAR      wszHexColourString[HEXSTRING_SIZE]; // the hex string shown inside the text box
+    static WCHAR wszHexColourString[HEXSTRING_SIZE]; // the hex string shown inside the text box
 
-    INT64             i = 0, iMovedTrackbarId = 0;
+    INT64 i = 0, iMovedTrackbarId = 0;
 
     // needs to be in the static memory since these are used even wehn the callback isn't invoked
     static WCHAR      wszTrackBarLabelText[5];      // the decimal colour value diplayed next to the track bars
@@ -175,7 +175,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 return DefWindowProcW(hParentWindow, message, wParam, lParam);
             } // END CASE WM_CREATE
 
-        case WM_HSCROLL :                // when the horizontal track bars are adjusted,
+        case WM_HSCROLL : // when the horizontal track bars are adjusted,
             {
                 bSliderMoved     = TRUE; // register that the even was triggered by a slider move
                 // lParam gives the handle to the scroll bar that sent the WM_HSCROLL message
@@ -200,7 +200,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
 
                         case TB_TOP : iTrackBarSliderPos[iMovedTrackbarId] = 0; break; // Home button
 
-                        case TB_BOTTOM :                                               // End button
+                        case TB_BOTTOM : // End button
                             iTrackBarSliderPos[iMovedTrackbarId] = UCHAR_MAX;
                             break;
 
@@ -260,7 +260,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     NULL,       // NULL because we want the entire client area to be redrawn
                     TRUE        // erase the background too
                 );
-                DeleteObject(hOldBrush);   // give up the old brush
+                DeleteObject(hOldBrush); // give up the old brush
 
                 // this line colours the title bar
                 DwmSetWindowAttribute(hParentWindow, DWMWA_CAPTION_COLOR, &crefWindowBackground, sizeof(COLORREF));
@@ -294,7 +294,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
 
         case WM_COMMAND :
             {
-                if (!bSliderMoved) {     // only when the user has typed in something in the edit boxes,
+                if (!bSliderMoved) { // only when the user has typed in something in the edit boxes,
                     switch (HIWORD(wParam)) {
                         case EN_UPDATE : // when the text in edit boxes have been altered
                             wChangedEditControlId = LOWORD(wParam);
@@ -317,7 +317,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                             crefWindowBackground = RGB(iTrackBarSliderPos[0], iTrackBarSliderPos[1], iTrackBarSliderPos[2]);
 
                             hOldBrush            = SetClassLongPtrW( // create a new brush, stores it in the WNDCLASSEXW of parent window
-                                                          // and captures the handle of the old brush in the variable hStaticBrush
+                                // and captures the handle of the old brush in the variable hStaticBrush
                                 hParentWindow,
                                 GCLP_HBRBACKGROUND,
                                 // handle to the newly created brush
@@ -328,7 +328,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                                 NULL,       // NULL because we want the entire client area to be redrawn
                                 TRUE        // erase the background too
                             );
-                            DeleteObject(hOldBrush);   // give up the old brush
+                            DeleteObject(hOldBrush); // give up the old brush
 
                             // this line colours the title bar
                             DwmSetWindowAttribute(hParentWindow, DWMWA_CAPTION_COLOR, &crefWindowBackground, sizeof(COLORREF));

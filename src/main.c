@@ -3,20 +3,20 @@
 // STACK OVERFLOW HAPPENS WITH /LTCG !!! IN RELEASE MODE!
 // FIX IT!
 
-#define MAX_LOADSTRING    50LLU                                    // maximum length limit for strings to load in from colorpicker.rc
+#define MAX_LOADSTRING    50LLU // maximum length limit for strings to load in from colorpicker.rc
 
-#define MAINWINDOW_HEIGHT 330LLU                                   // height of the application window
-#define MAINWINDOW_WIDTH  610LLU                                   // width of the application window
+#define MAINWINDOW_HEIGHT 330LLU // height of the application window
+#define MAINWINDOW_WIDTH  610LLU // width of the application window
 
-static WCHAR                szTitle[MAX_LOADSTRING]       = { 0 }; // title bar text
-static WCHAR                szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
-HFONT                       hfLato                        = NULL;  // handle to font, our pick here is Lato
-HDC                         hMonitorContext               = NULL;  // used to pick colours from the screen
+static WCHAR szTitle[MAX_LOADSTRING]       = { 0 }; // title bar text
+static WCHAR szWindowClass[MAX_LOADSTRING] = { 0 }; // the main window class name
+HFONT        hfLato                        = NULL;  // handle to font, our pick here is Lato
+HDC          hMonitorContext               = NULL;  // used to pick colours from the screen
 
 // following globals are used in handlers.c
-HINSTANCE                   hApplicationInst              = NULL; // the main window instance
-HINSTANCE                   hPickerToolInstance           = NULL; // colour picker tool's window instance
-INT32                       iFocusedItemId                = 0;
+HINSTANCE hApplicationInst                 = NULL; // the main window instance
+HINSTANCE hPickerToolInstance              = NULL; // colour picker tool's window instance
+INT32     iFocusedItemId                   = 0;
 
 // receives the handle to the current application instance, and registers it to WinGdi
 static inline ATOM CALLBACK RegisterMainWindowClass(_In_ const HINSTANCE hInstance) {
@@ -108,7 +108,7 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_COLORPICKER));
 
-    MSG    event;
+    MSG event;
     hMonitorContext = GetWindowDC(NULL);
 
     // the main event loop,
