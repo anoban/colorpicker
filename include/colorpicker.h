@@ -1,7 +1,8 @@
 #pragma once
+
 #define _AMD64_
 #define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_MEAN
+#define VC_EXTRALEAN
 
 // clang-format off
     #include <windef.h>
@@ -14,9 +15,13 @@
 
 #include <limits.h>
 #include <math.h>
-#include <resource.h> // project header
 #include <string.h>
 
+// clang-format off
+#include <resource.h> // project header
+// clang-format on
+
+// static link libs
 #pragma comment(lib, "Dwmapi.lib")
 #pragma comment(lib, "Gdi32.lib")
 #pragma comment(lib, "comctl32.lib")

@@ -1,6 +1,6 @@
 #include <colorpicker.h>
 
-#define HEXSTRING_SIZE               20LLU
+#define HEXSTRING_SIZE               20LLU // max length of the hexadecimal colour code string e.g. "#00AEEF"
 
 #define VSPACE_TRACKBARS             40LL // space subsequent track bars at this vertical distances
 #define NTRACKBARS                   3LL  // number of track bars used in the application
@@ -340,7 +340,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                                 (STRSAFE_LPWSTR*) (wszHexColourString + __crt_countof(wszHexColourString)) /* end of buffer */,
                                 NULL,
                                 STRSAFE_FILL_BEHIND_NULL | STRSAFE_FILL_ON_FAILURE,
-                                L"#%02X%02X%02X", // #RRGGBB
+                                L"#%02X%02X%02X", // "#RRGGBB"
                                 iTrackBarSliderPos[0],
                                 iTrackBarSliderPos[1],
                                 iTrackBarSliderPos[2]
