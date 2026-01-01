@@ -1,8 +1,6 @@
 #include <colorpicker.h>
 
-#define HEXSTRING_SIZE               20LLU // max length of the hexadecimal colour code string e.g. "#00AEEF"
-
-#define VSPACE_TRACKBARS             40LL // space subsequent track bars at this vertical distances
+#define VSPACE_TRACKBARS             40LL // vertical separation between subsequent track bars
 #define NTRACKBARS                   3LL  // number of track bars used in the application
 
 #define TRACKBAR_WIDTH               260LL
@@ -14,6 +12,7 @@
 #define TRACKBAR_LABEL_WIDTH         50LL
 #define TRACKBAR_LABEL_HEIGHT        30LL
 
+#define HEXSTRING_SIZE               20LLU // max length of the hexadecimal colour code string e.g. "#00AEEF"
 #define HEXSTRING_TEXTBOX_WIDTH      120LL
 #define HEXSTRING_TEXTBOX_HEIGHT     30LL
 
@@ -44,8 +43,8 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     static HBRUSH hOldBrush;
 
     static HWND hTrackBars[NTRACKBARS];
-    static HWND hTrackBarLabel[NTRACKBARS];
-    static HWND hTextBox; // the text box that shows the hex representation of the RGB colour of choice
+    static HWND hTrackBarLabels[NTRACKBARS];
+    static HWND hHexStringTextBox; // the text box that shows the hex representation of the RGB colour of choice
     static HWND hStayOnTopButton;
     static HWND hLaunchPickerToolButton;
 
@@ -72,10 +71,10 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
                 // enable immersive dark mode, where the colour of the title bar becomes customizeable
                 DwmSetWindowAttribute(hParentWindow, DWMWA_USE_IMMERSIVE_DARK_MODE, &bUseDarkMode, sizeof(BOOL));
-                // set the colour of title bar to the same colour as the client window (stored in crefTitleBar)
+                // set the colour of title bar to the same colour as the client window
                 DwmSetWindowAttribute(hParentWindow, DWMWA_BORDER_COLOR, &crefWindowBackground, sizeof(COLORREF));
 
-                hTextBox                = CreateWindowExW( // the text window that displays the hex RGB string
+                hHexStringTextBox                = CreateWindowExW( // the text window that displays the hex RGB string
                     0L,
                     L"EDIT",
                     NULL,
@@ -122,7 +121,8 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                 );
 
                 // override the default font with the customized one for the text box
-                SendMessageW(hTextBox, WM_SETFONT, (WPARAM) hfLato, TRUE);
+                // by the time this is called, the global hfLato would've been initialized by wWinMain
+                SendMessageW(hHexStringTextBox, WM_SETFONT, (WPARAM) hfLato, TRUE);
 
                 // creation of the three track bars, their labels and their corresponding label texts
                 for (i = 0; i < NTRACKBARS; ++i) {
@@ -133,7 +133,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                         WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | TBS_AUTOTICKS | TBS_HORZ,
                         TRACKBAR_LEFTPAD,
                         i * VSPACE_TRACKBARS + TRACKBARGRID_VERTICAL_MARGIN,
-                        // + 25 padding because we don't want the first track bar being really close to the title bar
+                        // adding extra padding for the first one because we don't want the first track bar being really close to the title bar
                         TRACKBAR_WIDTH,
                         TRACKBAR_HEIGHT,
                         hParentWindow,
@@ -143,17 +143,13 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     );
 
                     // messages prefixed with TBM_* are related to track bar controls
-                    SendMessageW(hTrackBars[i], TBM_SETRANGE, TRUE /* redraw window */, MAKELONG(0, 255));
-                    // the slider range from 0 to 255
+                    SendMessageW(hTrackBars[i], TBM_SETRANGE, TRUE /* redraw window */, MAKELONG(0, 255)); // the slider range from 0 to 255
                     SendMessageW(hTrackBars[i], TBM_SETPAGESIZE, FALSE, PAGE_UPDOWN_STEP);
-                    // the number of logical positions the trackbar's slider moves in response to keyboard input, such as the or keys, or
-                    // mouse input, such as clicks in the trackbar's channel
-                    SendMessageW(hTrackBars[i], TBM_SETTICFREQ, TRUE, PAGE_UPDOWN_STEP);
-                    // set the spaces between adjacent ticks
-                    SendMessageW(hTrackBars[i], TBM_SETPOS, TRUE, 0);
-                    // set the slider position at window launch
+                    // the number of logical positions the trackbar's slider moves in response to keyboard input, such as the or keys, or mouse input, such as clicks in the trackbar's channel
+                    SendMessageW(hTrackBars[i], TBM_SETTICFREQ, TRUE, PAGE_UPDOWN_STEP); // set the spaces between adjacent ticks
+                    SendMessageW(hTrackBars[i], TBM_SETPOS, TRUE, 0);                    // set the slider position at window launch
 
-                    hTrackBarLabel[i] = CreateWindowExW(
+                    hTrackBarLabels[i] = CreateWindowExW(
                         0L,
                         L"EDIT",
                         NULL,
@@ -169,7 +165,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     );
 
                     // set the customized font for use in the track bar label texts
-                    SendMessageW(hTrackBarLabel[i], WM_SETFONT, (WPARAM) hfLato, TRUE);
+                    SendMessageW(hTrackBarLabels[i], WM_SETFONT, (WPARAM) hfLato, TRUE);
                 }
 
                 return DefWindowProcW(hParentWindow, message, wParam, lParam);
@@ -238,7 +234,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     L"%3d",
                     iTrackBarSliderPos[iMovedTrackbarId]
                 );
-                SetWindowTextW(hTrackBarLabel[iMovedTrackbarId], wszTrackBarLabelText);
+                SetWindowTextW(hTrackBarLabels[iMovedTrackbarId], wszTrackBarLabelText);
 
                 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setclasslongptrw
                 // SetClassLongPtrW first finds the member of the WNDCLASSW structure specified by the nIndex argument
@@ -277,7 +273,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                     iTrackBarSliderPos[1],
                     iTrackBarSliderPos[2]
                 );
-                SetWindowTextW(hTextBox, wszHexColourString);
+                SetWindowTextW(hHexStringTextBox, wszHexColourString);
                 bSliderMoved = FALSE; // before case break, set this flag to false
                 break;
             } // END CASE WM_HSCROLL
@@ -345,7 +341,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                                 iTrackBarSliderPos[1],
                                 iTrackBarSliderPos[2]
                             );
-                            SetWindowTextW(hTextBox, wszHexColourString);
+                            SetWindowTextW(hHexStringTextBox, wszHexColourString);
                             bSliderMoved = FALSE;
                             break;
 

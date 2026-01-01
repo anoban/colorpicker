@@ -2,7 +2,8 @@
 
 #define _AMD64_
 #define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN // WIN32_EXTRA_LEAN has no effect https://jeffpar.github.io/kbarchive/kb/166/Q166474/
+#define VC_EXTRALEAN
+// #define WIN32_EXTRA_LEAN has no effect https://jeffpar.github.io/kbarchive/kb/166/Q166474/
 
 // clang-format off
     #include <windef.h>
