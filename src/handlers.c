@@ -42,13 +42,13 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
 
     static HBRUSH hOldBrush;
 
-    static HWND hTrackBars[NTRACKBARS];
-    static HWND hTrackBarLabels[NTRACKBARS];
-    static HWND hHexStringTextBox; // the text box that shows the hex representation of the RGB colour of choice
-    static HWND hStayOnTopButton;
-    static HWND hLaunchPickerToolButton;
+    HWND hTrackBars[NTRACKBARS]          = { 0 };
+    HWND hTrackBarLabels[NTRACKBARS]     = { 0 };
+    HWND hHexStringTextBox               = { 0 }; // the text box that shows the hex representation of the RGB colour of choice
+    HWND hStayOnTopButton                = { 0 };
+    HWND hLaunchPickerToolButton         = { 0 };
 
-    static INT32 iTrackBarSliderPos[NTRACKBARS];
+    INT32 iTrackBarSliderPos[NTRACKBARS] = { 0 };
 
     // needs to be in the static memory since these are used even when this callback isn't invoked
     static WCHAR wszHexColourString[HEXSTRING_SIZE]; // the hex string shown inside the text box
@@ -56,12 +56,12 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
     INT64 i = 0, iMovedTrackbarId = 0;
 
     // needs to be in the static memory since these are used even wehn the callback isn't invoked
-    static WCHAR      wszTrackBarLabelText[5];      // the decimal colour value diplayed next to the track bars
-    static WCHAR      wszUserInput[10];             // buffer to receive user inputs from the edit boxes
-    static const BOOL bUseDarkMode          = TRUE; // make the title bar dark
-    BOOL              bSliderMoved          = FALSE;
-    WORD              wChangedEditControlId = 0, wCognateTrackbarId = 0;
-    static HWND       hChangedEditBox;
+    static WCHAR wszTrackBarLabelText[5];      // the decimal colour value diplayed next to the track bars
+    static WCHAR wszUserInput[10];             // buffer to receive user inputs from the edit boxes
+    const BOOL   bUseDarkMode          = TRUE; // make the title bar dark
+    BOOL         bSliderMoved          = FALSE;
+    WORD         wChangedEditControlId = 0, wCognateTrackbarId = 0;
+    HWND         hChangedEditBox = { 0 };
 
     switch (message) {
         case WM_CREATE :
@@ -217,7 +217,7 @@ LRESULT CALLBACK WindowHandler(_In_ HWND hParentWindow, _In_ const UINT message,
                             break;
 
                         default :
-                            MessageBoxW(NULL, L"Warning! " __FUNCTIONW__ " has received an unknown signal fom user", NULL, MB_OK);
+                            MessageBoxW(NULL, L"Warning! " __FUNCTIONW__ " received an unknown WM_HSCROLL signal fom user", NULL, MB_OK);
                             break;
                     }
 

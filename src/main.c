@@ -59,7 +59,8 @@ static inline BOOL CALLBACK DrawMainWindow(_In_ const HINSTANCE hInstance, _In_ 
         hInstance,
         NULL
     );
-    // SetProcessDPIAware(); // escalates the window dpi, improves clarity and increases pixel density in the window
+
+    SetProcessDPIAware(); // makes the process aware of the monitor's DPI, improves clarity and increases pixel density in the window
     ShowWindow(hParentWindow, nCmdShow);
     UpdateWindow(hParentWindow);
     if (!hParentWindow) return FALSE;
@@ -74,12 +75,14 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     // register the main window, hInstance is the handle to the main application passed to the program by the windows runtime
     if (!RegisterMainWindowClass(hInstance)) {
-        // TODO
+        MessageBoxW(NULL, L"Call to RegisterMainWindowClass failed inside " __FUNCTIONW__, szTitle, MB_ICONERROR);
+        return EXIT_FAILURE;
     }
 
     static const INITCOMMONCONTROLSEX CommCtrlEx = { .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_WIN95_CLASSES };
     if (!InitCommonControlsEx(&CommCtrlEx)) {
-        // TODO
+        MessageBoxW(NULL, L"Call to InitCommonControlsEx failed inside " __FUNCTIONW__, szTitle, MB_ICONERROR);
+        return EXIT_FAILURE;
     }
 
     // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
@@ -101,10 +104,11 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     hfLato                           = CreateFontIndirectW(&lfFontLato);
 
-    SetProcessDPIAware(); // makes the process aware of the monitor's DPI, improves clarity and increases pixel density in the window
-
     // perform application initialization:
-    if (!DrawMainWindow(hInstance, nCmdShow)) return FALSE;
+    if (!DrawMainWindow(hInstance, nCmdShow)) {
+        MessageBoxW(NULL, L"Call to DrawMainWindow failed inside " __FUNCTIONW__, szTitle, MB_ICONERROR);
+        return EXIT_FAILURE;
+    }
 
     HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_COLORPICKER));
 
