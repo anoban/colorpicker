@@ -13,12 +13,12 @@ NODEBUG = -DNDEBUG -D_NDEBUG -O3 -g0
 # -pthread was part of the pkg-config --cflags gtk4 output
 CFALGS = -Wall -Wextra -Wdeprecated-declarations -std=c23 -march=tigerlake -mavx512f -ffast-math -mprefer-vector-width=512 -pthread
 
-TARGET:
+target:
 	main
 
-BUILD:
-	$(COMPILER) $(TARGET).c $(GTK4_DEFINES) $(NODEBUG) $(GTK4_INCLUDE_PATHS) $(GTK4_LIBS) $(CFALGS) -o colorpicker
+build:
+	$(COMPILER) $(target).c $(GTK4_DEFINES) $(NODEBUG) $(GTK4_INCLUDE_PATHS) $(GTK4_LIBS) $(CFALGS) -o colorpicker.out
 
-CLEAN:
+clean:
 	rm -rf ./*.out
 	rm -rf ./*.o
