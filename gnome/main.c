@@ -3,7 +3,7 @@
 #define MAINWINDOW_HEIGHT 330 // height of the application window
 #define MAINWINDOW_WIDTH  610 // width of the application window
 
-static inline void activate(GtkApplication* const _instance, void* const _args) {
+static inline void activate(GtkApplication* const _instance, [[maybe_unused]] void* const _args) {
     GtkWidget* const window = gtk_application_window_new(_instance);
     gtk_window_set_title(GTK_WINDOW(window), "Colorpicker");
     gtk_window_set_default_size(GTK_WINDOW(window), MAINWINDOW_WIDTH, MAINWINDOW_HEIGHT);
