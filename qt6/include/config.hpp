@@ -6,8 +6,8 @@
 static constexpr unsigned long MAINWINDOW_HEIGHT { 330 }; // height of the application window
 static constexpr unsigned long MAINWINDOW_WIDTH { 610 };  // width of the application window
 
-#define VSPACE_TRACKBARS 40 // vertical separation between subsequent track bars
-#define NTRACKBARS       3  // number of track bars used in the application
+static constexpr unsigned long VSPACE_TRACKBARS { 40 }; // vertical separation between subsequent track bars
+static constexpr unsigned long NTRACKBARS { 3 };        // number of track bars used in the application
 
 static constexpr unsigned long TRACKBAR_WIDTH { 260 };
 static constexpr unsigned long TRACKBAR_HEIGHT { 25 };
@@ -22,6 +22,6 @@ static constexpr unsigned long HEXSTRING_SIZE { 20 }; // max length of the hexad
 static constexpr unsigned long HEXSTRING_TEXTBOX_WIDTH { 120 };
 static constexpr unsigned long HEXSTRING_TEXTBOX_HEIGHT { 30 };
 
-#define PAGE_UPDOWN_STEP  17 // distance to move the slider on the track bar, when page-up or page-down keys were pressed
+static constexpr unsigned longPAGE_UPDOWN_STEP { 17 }; // distance to move the slider on the track bar, when page-up or page-down keys were pressed
 
-#define APPLICATION_TITLE "Colorpicker"
+static const char* const APPLICATION_TITLE { "Colorpicker" };
