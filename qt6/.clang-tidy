@@ -109,7 +109,6 @@ Checks: >
   cert-err52-cpp,
   cppcoreguidelines-init-variables,
   cppcoreguidelines-narrowing-conversions,
-  google-runtime-int,
   misc-confusable-identifiers,
   misc-definitions-in-headers,
   misc-header-include-cycle,
