@@ -1,0 +1,25 @@
+CompileFlags:
+  Add: [-Wall, -Wextra, -Wpedantic, -O0, -std=c23, -c, -DDEBUG, -D_DEBUG, -I/usr/include/qt6]
+  Compiler:  clang.exe
+  CompilationDatabase: None
+
+Completion:
+  AllScopes: Yes
+
+Index:
+  Background: Skip
+
+InlayHints:
+  BlockEnd: Yes
+  Designators: Yes
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+  TypeNameLimit: 0
+
+Hover:
+  ShowAKA: Yes
+
+Diagnostics:
+  ClangTidy:
+    FastCheckFilter: None
