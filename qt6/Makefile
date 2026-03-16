@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
-INCPATH       = -I. -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I. -I/usr/lib64/qt6/mkspecs/linux-g++
+INCPATH       = -I. -Iinclude -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I. -I/usr/lib64/qt6/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake6
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -52,8 +52,9 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = colorpicker.cpp 
-OBJECTS       = colorpicker.o
+SOURCES       = colorpicker.cpp moc_mainwindow.cpp
+OBJECTS       = colorpicker.o \
+		moc_mainwindow.o
 DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/common/unix.conf \
 		/usr/lib64/qt6/mkspecs/common/linux.conf \
@@ -221,7 +222,9 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/exceptions.prf \
 		/usr/lib64/qt6/mkspecs/features/yacc.prf \
 		/usr/lib64/qt6/mkspecs/features/lex.prf \
-		colorpicker.pro include/colorpicker.hpp colorpicker.cpp
+		colorpicker.pro include/colorpicker.hpp \
+		include/config.hpp \
+		include/mainwindow.hpp colorpicker.cpp
 QMAKE_TARGET  = colorpicker
 DESTDIR       = 
 TARGET        = colorpicker
@@ -591,7 +594,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib64/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/colorpicker.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents colorpicker.cpp $(DISTDIR)/
 
 
@@ -624,8 +627,16 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all:
+compiler_moc_header_make_all: moc_mainwindow.cpp
 compiler_moc_header_clean:
+	-$(DEL_FILE) moc_mainwindow.cpp
+moc_mainwindow.cpp: include/mainwindow.hpp \
+		include/config.hpp \
+		include/colorpicker.hpp \
+		moc_predefs.h \
+		/usr/lib64/qt6/libexec/moc
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/mainwindow.hpp -o moc_mainwindow.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -638,12 +649,17 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean 
+compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean 
 
 ####### Compile
 
-colorpicker.o: colorpicker.cpp 
+colorpicker.o: colorpicker.cpp include/mainwindow.hpp \
+		include/config.hpp \
+		include/colorpicker.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o colorpicker.o colorpicker.cpp
+
+moc_mainwindow.o: moc_mainwindow.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
 
 ####### Install
 
