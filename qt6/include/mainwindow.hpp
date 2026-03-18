@@ -3,21 +3,24 @@
     #define __MAINWINDOW_HPP 1
 #endif
 
-#include <config.hpp>
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>
+#include <QtWidgets/QWidget>
+
+// clang-format off
+#include <config.hpp>
+#include <rgbhexstring.hpp>
+// clang-format on
 
 class main_window final : public QMainWindow {
         Q_OBJECT
 
     private:
-        std::array<QSlider, configs::trackbars::N>  _rgbsliders;
-        std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes;
+        std::array<QSlider, configs::trackbars::N>  _rgbsliders;   // sliders for RGB colours
+        std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes; // labels for the RGB sliders
 
-        QLineEdit _hexstring;
+        rgbhexstring _hexstring;
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -25,14 +28,9 @@ class main_window final : public QMainWindow {
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
 
-            _rgbsliders {
-                QSlider { Qt::Orientation::Horizontal, this },
-                 QSlider { Qt::Orientation::Horizontal, this },
-                 QSlider { Qt::Orientation::Horizontal, this }
-        },
-
-            _rgbspinboxes { QSpinBox { this }, QSpinBox { this }, QSpinBox { this } },
-            _hexstring(this) {
+            _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
+            _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
+            _hexstring { this } {
             //
             setFixedWidth(configs::main_window::WIDTH);
             setFixedHeight(configs::main_window::HEIGHT);
@@ -86,8 +84,11 @@ class main_window final : public QMainWindow {
         }
 
     private:
-        inline void __connect_signals_to_slots() noexcept {
+        inline void __connect_signals_to_slots() const noexcept {
+            // establishing two way communication between sliders and their corresponding labels
+            // connect the QSlider::valueChanged signal of each slider to the SpinBox::setValue slot of their corresponding label
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbsliders[i], &QSlider::valueChanged, &_rgbspinboxes[i], &QSpinBox::setValue);
+            // connect the QSpinBox::valueChanged signal of each label to the QSlider::setValue slot of their corresponding slider
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
         }
 };
