@@ -20,7 +20,8 @@ class main_window final : public QMainWindow {
         std::array<QSlider, configs::trackbars::N>  _rgbsliders;   // sliders for RGB colours
         std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes; // labels for the RGB sliders
         rgbhexstring                                _hexstring;
-        unsigned                                    _red, _green, _blue;
+        int                                         _red, _green, _blue;
+        QPalette                                    _palette;
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -33,8 +34,11 @@ class main_window final : public QMainWindow {
             _hexstring { this },
             _red {},
             _green {},
-            _blue {} {
+            _blue {},
+            _palette {} {
             //
+
+            setAutoFillBackground(true);
             setFixedWidth(configs::main_window::WIDTH);
             setFixedHeight(configs::main_window::HEIGHT);
 
@@ -80,8 +84,19 @@ class main_window final : public QMainWindow {
         }
 
     public:
-        Q_SLOT inline void __attribute__((__always_inline__)) __update_bg_on_rslider_move(int _new_value) noexcept {
-            //
+        Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
+            _red = _new_value;
+            __update_bg();
+        }
+
+        Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
+            _green = _new_value;
+            __update_bg();
+        }
+
+        Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
+            _blue = _new_value;
+            __update_bg();
         }
 
     private:
@@ -96,5 +111,15 @@ class main_window final : public QMainWindow {
             connect(&_rgbsliders[0], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
             connect(&_rgbsliders[1], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
             connect(&_rgbsliders[2], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);
+
+            //
+            connect(&_rgbsliders[0], &QSlider::valueChanged, this, &main_window::rslider_moved);
+            connect(&_rgbsliders[1], &QSlider::valueChanged, this, &main_window::gslider_moved);
+            connect(&_rgbsliders[2], &QSlider::valueChanged, this, &main_window::bslider_moved);
+        }
+
+        inline void __attribute__((__always_inline__)) __update_bg() noexcept {
+            _palette.setColor(QPalette::Window, QColor { _red, _green, _blue });
+            setPalette(_palette);
         }
 };
