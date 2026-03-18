@@ -15,8 +15,8 @@ EQ            = =
 CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
-CFLAGS        = -pipe -O2 -flto -fno-fat-lto-objects -Wall -Wextra -D_REENTRANT $(DEFINES)
-CXXFLAGS      = -pipe -O2 -std=gnu++2a -flto -fno-fat-lto-objects -Wall -Wextra -D_REENTRANT $(DEFINES)
+CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
+CXXFLAGS      = -pipe -std=c++20 -march=tigerlake -mavx512f -ffast-math -mprefer-vector-width=512 -Wno-class-memaccess -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
 INCPATH       = -I. -Iinclude -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I. -I/usr/lib64/qt6/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake6
 DEL_FILE      = rm -f
@@ -39,9 +39,9 @@ COMPRESS      = gzip -9f
 DISTNAME      = colorpicker.out1.0.0
 DISTDIR = /home/anoban/github/colorpicker/qt6/.tmp/colorpicker.out1.0.0
 LINK          = g++
-LFLAGS        = -Wl,-O1 -pipe -O2 -std=gnu++2a -flto=8 -fno-fat-lto-objects -fuse-linker-plugin -Wl,-rpath-link,/usr/lib64
+LFLAGS        = -Wl,-O1 -Wl,-rpath-link,/usr/lib64
 LIBS          = $(SUBLIBS) /usr/lib64/libQt6Widgets.so /usr/lib64/libQt6Gui.so /usr/lib64/libQt6Core.so -lpthread -lGLX -lOpenGL   
-AR            = gcc-ar cqs
+AR            = ar cqs
 RANLIB        = 
 SED           = sed
 STRIP         = strip
@@ -52,9 +52,11 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = colorpicker.cpp moc_mainwindow.cpp
+SOURCES       = colorpicker.cpp moc_mainwindow.cpp \
+		moc_rgbhexstring.cpp
 OBJECTS       = colorpicker.o \
-		moc_mainwindow.o
+		moc_mainwindow.o \
+		moc_rgbhexstring.o
 DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/common/unix.conf \
 		/usr/lib64/qt6/mkspecs/common/linux.conf \
@@ -207,8 +209,6 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/default_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/resolve_config.prf \
 		/usr/lib64/qt6/mkspecs/features/default_post.prf \
-		/usr/lib64/qt6/mkspecs/features/link_ltcg.prf \
-		/usr/lib64/qt6/mkspecs/features/ltcg.prf \
 		/usr/lib64/qt6/mkspecs/features/warn_on.prf \
 		/usr/lib64/qt6/mkspecs/features/permissions.prf \
 		/usr/lib64/qt6/mkspecs/features/qt.prf \
@@ -226,7 +226,8 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/lex.prf \
 		colorpicker.pro include/colorpicker.hpp \
 		include/config.hpp \
-		include/mainwindow.hpp colorpicker.cpp
+		include/mainwindow.hpp \
+		include/rgbhexstring.hpp colorpicker.cpp
 QMAKE_TARGET  = colorpicker.out
 DESTDIR       = 
 TARGET        = colorpicker.out
@@ -390,8 +391,6 @@ Makefile: colorpicker.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64
 		/usr/lib64/qt6/mkspecs/features/default_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/resolve_config.prf \
 		/usr/lib64/qt6/mkspecs/features/default_post.prf \
-		/usr/lib64/qt6/mkspecs/features/link_ltcg.prf \
-		/usr/lib64/qt6/mkspecs/features/ltcg.prf \
 		/usr/lib64/qt6/mkspecs/features/warn_on.prf \
 		/usr/lib64/qt6/mkspecs/features/permissions.prf \
 		/usr/lib64/qt6/mkspecs/features/qt.prf \
@@ -564,8 +563,6 @@ Makefile: colorpicker.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64
 /usr/lib64/qt6/mkspecs/features/default_pre.prf:
 /usr/lib64/qt6/mkspecs/features/resolve_config.prf:
 /usr/lib64/qt6/mkspecs/features/default_post.prf:
-/usr/lib64/qt6/mkspecs/features/link_ltcg.prf:
-/usr/lib64/qt6/mkspecs/features/ltcg.prf:
 /usr/lib64/qt6/mkspecs/features/warn_on.prf:
 /usr/lib64/qt6/mkspecs/features/permissions.prf:
 /usr/lib64/qt6/mkspecs/features/qt.prf:
@@ -600,7 +597,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib64/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp include/rgbhexstring.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents colorpicker.cpp $(DISTDIR)/
 
 
@@ -631,17 +628,25 @@ compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
 moc_predefs.h: /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
-	g++ -pipe -O2 -std=gnu++2a -flto -fno-fat-lto-objects -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
+	g++ -pipe -std=c++20 -march=tigerlake -mavx512f -ffast-math -mprefer-vector-width=512 -Wno-class-memaccess -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_rgbhexstring.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_rgbhexstring.cpp
 moc_mainwindow.cpp: include/mainwindow.hpp \
+		include/config.hpp \
+		include/colorpicker.hpp \
+		include/rgbhexstring.hpp \
+		moc_predefs.h \
+		/usr/lib64/qt6/libexec/moc
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/mainwindow.hpp -o moc_mainwindow.cpp
+
+moc_rgbhexstring.cpp: include/rgbhexstring.hpp \
 		include/config.hpp \
 		include/colorpicker.hpp \
 		moc_predefs.h \
 		/usr/lib64/qt6/libexec/moc
-	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/mainwindow.hpp -o moc_mainwindow.cpp
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/rgbhexstring.hpp -o moc_rgbhexstring.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -661,11 +666,15 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 colorpicker.o: colorpicker.cpp include/mainwindow.hpp \
 		include/config.hpp \
-		include/colorpicker.hpp
+		include/colorpicker.hpp \
+		include/rgbhexstring.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o colorpicker.o colorpicker.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
+
+moc_rgbhexstring.o: moc_rgbhexstring.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_rgbhexstring.o moc_rgbhexstring.cpp
 
 ####### Install
 

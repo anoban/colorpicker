@@ -19,8 +19,7 @@ class main_window final : public QMainWindow {
     private:
         std::array<QSlider, configs::trackbars::N>  _rgbsliders;   // sliders for RGB colours
         std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes; // labels for the RGB sliders
-
-        rgbhexstring _hexstring;
+        rgbhexstring                                _hexstring;
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -69,7 +68,8 @@ class main_window final : public QMainWindow {
                     configs::trackbars::labels::HEIGHT
                 );
                 _rgbspinboxes[i].setButtonSymbols(QAbstractSpinBox::NoButtons);
-                _rgbspinboxes[i].setRange(0, 255);
+                _rgbspinboxes[i].setRange(std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max());
+                _rgbspinboxes[i].setAlignment(Qt::AlignmentFlag::AlignCenter);
             }
 
             _hexstring.setGeometry(
@@ -87,8 +87,13 @@ class main_window final : public QMainWindow {
         inline void __connect_signals_to_slots() const noexcept {
             // establishing two way communication between sliders and their corresponding labels
             // connect the QSlider::valueChanged signal of each slider to the SpinBox::setValue slot of their corresponding label
-            for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbsliders[i], &QSlider::valueChanged, &_rgbspinboxes[i], &QSpinBox::setValue);
+            for (unsigned i = 0; i < _rgbsliders.size(); ++i) connect(&_rgbsliders[i], &QSlider::valueChanged, &_rgbspinboxes[i], &QSpinBox::setValue);
             // connect the QSpinBox::valueChanged signal of each label to the QSlider::setValue slot of their corresponding slider
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
+
+            //
+            connect(&_rgbsliders[0], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
+            connect(&_rgbsliders[1], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
+            connect(&_rgbsliders[2], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);
         }
 };
