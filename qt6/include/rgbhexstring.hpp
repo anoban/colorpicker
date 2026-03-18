@@ -33,45 +33,45 @@ class rgbhexstring final : public QLineEdit {
                 configs::hexstring::WIDTH,
                 configs::hexstring::HEIGHT
             );
-            setAlignment(Qt::AlignmentFlag::AlignCenter);
+            setAlignment(Qt::AlignmentFlag::AlignCenter); // not working????
         }
 
-        Q_SLOT inline void rslider_moved(int _value) noexcept {
-            _rslider_value = _value;
+        Q_SLOT inline void rslider_moved(int _new_value) noexcept {
+            _rslider_value = _new_value;
             __update_hexstring();
-            // ::puts("Red!");
         }
 
-        Q_SLOT inline void gslider_moved(int _value) noexcept {
-            _gslider_value = _value;
+        Q_SLOT inline void gslider_moved(int _new_value) noexcept {
+            _gslider_value = _new_value;
             __update_hexstring();
-            // ::puts("Green!");
         }
 
-        Q_SLOT inline void bslider_moved(int _value) noexcept {
-            _bslider_value = _value;
+        Q_SLOT inline void bslider_moved(int _new_value) noexcept {
+            _bslider_value = _new_value;
             __update_hexstring();
-            // ::puts("Blue!");
         }
 
     private:
         inline void __attribute__((__always_inline__)) __update_hexstring() noexcept {
             // static_assert(sizeof(QChar) == sizeof(wchar_t));                   // QChar is equivalent to unsigned short
-            // the above requires -fshort-wchar compiler flag
-            // by default, wchar_t is 4 bytes on linux??? not 2 bytes
+            // the above requires -fshort-wchar compiler flag because by default, wchar_t is 4 bytes on linux??? not 2 bytes
             ::memset(_hexstring.data(), 0, sizeof(QChar) * _hexstring.size()); // clean up the buffer before every write
-            // ::swprintf(reinterpret_cast<wchar_t*>(_hexstring.data()), _hexstring.size(), L"#%02X%02X%02X", _rslider_value, _gslider_value, _bslider_value);
+
             // https://stackoverflow.com/questions/4784155/how-to-format-a-qstring
             // even if we use two byte wchar_t s, we don't know that there's alternative implementations for all the stdio.h functions to handle 2 byte wchar_t s????
             // https://doc.qt.io/qt-6/qstring.html#asprintf QString::asprintf isn't recommended in new Qt code :(
-            // _hexstring.asprintf("#%02X%02X%02X", _rslider_value, _gslider_value, _bslider_value); // seems the most sensible way to accomplish this
-            QTextStream(&_hexstring) << '#'
-                                     << Qt::hex /* we want the hex representation */ << Qt::uppercasedigits /* we want the hex representations in upper case */
-                                     << QTextStream::AlignRight /* when we only have one digit, pad with a zero on the left */
-                                     << ::qSetFieldWidth(2)     /* we want fixed width of 2 characters */
-                                     << _rslider_value << _gslider_value << _bslider_value;
-            // setText(_hexstring);
-            setText(QString("#%1%2%3").arg(_rslider_value, 2, 16, u'0').arg(_gslider_value, 2, 16, u'0').arg(_bslider_value, 2, 16, u'0'));
+
+            auto sstream = QTextStream(&_hexstring);
+            sstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
+            sstream.setFieldAlignment(QTextStream::AlignRight); // when we only have one digit, pad with a zero on the left
+
+            sstream << '#' << Qt::hex      // we want the hex representation
+                    << Qt::uppercasedigits // we want the hex representations in upper case
+                    << ::qSetFieldWidth(2) // we want fixed width of 2 characters
+                    << _rslider_value << _gslider_value << _bslider_value;
+
+            // setText(QString("#%1%2%3").arg(_rslider_value, 2, 16, u'0').arg(_gslider_value, 2, 16, u'0').arg(_bslider_value, 2, 16, u'0'));
             // ::puts(_hexstring.toStdString().c_str());
+            setText(_hexstring);
         }
 };

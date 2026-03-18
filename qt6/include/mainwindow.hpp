@@ -20,6 +20,7 @@ class main_window final : public QMainWindow {
         std::array<QSlider, configs::trackbars::N>  _rgbsliders;   // sliders for RGB colours
         std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes; // labels for the RGB sliders
         rgbhexstring                                _hexstring;
+        QColor                                      _bgcolour; // background colour
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
