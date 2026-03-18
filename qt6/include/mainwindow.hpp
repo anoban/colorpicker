@@ -72,14 +72,6 @@ class main_window final : public QMainWindow {
                 _rgbspinboxes[i].setAlignment(Qt::AlignmentFlag::AlignCenter);
             }
 
-            _hexstring.setGeometry(
-                configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD + configs::trackbars::labels::WIDTH +
-                    configs::trackbars::labels::PAD,
-                configs::trackbars::VERTICAL_MARGIN + 2 * configs::trackbars::VSPACE,
-                configs::hexstring::WIDTH,
-                configs::hexstring::HEIGHT
-            );
-
             __connect_signals_to_slots();
         }
 

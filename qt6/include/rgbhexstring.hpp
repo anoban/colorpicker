@@ -25,23 +25,33 @@ class rgbhexstring final : public QLineEdit {
     public:
         inline rgbhexstring(QWidget* const _parent_window = nullptr) noexcept :
             QLineEdit(_parent_window), _rslider_value {}, _gslider_value {}, _bslider_value {}, _hexstring {} {
-            //
             _hexstring.resize(configs::hexstring::SIZE);
+            setGeometry( // since we have control over this class's implementation, let's do this inside the ctor, instead of having main window do this
+                configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD + configs::trackbars::labels::WIDTH +
+                    configs::trackbars::labels::PAD,
+                configs::trackbars::VERTICAL_MARGIN + 2 * configs::trackbars::VSPACE,
+                configs::hexstring::WIDTH,
+                configs::hexstring::HEIGHT
+            );
+            setAlignment(Qt::AlignmentFlag::AlignCenter);
         }
 
         Q_SLOT inline void rslider_moved(int _value) noexcept {
             _rslider_value = _value;
             __update_hexstring();
+            // ::puts("Red!");
         }
 
         Q_SLOT inline void gslider_moved(int _value) noexcept {
             _gslider_value = _value;
             __update_hexstring();
+            // ::puts("Green!");
         }
 
         Q_SLOT inline void bslider_moved(int _value) noexcept {
             _bslider_value = _value;
             __update_hexstring();
+            // ::puts("Blue!");
         }
 
     private:
@@ -53,8 +63,14 @@ class rgbhexstring final : public QLineEdit {
             // ::swprintf(reinterpret_cast<wchar_t*>(_hexstring.data()), _hexstring.size(), L"#%02X%02X%02X", _rslider_value, _gslider_value, _bslider_value);
             // https://stackoverflow.com/questions/4784155/how-to-format-a-qstring
             // even if we use two byte wchar_t s, we don't know that there's alternative implementations for all the stdio.h functions to handle 2 byte wchar_t s????
-            _hexstring.asprintf("#%02X%02X%02X", _rslider_value, _gslider_value, _bslider_value); // seems the most sensible way to accomplish this
+            // https://doc.qt.io/qt-6/qstring.html#asprintf QString::asprintf isn't recommended in new Qt code :(
+            // _hexstring.asprintf("#%02X%02X%02X", _rslider_value, _gslider_value, _bslider_value); // seems the most sensible way to accomplish this
+            QTextStream(&_hexstring) << '#'
+                                     << Qt::hex /* we want the hex representation */ << Qt::uppercasedigits /* we want the hex representations in upper case */
+                                     << QTextStream::AlignRight /* when we only have one digit, pad with a zero on the left */
+                                     << ::qSetFieldWidth(2)     /* we want fixed width of 2 characters */
+                                     << _rslider_value << _gslider_value << _bslider_value;
             setText(_hexstring);
-            ::puts(_hexstring.toStdString().c_str());
+            // ::puts(_hexstring.toStdString().c_str());
         }
 };
