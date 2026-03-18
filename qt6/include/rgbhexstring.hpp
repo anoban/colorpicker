@@ -70,7 +70,8 @@ class rgbhexstring final : public QLineEdit {
                                      << QTextStream::AlignRight /* when we only have one digit, pad with a zero on the left */
                                      << ::qSetFieldWidth(2)     /* we want fixed width of 2 characters */
                                      << _rslider_value << _gslider_value << _bslider_value;
-            setText(_hexstring);
+            // setText(_hexstring);
+            setText(QString("#%1%2%3").arg(_rslider_value, 2, 16, u'0').arg(_gslider_value, 2, 16, u'0').arg(_bslider_value, 2, 16, u'0'));
             // ::puts(_hexstring.toStdString().c_str());
         }
 };
