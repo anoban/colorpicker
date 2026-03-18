@@ -20,7 +20,7 @@ class main_window final : public QMainWindow {
         std::array<QSlider, configs::trackbars::N>  _rgbsliders;   // sliders for RGB colours
         std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes; // labels for the RGB sliders
         rgbhexstring                                _hexstring;
-        QColor                                      _bgcolour; // background colour
+        unsigned                                    _red, _green, _blue;
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -30,7 +30,10 @@ class main_window final : public QMainWindow {
 
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
-            _hexstring { this } {
+            _hexstring { this },
+            _red {},
+            _green {},
+            _blue {} {
             //
             setFixedWidth(configs::main_window::WIDTH);
             setFixedHeight(configs::main_window::HEIGHT);
@@ -76,15 +79,20 @@ class main_window final : public QMainWindow {
             __connect_signals_to_slots();
         }
 
+    public:
+        Q_SLOT inline void __attribute__((__always_inline__)) __update_bg_on_rslider_move(int _new_value) noexcept {
+            //
+        }
+
     private:
-        inline void __connect_signals_to_slots() const noexcept {
+        inline void __attribute__((__always_inline__)) __connect_signals_to_slots() const noexcept {
             // establishing two way communication between sliders and their corresponding labels
             // connect the QSlider::valueChanged signal of each slider to the SpinBox::setValue slot of their corresponding label
             for (unsigned i = 0; i < _rgbsliders.size(); ++i) connect(&_rgbsliders[i], &QSlider::valueChanged, &_rgbspinboxes[i], &QSpinBox::setValue);
             // connect the QSpinBox::valueChanged signal of each label to the QSlider::setValue slot of their corresponding slider
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
-            //
+            // establsihing one way communication between all the three sliders and the hex string
             connect(&_rgbsliders[0], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
             connect(&_rgbsliders[1], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
             connect(&_rgbsliders[2], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);

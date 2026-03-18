@@ -20,7 +20,7 @@ class rgbhexstring final : public QLineEdit {
         int     _rslider_value;
         int     _gslider_value;
         int     _bslider_value;
-        QString _hexstring; // QString is equivalent to std::wstring
+        QString _hexstring; // QString is equivalent to std::wstring on Windows where wchar_t is 16 bits wide
 
     public:
         inline rgbhexstring(QWidget* const _parent_window = nullptr) noexcept :
@@ -33,7 +33,7 @@ class rgbhexstring final : public QLineEdit {
                 configs::hexstring::WIDTH,
                 configs::hexstring::HEIGHT
             );
-            setAlignment(Qt::AlignmentFlag::AlignCenter); // not working????
+            setAlignment(Qt::AlignmentFlag::AlignHCenter); // not working????
         }
 
         Q_SLOT inline void rslider_moved(int _new_value) noexcept {
