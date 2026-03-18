@@ -3,7 +3,7 @@
     #define __MAINWINDOW_HPP 1
 #endif
 
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
@@ -13,7 +13,8 @@
 #include <rgbhexstring.hpp>
 // clang-format on
 
-class main_window final : public QMainWindow {
+class main_window final : public QFrame {
+        // choosing QFrame as parent class, since QMainWindow does not support the CSS box model, which is required to customize round corners using style sheets
         Q_OBJECT
 
     private:
@@ -25,7 +26,7 @@ class main_window final : public QMainWindow {
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
-            QMainWindow(_parent_window),
+            QFrame(_parent_window, Qt::WindowType::Window | Qt::WindowType::WindowMinimizeButtonHint),
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
 
@@ -36,14 +37,15 @@ class main_window final : public QMainWindow {
             _green {},
             _blue {},
             _palette {} {
-            //
-
-            setAutoFillBackground(true);
-            setFixedWidth(configs::main_window::WIDTH);
+            setStyleSheet("QFrame {border: 1px solid black; border-radius: 10px;}"); // make the corners round
+            // setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
+            // creating round corners using stylesheets won't actually make the corners appear round,
+            // the round corners will appear inside an outer rectangular corner, and to hide this outer rectangular corner, we need to apply a mask
+            setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
+            // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
+            // the color used is defined by the QPalette::Window color role from the widget's palette.
+            setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
-
-            // make the corners round
-            setStyleSheet(" QMainWindow {border: 10px; border-radius: 30px;}");
 
             // horizontal sliders - RGB
             for (unsigned i = 0; i < _rgbsliders.size(); ++i) {
@@ -51,7 +53,7 @@ class main_window final : public QMainWindow {
                 // _rslider.setTickInterval(configs::trackbars::TICK_INTERVAL);
                 _rgbsliders[i].setFocusPolicy(Qt::FocusPolicy::StrongFocus);
                 _rgbsliders[i].setSingleStep(1);
-                _rgbsliders[i].setMaximumWidth(configs::trackbars::WIDTH);
+                _rgbsliders[i].setMinimumWidth(configs::trackbars::WIDTH);
                 _rgbsliders[i].setMinimumHeight(configs::trackbars::HEIGHT);
                 _rgbsliders[i].setGeometry(
                     configs::trackbars::PAD,
@@ -67,7 +69,7 @@ class main_window final : public QMainWindow {
                 );
             }
 
-            // trackbar labels
+            // trackbar labels - RGB
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) {
                 _rgbspinboxes[i].setGeometry(
                     configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD,
@@ -107,19 +109,20 @@ class main_window final : public QMainWindow {
             // connect the QSpinBox::valueChanged signal of each label to the QSlider::setValue slot of their corresponding slider
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
-            // establsihing one way communication between all the three sliders and the hex string
+            // establishing one way communication between all the three sliders and the hex string
             connect(&_rgbsliders[0], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
             connect(&_rgbsliders[1], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
             connect(&_rgbsliders[2], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);
 
-            //
+            // establishing one way communication between all the three sliders and the main window
             connect(&_rgbsliders[0], &QSlider::valueChanged, this, &main_window::rslider_moved);
             connect(&_rgbsliders[1], &QSlider::valueChanged, this, &main_window::gslider_moved);
             connect(&_rgbsliders[2], &QSlider::valueChanged, this, &main_window::bslider_moved);
         }
 
         inline void __attribute__((__always_inline__)) __update_bg() noexcept {
+            // update the colour palette with the current state of the sliders
             _palette.setColor(QPalette::Window, QColor { _red, _green, _blue });
-            setPalette(_palette);
+            setPalette(_palette); // set the updated palette, triggering a window redraw
         }
 };
