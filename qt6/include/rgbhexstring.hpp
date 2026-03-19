@@ -24,7 +24,7 @@ class rgbhexstring final : public QLineEdit {
         QTextStream _hexstrstream;
 
     public:
-        inline rgbhexstring(QWidget* const _parent_window = nullptr) noexcept :
+        inline rgbhexstring(QWidget* const _parent_window = nullptr) noexcept(noexcept(QLineEdit {}) && noexcept(QString {}) && noexcept(QTextStream {})) :
             QLineEdit(_parent_window), _rslider_value {}, _gslider_value {}, _bslider_value {}, _hexstring {}, _hexstrstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
             _hexstrstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
@@ -59,7 +59,7 @@ class rgbhexstring final : public QLineEdit {
         }
 
     private:
-        inline void __attribute__((__always_inline__)) __update_hexstring() noexcept {
+        inline void __attribute__((__always_inline__)) __update_hexstring() noexcept(noexcept(QTextStream {}.seek(0)) && noexcept(QTextStream {} << '#')) {
             // static_assert(sizeof(QChar) == sizeof(wchar_t));                   // QChar is equivalent to unsigned short
             // the above requires -fshort-wchar compiler flag because by default, wchar_t is 4 bytes on linux??? not 2 bytes
             ::memset(_hexstring.data(), 0, sizeof(QChar) * _hexstring.size()); // clean up the buffer before every write

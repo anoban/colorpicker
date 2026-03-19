@@ -11,6 +11,7 @@
 // clang-format off
 #include <config.hpp>
 #include <rgbhexstring.hpp>
+#include <utilities.hpp>
 // clang-format on
 
 class main_window final : public QFrame {
@@ -37,7 +38,6 @@ class main_window final : public QFrame {
             _gslider_value {},
             _bslider_value {},
             _palette {} {
-            setStyleSheet("QFrame {border: 1px solid black; border-radius: 10px;}"); // make the corners round
             // setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
             // creating round corners using stylesheets won't actually make the corners appear round,
             // the round corners will appear inside an outer rectangular corner, and to hide this outer rectangular corner, we need to apply a mask
@@ -46,6 +46,8 @@ class main_window final : public QFrame {
             // the color used is defined by the QPalette::Window color role from the widget's palette.
             setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
+
+            auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
 
             for (unsigned i = 0; i < configs::trackbars::N; ++i) {
                 //---------------------
@@ -69,7 +71,7 @@ class main_window final : public QFrame {
                     std::numeric_limits<unsigned char>::max()
                 );
 
-                _rgbsliders[i].setStyleSheet("QSlider::groove:horizontal {height: 30px;}"); // styling for the slider button groove
+                if (_qslider_stylesheet) _rgbsliders[i].setStyleSheet(_qslider_stylesheet.value()); // styling for the slider button groove
 
                 //---------------------
                 // spin boxes
