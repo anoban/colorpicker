@@ -18,11 +18,11 @@ class main_window final : public QFrame {
         Q_OBJECT
 
     private:
-        std::array<QSlider, configs::trackbars::N>  _rgbsliders;   // sliders for RGB colours
-        std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes; // labels for the RGB sliders
-        rgbhexstring                                _hexstring;
-        int                                         _red, _green, _blue;
-        QPalette                                    _palette;
+        std::array<QSlider, configs::trackbars::N>  _rgbsliders;                                    // sliders for RGB colours
+        std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes;                                  // labels for the RGB sliders
+        rgbhexstring                                _hexstring;                                     // the RGB colour combination in hex format e.g. #9F25E9
+        int                                         _rslider_value, _gslider_value, _bslider_value; // RGB slider values
+        QPalette                                    _palette;                                       // colour palette to paint the main window background with
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -33,9 +33,9 @@ class main_window final : public QFrame {
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _hexstring { this },
-            _red {},
-            _green {},
-            _blue {},
+            _rslider_value {},
+            _gslider_value {},
+            _bslider_value {},
             _palette {} {
             setStyleSheet("QFrame {border: 1px solid black; border-radius: 10px;}"); // make the corners round
             // setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
@@ -47,10 +47,11 @@ class main_window final : public QFrame {
             setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
 
-            // horizontal sliders - RGB
-            for (unsigned i = 0; i < _rgbsliders.size(); ++i) {
-                // _rslider.setTickPosition(QSlider::TicksBothSides); // show ticks above and below the slider
-                // _rslider.setTickInterval(configs::trackbars::TICK_INTERVAL);
+            for (unsigned i = 0; i < configs::trackbars::N; ++i) {
+                //---------------------
+                // sliders
+                //---------------------
+
                 _rgbsliders[i].setFocusPolicy(Qt::FocusPolicy::StrongFocus);
                 _rgbsliders[i].setSingleStep(1);
                 _rgbsliders[i].setMinimumWidth(configs::trackbars::WIDTH);
@@ -67,10 +68,13 @@ class main_window final : public QFrame {
                     std::numeric_limits<unsigned char>::min(),
                     std::numeric_limits<unsigned char>::max()
                 );
-            }
 
-            // trackbar labels - RGB
-            for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) {
+                _rgbsliders[i].setStyleSheet("QSlider::groove:horizontal {height: 30px;}"); // styling for the slider button groove
+
+                //---------------------
+                // spin boxes
+                //---------------------
+
                 _rgbspinboxes[i].setGeometry(
                     configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD,
                     configs::trackbars::VERTICAL_MARGIN + i * configs::trackbars::VSPACE,
@@ -87,17 +91,20 @@ class main_window final : public QFrame {
 
     public:
         Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
-            _red = _new_value;
+            // will be signalled to when the red slider is moved
+            _rslider_value = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
-            _green = _new_value;
+            // will be signalled to when the green slider is moved
+            _gslider_value = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
-            _blue = _new_value;
+            // will be signalled to when the blue slider is moved
+            _bslider_value = _new_value;
             __update_bg();
         }
 
@@ -122,7 +129,7 @@ class main_window final : public QFrame {
 
         inline void __attribute__((__always_inline__)) __update_bg() noexcept {
             // update the colour palette with the current state of the sliders
-            _palette.setColor(QPalette::Window, QColor { _red, _green, _blue });
+            _palette.setColor(QPalette::Window, QColor { _rslider_value, _gslider_value, _bslider_value });
             setPalette(_palette); // set the updated palette, triggering a window redraw
         }
 };
