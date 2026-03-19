@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     QApplication colorpicker(argc, argv);
-    colorpicker.setWindowIcon(QIcon("../archived/resources/icon.ico"));
+    colorpicker.setWindowIcon(QIcon(R"(.\icons\icon.png)"));
     ::main_window window {};
     window.show();
 
