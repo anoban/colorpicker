@@ -1,10 +1,11 @@
 #pragma once
 #ifndef __COLORPICKER_HPP
-    #define __COLORPICKER_HPP           1
-    #define __COLORPICKER_VERSION_MAJOR 0
-    #define __COLORPICKER_VERSION_MINOR 1
-    #define __COLORPICKER_VERSION_PATCH 0
+    #define __COLORPICKER_HPP 1
 #endif
+
+#define __COLORPICKER_VERSION_MAJOR                0
+#define __COLORPICKER_VERSION_MINOR                1
+#define __COLORPICKER_VERSION_PATCH                0
 
 #define __expand(_number)                          #_number
 #define __tostr(_number)                           __expand(_number)

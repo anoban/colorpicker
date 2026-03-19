@@ -1,22 +1,30 @@
 QSlider::groove:horizontal {
-    background: red;
-    position: absolute;
-    left: 4px;
-    right: 4px;
+    height: 14px;
+    border: 1px solid black;
+    border-radius: 10px;
 }
 
 QSlider::handle:horizontal {
-    height: 10px;
-    background: green;
-    margin: 0 -4px;
-    border: 1px solid;
-    border-radius: 3px;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
 }
 
 QSlider::add-page:horizontal {
     background: white;
 }
 
-QSlider::sub-page:horizontal {
-    background: pink;
+QSlider.red::sub-page:horizontal {
+    background: red;
+}
+
+QSlider.green::sub-page:horizontal {
+    background: green;
+}
+
+QSlider.blue::sub-page:horizontal {
+    background: blue;
 }

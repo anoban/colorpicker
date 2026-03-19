@@ -19,14 +19,10 @@ namespace configs {
 
         static constexpr unsigned long N { 3 };       // number of track bars used in the application
         static constexpr unsigned long VSPACE { 44 }; // vertical separation between subsequent track bars
-
-        static constexpr unsigned long PAD { 20 }; // padding between the left end of the track bars and the left edge of the client window
+        static constexpr unsigned long PAD { 20 };    // padding between the left end of the track bars and the left edge of the main window
         static constexpr unsigned long WIDTH { 282 };
         static constexpr unsigned long HEIGHT { 25 };
-
         static constexpr unsigned long VERTICAL_MARGIN { 34 }; // margin betwen the first track bar and the bottom edge of the title bar
-        static constexpr unsigned long PAGEKEY_STEP { 17 };    // distance to move the slider on the track bar, when page-up or page-down keys were pressed
-        static constexpr unsigned long TICK_INTERVAL { 15 };   // interval to position subsequent ticks along the QSlider (trackbar)
 
         namespace labels {
 
@@ -40,7 +36,7 @@ namespace configs {
 
     namespace hexstring {
 
-        static constexpr unsigned long SIZE { 20 }; // max length of the hexadecimal colour code string e.g. "#00AEEF"
+        static constexpr unsigned long SIZE { 64 }; // max length of the hexadecimal colour code string e.g. "#00AEEF"
         static constexpr unsigned long WIDTH { 140 };
         static constexpr unsigned long HEIGHT { 30 };
 

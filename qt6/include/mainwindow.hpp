@@ -19,13 +19,16 @@ class main_window final : public QFrame {
         Q_OBJECT
 
     private:
-        std::array<QSlider, configs::trackbars::N>  _rgbsliders;                                    // sliders for RGB colours
-        std::array<QSpinBox, configs::trackbars::N> _rgbspinboxes;                                  // labels for the RGB sliders
-        rgbhexstring                                _hexstring;                                     // the RGB colour combination in hex format e.g. #9F25E9
-        int                                         _rslider_value, _gslider_value, _bslider_value; // RGB slider values
-        QPalette                                    _palette;                                       // colour palette to paint the main window background with
+        std::array<QSlider, configs::trackbars::N>                            _rgbsliders;    // sliders for RGB colours
+        std::array<QSpinBox, configs::trackbars::N>                           _rgbspinboxes;  // labels for the RGB sliders
+        std::array<int, configs::trackbars::N>                                _slider_values; // RGB QSlider values
+        static constexpr std::array<const char* const, configs::trackbars::N> _qss_class_names { "red", "green", "blue" };
+        rgbhexstring                                                          _hexstring; // the RGB colour combination in hex format e.g. #9F25E9
+        QPalette                                                              _palette;   // colour palette to paint the main window background with
 
     public:
+        enum _rgb_offset : unsigned char { RED, GREEN, BLUE };
+
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
             QFrame(_parent_window, Qt::WindowType::Window | Qt::WindowType::WindowMinimizeButtonHint),
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
@@ -33,14 +36,9 @@ class main_window final : public QFrame {
 
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
+            _slider_values {},
             _hexstring { this },
-            _rslider_value {},
-            _gslider_value {},
-            _bslider_value {},
             _palette {} {
-            // setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
-            // creating round corners using stylesheets won't actually make the corners appear round,
-            // the round corners will appear inside an outer rectangular corner, and to hide this outer rectangular corner, we need to apply a mask
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
             // the color used is defined by the QPalette::Window color role from the widget's palette.
@@ -50,8 +48,9 @@ class main_window final : public QFrame {
             // stylesheet for the QSliders
             const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
             // the order of CSS box model styling is top-left, top-right, bottom-right and bottom-left
-            // style sheet for the main window (QFrame)
-            const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)");
+            // creating round corners using stylesheets won't actually make the corners appear round,
+            // the round corners will appear inside an outer rectangular corner, and to hide this outer rectangular corner, we need to apply a mask
+            const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)"); // style sheet for the main window (QFrame)
             if (_qframe_stylesheet) setStyleSheet(_qframe_stylesheet.value());
 
             for (unsigned i = 0; i < configs::trackbars::N; ++i) {
@@ -77,6 +76,7 @@ class main_window final : public QFrame {
                 );
 
                 if (_qslider_stylesheet) _rgbsliders[i].setStyleSheet(_qslider_stylesheet.value()); // styling for the slider button groove
+                _rgbsliders[i].setProperty("class", _qss_class_names[i]);                           // CSS property to be leveraged in QSlider.qss
 
                 //---------------------
                 // spin boxes
@@ -96,22 +96,21 @@ class main_window final : public QFrame {
             __connect_signals_to_slots();
         }
 
-    public:
         Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
-            _rslider_value = _new_value;
+            _slider_values[_rgb_offset::RED] = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
-            _gslider_value = _new_value;
+            _slider_values[_rgb_offset::GREEN] = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
-            _bslider_value = _new_value;
+            _slider_values[_rgb_offset::BLUE] = _new_value;
             __update_bg();
         }
 
@@ -124,19 +123,21 @@ class main_window final : public QFrame {
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
             // establishing one way communication between all the three sliders and the hex string
-            connect(&_rgbsliders[0], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
-            connect(&_rgbsliders[1], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
-            connect(&_rgbsliders[2], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);
+            connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
+            connect(&_rgbsliders[_rgb_offset::GREEN], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
+            connect(&_rgbsliders[_rgb_offset::BLUE], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);
 
             // establishing one way communication between all the three sliders and the main window
-            connect(&_rgbsliders[0], &QSlider::valueChanged, this, &main_window::rslider_moved);
-            connect(&_rgbsliders[1], &QSlider::valueChanged, this, &main_window::gslider_moved);
-            connect(&_rgbsliders[2], &QSlider::valueChanged, this, &main_window::bslider_moved);
+            connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);
+            connect(&_rgbsliders[_rgb_offset::GREEN], &QSlider::valueChanged, this, &main_window::gslider_moved);
+            connect(&_rgbsliders[_rgb_offset::BLUE], &QSlider::valueChanged, this, &main_window::bslider_moved);
         }
 
         inline void __attribute__((__always_inline__)) __update_bg() noexcept {
             // update the colour palette with the current state of the sliders
-            _palette.setColor(QPalette::Window, QColor { _rslider_value, _gslider_value, _bslider_value });
+            _palette.setColor(
+                QPalette::Window, QColor { _slider_values[_rgb_offset::RED], _slider_values[_rgb_offset::GREEN], _slider_values[_rgb_offset::BLUE] }
+            );
             setPalette(_palette); // set the updated palette, triggering a window redraw
         }
 };
