@@ -47,7 +47,12 @@ class main_window final : public QFrame {
             setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
 
-            auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
+            // stylesheet for the QSliders
+            const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
+            // the order of CSS box model styling is top-left, top-right, bottom-right and bottom-left
+            // style sheet for the main window (QFrame)
+            const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)");
+            if (_qframe_stylesheet) setStyleSheet(_qframe_stylesheet.value());
 
             for (unsigned i = 0; i < configs::trackbars::N; ++i) {
                 //---------------------

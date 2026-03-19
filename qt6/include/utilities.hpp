@@ -24,17 +24,8 @@ namespace utilities {
         return QString(_contents);
     }
 
-    [[maybe_unused]] static inline void print_build_info() noexcept {
-        ::printf(
-            "Colorpicker %s\n"
-            "Qt %s\n"
-            "g++ %s\n"
-            "C++ standard %s",
-            COLORPICKER_FULL_VERSION,
-            QT_FULL_VERSION,
-            CXX_FULL_VERSION,
-            CPP_VERSION
-        );
+    [[maybe_unused]] static inline void __attribute__((__always_inline__)) print_build_info() noexcept {
+        ::printf("Colorpicker %s, built with Qt %s, using g++ %s\n", COLORPICKER_FULL_VERSION, QT_FULL_VERSION, CXX_FULL_VERSION);
     }
 
 } // namespace utilities

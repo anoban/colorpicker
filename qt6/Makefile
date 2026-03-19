@@ -227,7 +227,8 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		colorpicker.pro include/colorpicker.hpp \
 		include/config.hpp \
 		include/mainwindow.hpp \
-		include/rgbhexstring.hpp colorpicker.cpp
+		include/rgbhexstring.hpp \
+		include/utilities.hpp colorpicker.cpp
 QMAKE_TARGET  = Colorpicker
 DESTDIR       = 
 TARGET        = Colorpicker
@@ -597,7 +598,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib64/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp include/rgbhexstring.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp include/rgbhexstring.hpp include/utilities.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents colorpicker.cpp $(DISTDIR)/
 
 
@@ -637,6 +638,7 @@ moc_mainwindow.cpp: include/mainwindow.hpp \
 		include/config.hpp \
 		include/colorpicker.hpp \
 		include/rgbhexstring.hpp \
+		include/utilities.hpp \
 		moc_predefs.h \
 		/usr/lib64/qt6/libexec/moc
 	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/mainwindow.hpp -o moc_mainwindow.cpp
@@ -667,7 +669,8 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 colorpicker.o: colorpicker.cpp include/mainwindow.hpp \
 		include/config.hpp \
 		include/colorpicker.hpp \
-		include/rgbhexstring.hpp
+		include/rgbhexstring.hpp \
+		include/utilities.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o colorpicker.o colorpicker.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
