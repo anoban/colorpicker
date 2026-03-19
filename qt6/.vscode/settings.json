@@ -61,5 +61,8 @@
     "C_Cpp.default.recursiveIncludes.priority": "afterSystemIncludes",
     "C_Cpp.default.recursiveIncludes.order": "depthFirst",
     "C_Cpp.default.recursiveIncludes.reduce": "always",
-    "C_Cpp.default.compilerPath": "/usr/bin/gcc"
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+    "files.associations": {
+        "*.qss": "css"
+    }
 }
