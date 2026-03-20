@@ -11,6 +11,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QString>
 
+enum _rgb_offsets : unsigned char { RED, GREEN, BLUE }; // to conveniently index into RGB arrays without using numbers
+
 namespace utilities {
 
     [[nodiscard]] static inline std::optional<QString> read_qss(const char* const fpath) noexcept(noexcept(QFile {}) && noexcept(QFile {}.readAll())) {

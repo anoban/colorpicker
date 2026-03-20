@@ -9,9 +9,7 @@
 #include <QtWidgets/QWidget>
 
 // clang-format off
-#include <config.hpp>
 #include <rgbhexstring.hpp>
-#include <utilities.hpp>
 // clang-format on
 
 class main_window final : public QFrame {
@@ -27,8 +25,6 @@ class main_window final : public QFrame {
         QPalette                                                              _palette;   // colour palette to paint the main window background with
 
     public:
-        enum _rgb_offset : unsigned char { RED, GREEN, BLUE };
-
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
             QFrame(_parent_window, Qt::WindowType::Window | Qt::WindowType::WindowMinimizeButtonHint),
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
@@ -98,19 +94,19 @@ class main_window final : public QFrame {
 
         Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
-            _slider_values[_rgb_offset::RED] = _new_value;
+            _slider_values[_rgb_offsets::RED] = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
-            _slider_values[_rgb_offset::GREEN] = _new_value;
+            _slider_values[_rgb_offsets::GREEN] = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
-            _slider_values[_rgb_offset::BLUE] = _new_value;
+            _slider_values[_rgb_offsets::BLUE] = _new_value;
             __update_bg();
         }
 
@@ -123,20 +119,20 @@ class main_window final : public QFrame {
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
             // establishing one way communication between all the three sliders and the hex string
-            connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::rslider_moved);
-            connect(&_rgbsliders[_rgb_offset::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::gslider_moved);
-            connect(&_rgbsliders[_rgb_offset::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::bslider_moved);
+            connect(&_rgbsliders[_rgb_offsets::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::rslider_moved);
+            connect(&_rgbsliders[_rgb_offsets::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::gslider_moved);
+            connect(&_rgbsliders[_rgb_offsets::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::bslider_moved);
 
             // establishing one way communication between all the three sliders and the main window
-            connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);
-            connect(&_rgbsliders[_rgb_offset::GREEN], &QSlider::valueChanged, this, &main_window::gslider_moved);
-            connect(&_rgbsliders[_rgb_offset::BLUE], &QSlider::valueChanged, this, &main_window::bslider_moved);
+            connect(&_rgbsliders[_rgb_offsets::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);
+            connect(&_rgbsliders[_rgb_offsets::GREEN], &QSlider::valueChanged, this, &main_window::gslider_moved);
+            connect(&_rgbsliders[_rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::bslider_moved);
         }
 
         inline void __attribute__((__always_inline__)) __update_bg() noexcept {
             // update the colour palette with the current state of the sliders
             _palette.setColor(
-                QPalette::Window, QColor { _slider_values[_rgb_offset::RED], _slider_values[_rgb_offset::GREEN], _slider_values[_rgb_offset::BLUE] }
+                QPalette::Window, QColor { _slider_values[_rgb_offsets::RED], _slider_values[_rgb_offsets::GREEN], _slider_values[_rgb_offsets::BLUE] }
             );
             setPalette(_palette); // set the updated palette, triggering a window redraw
         }
