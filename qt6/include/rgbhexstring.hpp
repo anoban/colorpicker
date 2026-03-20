@@ -40,17 +40,17 @@ class rgb_hexstring final : public QLineEdit {
             setAlignment(Qt::AlignmentFlag::AlignHCenter); // not working????
         }
 
-        Q_SLOT inline void rslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void rslider_moved(int _new_value) noexcept(noexcept(__update_hexstring())) {
             _slider_values[_rgb_offsets::RED] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void gslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void gslider_moved(int _new_value) noexcept(noexcept(__update_hexstring())) {
             _slider_values[_rgb_offsets::GREEN] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void bslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void bslider_moved(int _new_value) noexcept(noexcept(__update_hexstring())) {
             _slider_values[_rgb_offsets::BLUE] = _new_value;
             __update_hexstring();
         }
