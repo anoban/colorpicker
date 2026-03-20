@@ -23,7 +23,7 @@ class main_window final : public QFrame {
         std::array<QSpinBox, configs::trackbars::N>                           _rgbspinboxes;  // labels for the RGB sliders
         std::array<int, configs::trackbars::N>                                _slider_values; // RGB QSlider values
         static constexpr std::array<const char* const, configs::trackbars::N> _qss_class_names { "red", "green", "blue" };
-        rgbhexstring                                                          _hexstring; // the RGB colour combination in hex format e.g. #9F25E9
+        rgb_hexstring                                                         _hexstring; // the RGB colour combination in hex format e.g. #9F25E9
         QPalette                                                              _palette;   // colour palette to paint the main window background with
 
     public:
@@ -123,9 +123,9 @@ class main_window final : public QFrame {
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
             // establishing one way communication between all the three sliders and the hex string
-            connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, &_hexstring, &rgbhexstring::rslider_moved);
-            connect(&_rgbsliders[_rgb_offset::GREEN], &QSlider::valueChanged, &_hexstring, &rgbhexstring::gslider_moved);
-            connect(&_rgbsliders[_rgb_offset::BLUE], &QSlider::valueChanged, &_hexstring, &rgbhexstring::bslider_moved);
+            connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::rslider_moved);
+            connect(&_rgbsliders[_rgb_offset::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::gslider_moved);
+            connect(&_rgbsliders[_rgb_offset::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::bslider_moved);
 
             // establishing one way communication between all the three sliders and the main window
             connect(&_rgbsliders[_rgb_offset::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);

@@ -3,7 +3,6 @@
     #define __HEXSTRING_HPP 1
 #endif
 
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QWidget>
 
@@ -13,7 +12,7 @@
 
 #include <cstring>
 
-class rgbhexstring final : public QLineEdit {
+class rgb_hexstring final : public QLineEdit {
         Q_OBJECT
 
     private:
@@ -24,7 +23,7 @@ class rgbhexstring final : public QLineEdit {
         QTextStream _hexstrstream;
 
     public:
-        inline rgbhexstring(QWidget* const _parent_window = nullptr) noexcept(noexcept(QLineEdit {}) && noexcept(QString {}) && noexcept(QTextStream {})) :
+        inline rgb_hexstring(QWidget* const _parent_window = nullptr) noexcept(noexcept(QLineEdit {}) && noexcept(QString {}) && noexcept(QTextStream {})) :
             QLineEdit(_parent_window), _rslider_value {}, _gslider_value {}, _bslider_value {}, _hexstring {}, _hexstrstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
             _hexstrstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
