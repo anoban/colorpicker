@@ -92,19 +92,19 @@ class main_window final : public QFrame {
             __connect_signals_to_slots();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept(noexcept(__update_bg())) {
+        Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
             _slider_values[_rgb_offsets::RED] = _new_value;
             __update_bg();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept(noexcept(__update_bg())) {
+        Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
             _slider_values[_rgb_offsets::GREEN] = _new_value;
             __update_bg();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept(noexcept(__update_bg())) {
+        Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
             _slider_values[_rgb_offsets::BLUE] = _new_value;
             __update_bg();

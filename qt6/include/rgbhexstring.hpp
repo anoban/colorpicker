@@ -21,7 +21,7 @@ class rgb_hexstring final : public QLineEdit {
         QTextStream                            _hexstrstream;
 
     public:
-        inline rgb_hexstring(QWidget* const _parent_window = nullptr) noexcept(noexcept(QLineEdit {}) && noexcept(QString {}) && noexcept(QTextStream {})) :
+        inline rgb_hexstring(QWidget* const _parent_window = nullptr) noexcept :
             QLineEdit(_parent_window), _slider_values {}, _hexstring {}, _hexstrstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
             _hexstrstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
@@ -40,23 +40,23 @@ class rgb_hexstring final : public QLineEdit {
             setAlignment(Qt::AlignmentFlag::AlignHCenter); // not working????
         }
 
-        Q_SLOT inline void rslider_moved(int _new_value) noexcept(noexcept(__update_hexstring())) {
+        Q_SLOT inline void rslider_moved(int _new_value) noexcept {
             _slider_values[_rgb_offsets::RED] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void gslider_moved(int _new_value) noexcept(noexcept(__update_hexstring())) {
+        Q_SLOT inline void gslider_moved(int _new_value) noexcept {
             _slider_values[_rgb_offsets::GREEN] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void bslider_moved(int _new_value) noexcept(noexcept(__update_hexstring())) {
+        Q_SLOT inline void bslider_moved(int _new_value) noexcept {
             _slider_values[_rgb_offsets::BLUE] = _new_value;
             __update_hexstring();
         }
 
     private:
-        inline void __attribute__((__always_inline__)) __update_hexstring() noexcept(noexcept(QTextStream {}.seek(0)) && noexcept(QTextStream {} << '#')) {
+        inline void __attribute__((__always_inline__)) __update_hexstring() noexcept {
             // static_assert(sizeof(QChar) == sizeof(wchar_t));                   // QChar is equivalent to unsigned short
             // the above requires -fshort-wchar compiler flag because by default, wchar_t is 4 bytes on linux??? not 2 bytes
             ::memset(_hexstring.data(), 0, sizeof(QChar) * _hexstring.size()); // clean up the buffer before every write
