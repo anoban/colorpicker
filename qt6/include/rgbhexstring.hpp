@@ -37,7 +37,8 @@ class rgb_hexstring final : public QLineEdit {
                 configs::hexstring::WIDTH,
                 configs::hexstring::HEIGHT
             );
-            setAlignment(Qt::AlignmentFlag::AlignHCenter); // not working????
+            setAlignment(Qt::AlignmentFlag::AlignHCenter | Qt::AlignmentFlag::AlignVCenter); // not working????
+            setReadOnly(true); // disables user input (just act like a QLabel), while allowing copying
         }
 
         Q_SLOT inline void rslider_moved(int _new_value) noexcept {
@@ -53,6 +54,10 @@ class rgb_hexstring final : public QLineEdit {
         Q_SLOT inline void bslider_moved(int _new_value) noexcept {
             _slider_values[_rgb_offsets::BLUE] = _new_value;
             __update_hexstring();
+        }
+
+        virtual inline void paintEvent([[maybe_unused]] QPaintEvent* _paint_event) noexcept override {
+            //
         }
 
     private:

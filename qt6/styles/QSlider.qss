@@ -39,8 +39,3 @@ QSlider::handle:horizontal {
     margin-bottom: -4px;
     border-radius: 4px;
 }
-
-QSlider::handle:horizontal:hover {
-    border: 2px solid black;
-    border-radius: 4px;
-}
