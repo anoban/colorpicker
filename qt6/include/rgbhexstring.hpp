@@ -18,17 +18,17 @@ class rgb_hexstring final : public QLineEdit {
     private:
         std::array<int, configs::trackbars::N> _slider_values;
         QString                                _hexstring; // QString is equivalent to std::wstring on Windows where wchar_t is 16 bits wide
-        QTextStream                            _hexstrstream;
+        QTextStream                            _hex_strstream;
 
     public:
         inline rgb_hexstring(QWidget* const _parent_window = nullptr) noexcept :
-            QLineEdit(_parent_window), _slider_values {}, _hexstring {}, _hexstrstream { &_hexstring } {
+            QLineEdit(_parent_window), _slider_values {}, _hexstring {}, _hex_strstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
-            _hexstrstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
-            _hexstrstream.setFieldAlignment(QTextStream::AlignRight); // when we only have one digit, pad with a zero on the left
-            _hexstrstream << Qt::hex                                  // we want the hex representation
-                          << Qt::uppercasedigits                      // we want the hex representations in upper case
-                          << ::qSetFieldWidth(2);                     // we want fixed width of 2 characters
+            _hex_strstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
+            _hex_strstream.setFieldAlignment(QTextStream::AlignRight); // when we only have one digit, pad with a zero on the left
+            _hex_strstream << Qt::hex                                  // we want the hex representation
+                           << Qt::uppercasedigits                      // we want the hex representations in upper case
+                           << ::qSetFieldWidth(2);                     // we want fixed width of 2 characters
 
             setGeometry( // since we have control over this class's implementation, let's do this inside the ctor, instead of having main window do this
                 configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD + configs::trackbars::labels::WIDTH +
@@ -60,7 +60,7 @@ class rgb_hexstring final : public QLineEdit {
             // static_assert(sizeof(QChar) == sizeof(wchar_t));                   // QChar is equivalent to unsigned short
             // the above requires -fshort-wchar compiler flag because by default, wchar_t is 4 bytes on linux??? not 2 bytes
             ::memset(_hexstring.data(), 0, sizeof(QChar) * _hexstring.size()); // clean up the buffer before every write
-            if (!_hexstrstream.seek(0)) {
+            if (!_hex_strstream.seek(0)) {
                 fprintf(stderr, "Error inside %s, call to QTextStream::seek() failed!\n", __PRETTY_FUNCTION__);
                 return;
             }
@@ -69,7 +69,7 @@ class rgb_hexstring final : public QLineEdit {
             // even if we use two byte wchar_t s, we don't know that there's alternative implementations for all the stdio.h functions to handle 2 byte wchar_t s????
             // https://doc.qt.io/qt-6/qstring.html#asprintf QString::asprintf isn't recommended in new Qt code :(
 
-            _hexstrstream << '#' << _slider_values[_rgb_offsets::RED] << _slider_values[_rgb_offsets::GREEN] << _slider_values[_rgb_offsets::BLUE];
+            _hex_strstream << '#' << _slider_values[_rgb_offsets::RED] << _slider_values[_rgb_offsets::GREEN] << _slider_values[_rgb_offsets::BLUE];
             // ::puts(_hexstring.toStdString().c_str());
             setText(_hexstring);
         }
