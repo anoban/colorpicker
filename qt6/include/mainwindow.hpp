@@ -44,6 +44,8 @@ class main_window final : public QFrame {
             // stylesheet for the QSliders
             const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
             // the order of CSS box model styling is top-left, top-right, bottom-right and bottom-left
+            // https://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
+
             // creating round corners using stylesheets won't actually make the corners appear round,
             // the round corners will appear inside an outer rectangular corner, and to hide this outer rectangular corner, we need to apply a mask
             const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)"); // style sheet for the main window (QFrame)

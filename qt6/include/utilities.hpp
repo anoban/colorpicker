@@ -23,10 +23,11 @@ namespace utilities {
         // using Qt IO functions so we don't need to marshall plain ascii buffers into QChar buffers by hand
         QFile _stylesheet { fpath };
         if (!_stylesheet.open(QIODeviceBase::OpenModeFlag::ReadOnly | QIODeviceBase::OpenModeFlag::Text)) {
-            ::fprintf(stderr, "Error inside %s, call to QFile::open() failed!\n", __PRETTY_FUNCTION__);
+            ::fprintf(stderr, "Error inside %s, failed to open %s, call to QFile::open() failed!\n", __PRETTY_FUNCTION__, fpath);
             return std::nullopt;
         }
         QByteArray _contents = _stylesheet.readAll();
+        _stylesheet.close(); // close the file handle
         return QString(_contents);
     }
 
