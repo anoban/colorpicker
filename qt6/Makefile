@@ -14,7 +14,7 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_DISABLE_DEPRECATED_BEFORE=0x060000 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
 CXXFLAGS      = -pipe -std=c++20 -march=tigerlake -mavx512f -ffast-math -mprefer-vector-width=512 -Wno-class-memaccess -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
 INCPATH       = -I. -Iinclude -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I. -I/usr/lib64/qt6/mkspecs/linux-g++
@@ -53,10 +53,12 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = colorpicker.cpp moc_mainwindow.cpp \
-		moc_rgbhexstring.cpp
+		moc_rgbhexstring.cpp \
+		moc_titlebar.cpp
 OBJECTS       = colorpicker.o \
 		moc_mainwindow.o \
-		moc_rgbhexstring.o
+		moc_rgbhexstring.o \
+		moc_titlebar.o
 DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/common/unix.conf \
 		/usr/lib64/qt6/mkspecs/common/linux.conf \
@@ -229,6 +231,7 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		include/mainwindow.hpp \
 		include/pickertool.hpp \
 		include/rgbhexstring.hpp \
+		include/titlebar.hpp \
 		include/utilities.hpp colorpicker.cpp
 QMAKE_TARGET  = Colorpicker
 DESTDIR       = 
@@ -599,7 +602,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib64/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp include/pickertool.hpp include/rgbhexstring.hpp include/utilities.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/colorpicker.hpp include/config.hpp include/mainwindow.hpp include/pickertool.hpp include/rgbhexstring.hpp include/titlebar.hpp include/utilities.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents colorpicker.cpp $(DISTDIR)/
 
 
@@ -632,9 +635,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -std=c++20 -march=tigerlake -mavx512f -ffast-math -mprefer-vector-width=512 -Wno-class-memaccess -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_rgbhexstring.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_rgbhexstring.cpp moc_titlebar.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_rgbhexstring.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_rgbhexstring.cpp moc_titlebar.cpp
 moc_mainwindow.cpp: include/mainwindow.hpp \
 		include/rgbhexstring.hpp \
 		include/utilities.hpp \
@@ -651,6 +654,11 @@ moc_rgbhexstring.cpp: include/rgbhexstring.hpp \
 		moc_predefs.h \
 		/usr/lib64/qt6/libexec/moc
 	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/rgbhexstring.hpp -o moc_rgbhexstring.cpp
+
+moc_titlebar.cpp: include/titlebar.hpp \
+		moc_predefs.h \
+		/usr/lib64/qt6/libexec/moc
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/titlebar.hpp -o moc_titlebar.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -680,6 +688,9 @@ moc_mainwindow.o: moc_mainwindow.cpp
 
 moc_rgbhexstring.o: moc_rgbhexstring.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_rgbhexstring.o moc_rgbhexstring.cpp
+
+moc_titlebar.o: moc_titlebar.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_titlebar.o moc_titlebar.cpp
 
 ####### Install
 
