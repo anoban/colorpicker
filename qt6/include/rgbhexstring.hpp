@@ -41,17 +41,17 @@ class rgb_hexstring final : public QLineEdit {
             setReadOnly(true); // disables user input (just act like a QLabel), while allowing copying
         }
 
-        Q_SLOT inline void rslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void on_rslider_move(int _new_value) noexcept {
             _slider_values[configs::rgb_offsets::RED] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void gslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void on_gslider_move(int _new_value) noexcept {
             _slider_values[configs::rgb_offsets::GREEN] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void bslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void on_bslider_move(int _new_value) noexcept {
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
             __update_hexstring();
         }

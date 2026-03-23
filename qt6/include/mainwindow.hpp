@@ -22,21 +22,22 @@ class main_window final : public QFrame {
         std::array<QSpinBox, configs::sliders::N> _rgbspinboxes; // labels for the RGB sliders
         // the reason for using QSpinBox instead of QLabel or QLineEdit is, QLabel does not have a rectangular outline and QLineEdit is fiddly to use with numerical outputs
         // so we use QSpinBox and hide their increment and decrement buttons
-        std::array<int, configs::sliders::N>      _slider_values;    // RGB QSlider values
-        rgb_hexstring                             _hexstring;        // the RGB colour combination in hex format e.g. #9F25E9
-        QPushButton                               _stayontop_button; // keep the mainwindow on top of all windows on screen
-        QPalette                                  _palette;          // colour palette to paint the main window background with
+        std::array<int, configs::sliders::N>      _slider_values; // RGB QSlider values
+        rgb_hexstring                             _hexstring;     // the RGB colour combination in hex format e.g. #9F25E9
+        QPalette                                  _palette;       // colour palette to paint the main window background with
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
-            QFrame(_parent_window, Qt::WindowType::Window | Qt::WindowType::WindowMinimizeButtonHint),
+            QFrame(
+                _parent_window,
+                Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
+            ),
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _slider_values {},
             _hexstring { this },
-            _stayontop_button(this),
             _palette {} {
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
@@ -97,19 +98,19 @@ class main_window final : public QFrame {
             __connect_signals_to_slots();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void __attribute__((__always_inline__)) on_rslider_move(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
             _slider_values[configs::rgb_offsets::RED] = _new_value;
             __update_bg();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void __attribute__((__always_inline__)) on_gslider_move(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
             _slider_values[configs::rgb_offsets::GREEN] = _new_value;
             __update_bg();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
+        Q_SLOT inline void __attribute__((__always_inline__)) on_bslider_move(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
             __update_bg();
@@ -124,14 +125,14 @@ class main_window final : public QFrame {
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
             // establishing one way communication between all the three sliders and the hex string
-            connect(&_rgbsliders[configs::rgb_offsets::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::rslider_moved);
-            connect(&_rgbsliders[configs::rgb_offsets::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::gslider_moved);
-            connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::bslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::on_rslider_move);
+            connect(&_rgbsliders[configs::rgb_offsets::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::on_gslider_move);
+            connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::on_bslider_move);
 
             // establishing one way communication between all the three sliders and the main window
-            connect(&_rgbsliders[configs::rgb_offsets::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);
-            connect(&_rgbsliders[configs::rgb_offsets::GREEN], &QSlider::valueChanged, this, &main_window::gslider_moved);
-            connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::bslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::RED], &QSlider::valueChanged, this, &main_window::on_rslider_move);
+            connect(&_rgbsliders[configs::rgb_offsets::GREEN], &QSlider::valueChanged, this, &main_window::on_gslider_move);
+            connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::on_bslider_move);
         }
 
         inline void __attribute__((__always_inline__)) __update_bg() noexcept {
