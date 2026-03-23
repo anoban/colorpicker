@@ -7,11 +7,27 @@
     #define __TITLEBAR_HPP 1
 #endif
 
-#include <QtWidgets/QFrame>
+#include <config.hpp>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QWidget>
 
-class title_bar final : public QFrame {
+class title_bar final : public QWidget { // a dummy title bar that replaces the DWM provided one
         Q_OBJECT
         //
 
-        
+    private:
+        QPushButton _stayontop;
+        QPushButton _minimize;
+        QPushButton _close;
+        QPushButton _about;
+
+    public:
+        inline explicit title_bar(QWidget* const _parent_window) noexcept :
+            QWidget { _parent_window }, _stayontop { _parent_window }, _minimize { _parent_window }, _close { _parent_window }, _about { _parent_window } {
+            //
+            setFixedWidth(configs::titlebar::WIDTH);
+            setFixedHeight(configs::titlebar::HEIGHT);
+        }
+
+    private:
 };

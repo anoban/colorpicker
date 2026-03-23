@@ -22,7 +22,7 @@ class rgb_hexstring final : public QLineEdit {
 
     public:
         inline rgb_hexstring(QWidget* const _parent_window) noexcept :
-            QLineEdit(_parent_window), _slider_values {}, _hexstring {}, _hex_strstream { &_hexstring } {
+            QLineEdit { _parent_window }, _slider_values {}, _hexstring {}, _hex_strstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
             _hex_strstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
             _hex_strstream.setFieldAlignment(QTextStream::AlignRight); // when we only have one digit, pad with a zero on the left

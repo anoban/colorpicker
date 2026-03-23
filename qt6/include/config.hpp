@@ -48,7 +48,8 @@ namespace configs {
     }
 
     namespace titlebar {
-        //
+        static constexpr unsigned long HEIGHT { 25 };
+        static constexpr unsigned long WIDTH { main_window::WIDTH }; // we need these two to have the same width
     }
 
 } // namespace configs

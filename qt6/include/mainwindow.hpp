@@ -28,10 +28,10 @@ class main_window final : public QFrame {
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
-            QFrame(
+            QFrame {
                 _parent_window,
                 Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
-            ),
+            },
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
