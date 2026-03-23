@@ -56,16 +56,18 @@ class rgb_hexstring final : public QLineEdit {
             __update_hexstring();
         }
 
+        /*
         virtual inline void paintEvent([[maybe_unused]] QPaintEvent* _paint_event) noexcept override {
             // https://runebook.dev/en/docs/qt/qwidget/paintEvent
         }
+        */
 
     private:
         inline void __attribute__((__always_inline__)) __update_hexstring() noexcept {
             // static_assert(sizeof(QChar) == sizeof(wchar_t));                   // QChar is equivalent to unsigned short
             // the above requires -fshort-wchar compiler flag because by default, wchar_t is 4 bytes on linux??? not 2 bytes
             ::memset(_hexstring.data(), 0, sizeof(QChar) * _hexstring.size()); // clean up the buffer before every write
-            if (!_hex_strstream.seek(0)) {
+            if (!_hex_strstream.seek(0)) {                                     // get to the beginning of the stream buffer
                 fprintf(stderr, "Error inside %s, call to QTextStream::seek() failed!\n", __PRETTY_FUNCTION__);
                 return;
             }
