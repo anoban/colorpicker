@@ -4,6 +4,7 @@
 #endif
 
 #include <QtWidgets/QFrame>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
@@ -17,23 +18,26 @@ class main_window final : public QFrame {
         Q_OBJECT
 
     private:
-        std::array<QSlider, configs::trackbars::N>                            _rgbsliders;    // sliders for RGB colours
-        std::array<QSpinBox, configs::trackbars::N>                           _rgbspinboxes;  // labels for the RGB sliders
-        std::array<int, configs::trackbars::N>                                _slider_values; // RGB QSlider values
-        static constexpr std::array<const char* const, configs::trackbars::N> _qss_class_names { "red", "green", "blue" };
-        rgb_hexstring                                                         _hexstring; // the RGB colour combination in hex format e.g. #9F25E9
-        QPalette                                                              _palette;   // colour palette to paint the main window background with
+        std::array<QSlider, configs::sliders::N>                            _rgbsliders;   // sliders for RGB colours
+        std::array<QSpinBox, configs::sliders::N>                           _rgbspinboxes; // labels for the RGB sliders
+        // the reason for using QSpinBox instead of QLabel or QLineEdit is, QLabel does not have a rectangular outline and QLineEdit is fiddly to use with numerical outputs
+        // so we use QSpinBox and hide their increment and decrement buttons
+        std::array<int, configs::sliders::N>                                _slider_values; // RGB QSlider values
+        static constexpr std::array<const char* const, configs::sliders::N> _qss_class_names { "red", "green", "blue" };
+        rgb_hexstring                                                       _hexstring;        // the RGB colour combination in hex format e.g. #9F25E9
+        QPushButton                                                         _stayontop_button; // keep the mainwindow on top of all windows on screen
+        QPalette                                                            _palette;          // colour palette to paint the main window background with
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
             QFrame(_parent_window, Qt::WindowType::Window | Qt::WindowType::WindowMinimizeButtonHint),
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
-
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _slider_values {},
             _hexstring { this },
+            _stayontop_button(this),
             _palette {} {
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
@@ -51,20 +55,20 @@ class main_window final : public QFrame {
             const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)"); // style sheet for the main window (QFrame)
             if (_qframe_stylesheet) setStyleSheet(_qframe_stylesheet.value());
 
-            for (unsigned i = 0; i < configs::trackbars::N; ++i) {
+            for (unsigned i = 0; i < configs::sliders::N; ++i) {
                 //---------------------
                 // sliders
                 //---------------------
 
                 _rgbsliders[i].setFocusPolicy(Qt::FocusPolicy::StrongFocus);
                 _rgbsliders[i].setSingleStep(1);
-                _rgbsliders[i].setMinimumWidth(configs::trackbars::WIDTH);
-                _rgbsliders[i].setMinimumHeight(configs::trackbars::HEIGHT);
+                _rgbsliders[i].setMinimumWidth(configs::sliders::WIDTH);
+                _rgbsliders[i].setMinimumHeight(configs::sliders::HEIGHT);
                 _rgbsliders[i].setGeometry(
-                    configs::trackbars::PAD,
-                    configs::trackbars::VERTICAL_MARGIN + i * configs::trackbars::VSPACE,
-                    configs::trackbars::WIDTH,
-                    configs::trackbars::HEIGHT
+                    configs::sliders::HPAD,
+                    configs::sliders::VSPACE_TITLEBAR + i * configs::sliders::VSPACE_SLIDERS,
+                    configs::sliders::WIDTH,
+                    configs::sliders::HEIGHT
                 );
 
                 _rgbsliders[i].setRange(
@@ -74,19 +78,19 @@ class main_window final : public QFrame {
                 );
 
                 if (_qslider_stylesheet) _rgbsliders[i].setStyleSheet(_qslider_stylesheet.value()); // styling for the slider button groove
-                _rgbsliders[i].setProperty("class", _qss_class_names[i]);                           // CSS property to be leveraged in QSlider.qss
+                _rgbsliders[i].setProperty("class", _qss_class_names[i]);                           // css property to be leveraged in QSlider.qss
 
                 //---------------------
                 // spin boxes
                 //---------------------
 
                 _rgbspinboxes[i].setGeometry(
-                    configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD,
-                    configs::trackbars::VERTICAL_MARGIN + i * configs::trackbars::VSPACE,
-                    configs::trackbars::labels::WIDTH,
-                    configs::trackbars::labels::HEIGHT
+                    configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::labels::HPAD,
+                    configs::sliders::VSPACE_TITLEBAR + i * configs::sliders::VSPACE_SLIDERS,
+                    configs::sliders::labels::WIDTH,
+                    configs::sliders::labels::HEIGHT
                 );
-                _rgbspinboxes[i].setButtonSymbols(QAbstractSpinBox::NoButtons);
+                _rgbspinboxes[i].setButtonSymbols(QAbstractSpinBox::NoButtons); // hide the spin box buttons
                 _rgbspinboxes[i].setRange(std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max());
                 _rgbspinboxes[i].setAlignment(Qt::AlignmentFlag::AlignCenter);
             }
@@ -96,19 +100,19 @@ class main_window final : public QFrame {
 
         Q_SLOT inline void __attribute__((__always_inline__)) rslider_moved(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
-            _slider_values[_rgb_offsets::RED] = _new_value;
+            _slider_values[configs::rgb_offsets::RED] = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) gslider_moved(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
-            _slider_values[_rgb_offsets::GREEN] = _new_value;
+            _slider_values[configs::rgb_offsets::GREEN] = _new_value;
             __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) bslider_moved(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
-            _slider_values[_rgb_offsets::BLUE] = _new_value;
+            _slider_values[configs::rgb_offsets::BLUE] = _new_value;
             __update_bg();
         }
 
@@ -121,20 +125,21 @@ class main_window final : public QFrame {
             for (unsigned i = 0; i < _rgbspinboxes.size(); ++i) connect(&_rgbspinboxes[i], &QSpinBox::valueChanged, &_rgbsliders[i], &QSlider::setValue);
 
             // establishing one way communication between all the three sliders and the hex string
-            connect(&_rgbsliders[_rgb_offsets::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::rslider_moved);
-            connect(&_rgbsliders[_rgb_offsets::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::gslider_moved);
-            connect(&_rgbsliders[_rgb_offsets::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::bslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::RED], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::rslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::GREEN], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::gslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, &_hexstring, &rgb_hexstring::bslider_moved);
 
             // establishing one way communication between all the three sliders and the main window
-            connect(&_rgbsliders[_rgb_offsets::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);
-            connect(&_rgbsliders[_rgb_offsets::GREEN], &QSlider::valueChanged, this, &main_window::gslider_moved);
-            connect(&_rgbsliders[_rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::bslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::RED], &QSlider::valueChanged, this, &main_window::rslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::GREEN], &QSlider::valueChanged, this, &main_window::gslider_moved);
+            connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::bslider_moved);
         }
 
         inline void __attribute__((__always_inline__)) __update_bg() noexcept {
             // update the colour palette with the current state of the sliders
             _palette.setColor(
-                QPalette::Window, QColor { _slider_values[_rgb_offsets::RED], _slider_values[_rgb_offsets::GREEN], _slider_values[_rgb_offsets::BLUE] }
+                QPalette::Window,
+                QColor { _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE] }
             );
             setPalette(_palette); // set the updated palette, triggering a window redraw
         }

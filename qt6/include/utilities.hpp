@@ -15,8 +15,6 @@
 // Qt itself does not use C++ exceptions, so it's safe to mark functions with noexcept() unless we use C++ exceptions
 // even though none of Qt functions or methods have an explicit noexcept specifier, we assume they won't throw
 
-enum _rgb_offsets : unsigned char { RED, GREEN, BLUE }; // to conveniently index into RGB arrays without using numbers
-
 namespace utilities {
 
     [[nodiscard]] static inline std::optional<QString> read_qss(const char* const fpath) noexcept {

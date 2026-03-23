@@ -16,9 +16,9 @@ class rgb_hexstring final : public QLineEdit {
         Q_OBJECT
 
     private:
-        std::array<int, configs::trackbars::N> _slider_values;
-        QString                                _hexstring; // QString is equivalent to std::wstring on Windows where wchar_t is 16 bits wide
-        QTextStream                            _hex_strstream;
+        std::array<int, configs::sliders::N> _slider_values;
+        QString                              _hexstring; // QString is equivalent to std::wstring on Windows where wchar_t is 16 bits wide
+        QTextStream                          _hex_strstream;
 
     public:
         inline rgb_hexstring(QWidget* const _parent_window = nullptr) noexcept :
@@ -31,9 +31,9 @@ class rgb_hexstring final : public QLineEdit {
                            << ::qSetFieldWidth(2);                     // we want fixed width of 2 characters
 
             setGeometry( // since we have control over this class's implementation, let's do this inside the ctor, instead of having main window do this
-                configs::trackbars::PAD + configs::trackbars::WIDTH + configs::trackbars::labels::PAD + configs::trackbars::labels::WIDTH +
-                    configs::trackbars::labels::PAD,
-                configs::trackbars::VERTICAL_MARGIN + 2 * configs::trackbars::VSPACE,
+                configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::labels::HPAD + configs::sliders::labels::WIDTH +
+                    configs::sliders::labels::HPAD,
+                configs::sliders::VSPACE_TITLEBAR + 2 * configs::sliders::VSPACE_SLIDERS,
                 configs::hexstring::WIDTH,
                 configs::hexstring::HEIGHT
             );
@@ -42,22 +42,22 @@ class rgb_hexstring final : public QLineEdit {
         }
 
         Q_SLOT inline void rslider_moved(int _new_value) noexcept {
-            _slider_values[_rgb_offsets::RED] = _new_value;
+            _slider_values[configs::rgb_offsets::RED] = _new_value;
             __update_hexstring();
         }
 
         Q_SLOT inline void gslider_moved(int _new_value) noexcept {
-            _slider_values[_rgb_offsets::GREEN] = _new_value;
+            _slider_values[configs::rgb_offsets::GREEN] = _new_value;
             __update_hexstring();
         }
 
         Q_SLOT inline void bslider_moved(int _new_value) noexcept {
-            _slider_values[_rgb_offsets::BLUE] = _new_value;
+            _slider_values[configs::rgb_offsets::BLUE] = _new_value;
             __update_hexstring();
         }
 
         virtual inline void paintEvent([[maybe_unused]] QPaintEvent* _paint_event) noexcept override {
-            //
+            // https://runebook.dev/en/docs/qt/qwidget/paintEvent
         }
 
     private:
@@ -74,7 +74,8 @@ class rgb_hexstring final : public QLineEdit {
             // even if we use two byte wchar_t s, we don't know that there's alternative implementations for all the stdio.h functions to handle 2 byte wchar_t s????
             // https://doc.qt.io/qt-6/qstring.html#asprintf QString::asprintf isn't recommended in new Qt code :(
 
-            _hex_strstream << '#' << _slider_values[_rgb_offsets::RED] << _slider_values[_rgb_offsets::GREEN] << _slider_values[_rgb_offsets::BLUE];
+            _hex_strstream << '#' << _slider_values[configs::rgb_offsets::RED] << _slider_values[configs::rgb_offsets::GREEN]
+                           << _slider_values[configs::rgb_offsets::BLUE];
             // ::puts(_hexstring.toStdString().c_str());
             setText(_hexstring);
         }
