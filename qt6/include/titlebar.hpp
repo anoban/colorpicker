@@ -12,4 +12,6 @@
 class title_bar final : public QFrame {
         Q_OBJECT
         //
+
+        
 };

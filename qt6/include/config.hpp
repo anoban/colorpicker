@@ -47,4 +47,8 @@ namespace configs {
 
     }
 
+    namespace titlebar {
+        //
+    }
+
 } // namespace configs

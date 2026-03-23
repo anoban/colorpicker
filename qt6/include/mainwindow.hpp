@@ -45,7 +45,7 @@ class main_window final : public QFrame {
             setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
 
-            setAttribute(Qt::WA_TranslucentBackground);
+            // setAttribute(Qt::WA_TranslucentBackground);
 
             // stylesheet for the QSliders
             const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
