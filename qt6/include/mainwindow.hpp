@@ -24,9 +24,9 @@ class main_window final : public QFrame {
         // so we use QSpinBox and hide their increment and decrement buttons
         std::array<int, configs::sliders::N>                                _slider_values; // RGB QSlider values
         static constexpr std::array<const char* const, configs::sliders::N> _qss_class_names { "red", "green", "blue" };
-        rgb_hexstring                                                       _hexstring; // the RGB colour combination in hex format e.g. #9F25E9
-        // QPushButton                                                         _stayontop_button; // keep the mainwindow on top of all windows on screen
-        QPalette                                                            _palette; // colour palette to paint the main window background with
+        rgb_hexstring                                                       _hexstring;        // the RGB colour combination in hex format e.g. #9F25E9
+        QPushButton                                                         _stayontop_button; // keep the mainwindow on top of all windows on screen
+        QPalette                                                            _palette;          // colour palette to paint the main window background with
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -37,7 +37,7 @@ class main_window final : public QFrame {
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _slider_values {},
             _hexstring { this },
-            // _stayontop_button(this),
+            _stayontop_button(this),
             _palette {} {
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
