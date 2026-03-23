@@ -18,15 +18,14 @@ class main_window final : public QFrame {
         Q_OBJECT
 
     private:
-        std::array<QSlider, configs::sliders::N>                            _rgbsliders;   // sliders for RGB colours
-        std::array<QSpinBox, configs::sliders::N>                           _rgbspinboxes; // labels for the RGB sliders
+        std::array<QSlider, configs::sliders::N>  _rgbsliders;   // sliders for RGB colours
+        std::array<QSpinBox, configs::sliders::N> _rgbspinboxes; // labels for the RGB sliders
         // the reason for using QSpinBox instead of QLabel or QLineEdit is, QLabel does not have a rectangular outline and QLineEdit is fiddly to use with numerical outputs
         // so we use QSpinBox and hide their increment and decrement buttons
-        std::array<int, configs::sliders::N>                                _slider_values; // RGB QSlider values
-        static constexpr std::array<const char* const, configs::sliders::N> _qss_class_names { "red", "green", "blue" };
-        rgb_hexstring                                                       _hexstring;        // the RGB colour combination in hex format e.g. #9F25E9
-        QPushButton                                                         _stayontop_button; // keep the mainwindow on top of all windows on screen
-        QPalette                                                            _palette;          // colour palette to paint the main window background with
+        std::array<int, configs::sliders::N>      _slider_values;    // RGB QSlider values
+        rgb_hexstring                             _hexstring;        // the RGB colour combination in hex format e.g. #9F25E9
+        QPushButton                               _stayontop_button; // keep the mainwindow on top of all windows on screen
+        QPalette                                  _palette;          // colour palette to paint the main window background with
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -78,7 +77,7 @@ class main_window final : public QFrame {
                 );
 
                 if (_qslider_stylesheet) _rgbsliders[i].setStyleSheet(_qslider_stylesheet.value()); // styling for the slider button groove
-                _rgbsliders[i].setProperty("class", _qss_class_names[i]);                           // css property to be leveraged in QSlider.qss
+                _rgbsliders[i].setProperty("class", configs::sliders::QSS_CLASS_NAMES[i]);          // css property to be leveraged in QSlider.qss
 
                 //---------------------
                 // spin boxes

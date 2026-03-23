@@ -3,6 +3,8 @@
     #define __CONFIG_HPP 1
 #endif
 
+#include <array>
+
 #include <colorpicker.hpp>
 
 namespace configs {
@@ -19,12 +21,13 @@ namespace configs {
 
     namespace sliders {
 
-        static constexpr unsigned long N { 3 };               // number of track bars used in the application
-        static constexpr unsigned long VSPACE_SLIDERS { 44 }; // vertical separation between subsequent track bars
-        static constexpr unsigned long HPAD { 20 };           // padding between the left end of the track bars and the left edge of the main window
-        static constexpr unsigned long WIDTH { 282 };
-        static constexpr unsigned long HEIGHT { 25 };
-        static constexpr unsigned long VSPACE_TITLEBAR { 34 }; // margin betwen the first track bar and the bottom edge of the title bar
+        static constexpr unsigned long                    N { 3 };               // number of track bars used in the application
+        static constexpr unsigned long                    VSPACE_SLIDERS { 44 }; // vertical separation between subsequent track bars
+        static constexpr unsigned long                    HPAD { 20 }; // padding between the left end of the track bars and the left edge of the main window
+        static constexpr unsigned long                    WIDTH { 282 };
+        static constexpr unsigned long                    HEIGHT { 25 };
+        static constexpr unsigned long                    VSPACE_TITLEBAR { 34 }; // margin betwen the first track bar and the bottom edge of the title bar
+        static constexpr std::array<const char* const, N> QSS_CLASS_NAMES { "red", "green", "blue" };
 
         namespace labels {
 
