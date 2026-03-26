@@ -8,10 +8,11 @@
 #endif
 
 #include <config.hpp>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 
-class title_bar final : public QWidget { // a dummy title bar that replaces the DWM provided one
+class title_bar final : public QGridLayout { // a dummy title bar that replaces the DWM provided one
         Q_OBJECT
         //
 
@@ -23,10 +24,11 @@ class title_bar final : public QWidget { // a dummy title bar that replaces the 
 
     public:
         inline explicit title_bar(QWidget* const _parent_window) noexcept :
-            QWidget { _parent_window }, _stayontop { _parent_window }, _minimize { _parent_window }, _close { _parent_window }, _about { _parent_window } {
+            QGridLayout { _parent_window }, _stayontop { _parent_window }, _minimize { _parent_window }, _close { _parent_window }, _about { _parent_window } {
             //
-            setFixedWidth(configs::titlebar::WIDTH);
-            setFixedHeight(configs::titlebar::HEIGHT);
+            // setFixedWidth(configs::titlebar::WIDTH);
+            // setFixedHeight(configs::titlebar::HEIGHT);
+            setGeometry(QRect { 0, 0, configs::titlebar::WIDTH, configs::titlebar::HEIGHT });
         }
 
     private:
