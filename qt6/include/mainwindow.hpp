@@ -48,8 +48,7 @@ class main_window final : public QFrame {
             // the color used is defined by the QPalette::Window color role from the widget's palette.
             setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
-
-            // setAttribute(Qt::WA_TranslucentBackground);
+            setAttribute(Qt::WA_TranslucentBackground); // hides the original rectangular window
 
             // stylesheet for the QSliders
             const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
@@ -107,28 +106,39 @@ class main_window final : public QFrame {
         Q_SLOT inline void __attribute__((__always_inline__)) on_rslider_move(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
             _slider_values[configs::rgb_offsets::RED] = _new_value;
-            __update_bg();
+            // __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) on_gslider_move(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
             _slider_values[configs::rgb_offsets::GREEN] = _new_value;
-            __update_bg();
+            // __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) on_bslider_move(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
-            __update_bg();
+            // __update_bg();
         }
 
-        virtual inline void paintEvent([[maybe_unused]] QPaintEvent* _paint_event) noexcept override {
+        [[deprecated]] virtual inline void paintEvent(QPaintEvent* _paint_event) noexcept override {
             // setting border-radius in stylesheets for QFrame results in botched corners - round corners overlaid on rectangular corners
+            // this will create a main window with clean, smooth and round corners
             // https://runebook.dev/en/docs/qt/qwidget/paintEvent
             QPainter _painter { this };
             _painter.setRenderHint(QPainter::RenderHint::Antialiasing); // for smooth corners
-            _painter.setBrush(QBrush { Qt::GlobalColor::black });
+            _painter.setBrush(
+                QBrush {
+                   QColor {
+                           _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE] }
+            }
+            );
             _painter.setPen(Qt::GlobalColor::transparent); // thin borders
+
+            QRect _current_rect { rect() };
+            _painter.drawRoundedRect(_current_rect, 10, 10);
+            QWidget::paintEvent(_paint_event);
+            update(); // without this only the edges of the sliders got painted while the background stayed black???
         }
 
     private:
@@ -150,7 +160,7 @@ class main_window final : public QFrame {
             connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::on_bslider_move);
         }
 
-        inline void __attribute__((__always_inline__)) __update_bg() noexcept {
+        [[maybe_unused]] inline void __attribute__((__always_inline__)) __update_bg() noexcept {
             // update the colour palette with the current state of the sliders
             _palette.setColor(
                 QPalette::Window,
