@@ -3,6 +3,8 @@
     #define __MAINWINDOW_HPP 1
 #endif
 
+#include <QtCore/QPointF>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QPushButton>
@@ -28,6 +30,7 @@ class main_window final : public QFrame {
         std::array<int, configs::sliders::N>      _slider_values; // RGB QSlider values
         rgb_hexstring                             _hexstring;     // the RGB colour combination in hex format e.g. #9F25E9
         QPalette                                  _palette;       // colour palette to paint the main window background with
+        QPointF                                   _mouse_pos;
 
     public:
         explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
@@ -55,10 +58,9 @@ class main_window final : public QFrame {
             // the order of CSS box model styling is top-left, top-right, bottom-right and bottom-left
             // https://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 
-            // creating round corners using stylesheets won't actually make the corners appear round,
-            // the round corners will appear inside an outer rectangular corner, and to hide this outer rectangular corner, we need to apply a mask
-            const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)"); // style sheet for the main window (QFrame)
-            if (_qframe_stylesheet) setStyleSheet(_qframe_stylesheet.value());
+            // don't need this anymore
+            // const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)"); // style sheet for the main window (QFrame)
+            // if (_qframe_stylesheet) setStyleSheet(_qframe_stylesheet.value());
 
             for (unsigned i = 0; i < configs::sliders::N; ++i) {
                 //---------------------
@@ -121,24 +123,50 @@ class main_window final : public QFrame {
             // __update_bg();
         }
 
-        [[deprecated]] virtual inline void paintEvent(QPaintEvent* _paint_event) noexcept override {
+        [[deprecated]] virtual inline void paintEvent(QPaintEvent* const _paint_event) noexcept override {
             // setting border-radius in stylesheets for QFrame results in botched corners - round corners overlaid on rectangular corners
             // this will create a main window with clean, smooth and round corners
             // https://runebook.dev/en/docs/qt/qwidget/paintEvent
+
+            // https://doc.qt.io/archives/qt-6.1/qwidget.html#paintEvent
+            // a paint event is a request to repaint all or part of a widget. It can happen for one of the following reasons:
+            // repaint() or update() was invoked, the widget was obscured and has now been uncovered, or many other reasons
+
+            // Qt also tries to speed up painting by merging multiple paint events into one. When update() is called several times or the window system sends several
+            // paint events, Qt merges these events into one event with a larger region (see QRegion::united())
+            // the repaint() function does not permit this optimization, so we suggest using update() whenever possible
             QPainter _painter { this };
             _painter.setRenderHint(QPainter::RenderHint::Antialiasing); // for smooth corners
             _painter.setBrush(
-                QBrush {
-                   QColor {
-                           _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE] }
-            }
+                QColor { _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE] }
             );
             _painter.setPen(Qt::GlobalColor::transparent); // thin borders
 
+            // when the paint event occurs, the update() region has normally been erased, so you are painting on the widget's background
+            // this background can be set using setBackgroundRole() and setPalette()
+            __update_bg();
+
+            // generally, you should refrain from calling update() or repaint() inside a paintEvent()
+            // for example, calling update() or repaint() on children inside a paintEvent() results in undefined behavior; the child may or may not get a paint event.
             QRect _current_rect { rect() };
             _painter.drawRoundedRect(_current_rect, 10, 10);
             QWidget::paintEvent(_paint_event);
-            update(); // without this only the edges of the sliders got painted while the background stayed black???
+        }
+
+        // making a window frameless using Qt::WindowType::FramelessWindowHint also makes us lose all the functionalities afforded by the OS DWM
+        // we'll have to hand roll these for our class - exit, move etc.
+        // https://stackoverflow.com/questions/37718329/pyqt5-draggable-frameless-window
+        virtual inline void mousePressEvent(QMouseEvent* const _event) noexcept override {
+            // the default implementation implements the closing of popup widgets when you click outside the window. for other widget types it does nothing
+            // we want the window movable(draggable) with mouse
+            _mouse_pos = _event->globalPosition(); // store the coordinates of the mouse at click (press)
+        }
+
+        virtual inline void mouseMoveEvent(QMouseEvent* const _event) noexcept override {
+            // capture the current position of the cursor, and calculate how far the cursor has moved (along x and y axes)
+            const auto _distance { _event->globalPosition() - _mouse_pos };
+            move(x() + _distance.x(), y() + _distance.y()); // move the window to the new position of the cursor
+            _mouse_pos = _event->globalPosition();          // update to the current cursor position
         }
 
     private:
