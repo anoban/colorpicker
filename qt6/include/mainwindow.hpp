@@ -3,6 +3,7 @@
     #define __MAINWINDOW_HPP 1
 #endif
 
+#include <QtGui/QPainter>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
@@ -11,6 +12,7 @@
 
 // clang-format off
 #include <rgbhexstring.hpp>
+#include <titlebar.hpp>
 // clang-format on
 
 class main_window final : public QFrame {
@@ -18,6 +20,7 @@ class main_window final : public QFrame {
         Q_OBJECT
 
     private:
+        title_bar                                 _custom_titlebar;
         std::array<QSlider, configs::sliders::N>  _rgbsliders;   // sliders for RGB colours
         std::array<QSpinBox, configs::sliders::N> _rgbspinboxes; // labels for the RGB sliders
         // the reason for using QSpinBox instead of QLabel or QLineEdit is, QLabel does not have a rectangular outline and QLineEdit is fiddly to use with numerical outputs
@@ -32,6 +35,7 @@ class main_window final : public QFrame {
                 _parent_window,
                 Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
             },
+            _custom_titlebar { _parent_window },
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
@@ -116,6 +120,15 @@ class main_window final : public QFrame {
             // will be signalled to when the blue slider is moved
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
             __update_bg();
+        }
+
+        virtual inline void paintEvent([[maybe_unused]] QPaintEvent* _paint_event) noexcept override {
+            // setting border-radius in stylesheets for QFrame results in botched corners - round corners overlaid on rectangular corners
+            // https://runebook.dev/en/docs/qt/qwidget/paintEvent
+            QPainter _painter { this };
+            _painter.setRenderHint(QPainter::RenderHint::Antialiasing); // for smooth corners
+            _painter.setBrush(QBrush { Qt::GlobalColor::black });
+            _painter.setPen(Qt::GlobalColor::transparent); // thin borders
         }
 
     private:

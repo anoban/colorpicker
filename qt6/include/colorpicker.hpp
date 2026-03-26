@@ -7,8 +7,8 @@
 #define __COLORPICKER_VERSION_MINOR                1
 #define __COLORPICKER_VERSION_PATCH                0
 
-#define __expand(_number)                          #_number
-#define __tostr(_number)                           __expand(_number)
+#define __expand(_number)                          #_number          // and this one does the stringizing - names aren't intuitive are they????
+#define __tostr(_number)                           __expand(_number) // well this is the macro that actualyy does the expansion
 #define __full_version_str(_major, _minor, _patch) (__expand(_major) "." __expand(_minor) "." __expand(_patch))
 
 #include <QtCore/QtGlobal>

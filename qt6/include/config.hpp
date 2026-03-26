@@ -14,23 +14,21 @@ namespace configs {
     enum rgb_offsets : unsigned char { RED, GREEN, BLUE }; // to conveniently index into RGB arrays without using numbers
 
     namespace main_window {
-
         static constexpr unsigned long HEIGHT { 170 }; // height of the application window
         static constexpr unsigned long WIDTH { 610 };  // width of the application window
     }
 
     namespace sliders {
 
-        static constexpr unsigned long                    N { 3 };               // number of track bars used in the application
-        static constexpr unsigned long                    VSPACE_SLIDERS { 44 }; // vertical separation between subsequent track bars
+        static constexpr unsigned long                    N { 3 };     // number of track bars used in the application
         static constexpr unsigned long                    HPAD { 20 }; // padding between the left end of the track bars and the left edge of the main window
         static constexpr unsigned long                    WIDTH { 282 };
         static constexpr unsigned long                    HEIGHT { 25 };
+        static constexpr unsigned long                    VSPACE_SLIDERS { 44 };  // vertical separation between subsequent track bars
         static constexpr unsigned long                    VSPACE_TITLEBAR { 34 }; // margin betwen the first track bar and the bottom edge of the title bar
         static constexpr std::array<const char* const, N> QSS_CLASS_NAMES { "red", "green", "blue" };
 
         namespace labels {
-
             // padding between the right end of the track bar and the left edge of it's cognate label box
             static constexpr unsigned long HPAD { 28 };
             static constexpr unsigned long WIDTH { 60 };
@@ -40,16 +38,14 @@ namespace configs {
     } // namespace sliders
 
     namespace hexstring {
-
         static constexpr unsigned long SIZE { 64 }; // max length of the hexadecimal colour code string e.g. "#00AEEF"
         static constexpr unsigned long WIDTH { 140 };
         static constexpr unsigned long HEIGHT { 30 };
-
     }
 
     namespace titlebar {
+        static constexpr unsigned long WIDTH { main_window::WIDTH }; // we need these two to have matching widths
         static constexpr unsigned long HEIGHT { 25 };
-        static constexpr unsigned long WIDTH { main_window::WIDTH }; // we need these two to have the same width
     }
 
 } // namespace configs

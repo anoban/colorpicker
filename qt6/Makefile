@@ -643,6 +643,7 @@ moc_mainwindow.cpp: include/mainwindow.hpp \
 		include/utilities.hpp \
 		include/config.hpp \
 		include/colorpicker.hpp \
+		include/titlebar.hpp \
 		moc_predefs.h \
 		/usr/lib64/qt6/libexec/moc
 	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/mainwindow.hpp -o moc_mainwindow.cpp
@@ -656,6 +657,8 @@ moc_rgbhexstring.cpp: include/rgbhexstring.hpp \
 	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/rgbhexstring.hpp -o moc_rgbhexstring.cpp
 
 moc_titlebar.cpp: include/titlebar.hpp \
+		include/config.hpp \
+		include/colorpicker.hpp \
 		moc_predefs.h \
 		/usr/lib64/qt6/libexec/moc
 	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/anoban/github/colorpicker/qt6/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/anoban/github/colorpicker/qt6 -I/home/anoban/github/colorpicker/qt6/include -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/c++/15/x86_64-redhat-linux -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-redhat-linux/15/include -I/usr/local/include -I/usr/include include/titlebar.hpp -o moc_titlebar.cpp
@@ -680,7 +683,8 @@ colorpicker.o: colorpicker.cpp include/mainwindow.hpp \
 		include/rgbhexstring.hpp \
 		include/utilities.hpp \
 		include/config.hpp \
-		include/colorpicker.hpp
+		include/colorpicker.hpp \
+		include/titlebar.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o colorpicker.o colorpicker.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
