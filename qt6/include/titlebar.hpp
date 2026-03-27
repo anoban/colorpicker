@@ -17,29 +17,31 @@ class title_bar final : public QWidget { // a dummy title bar that replaces the 
         //
 
     private:
-        QPushButton _stayontop;
-        QPushButton _minimize;
-        QPushButton _close;
-        QPushButton _about;
+        QPushButton _minimize_btn;
+        QPushButton _close_btn;
+        QPushButton _stayontop_btn;
+        QPushButton _launch_picker_btn;
+        QPushButton _about_btn;
         QHBoxLayout _layout;
 
     public:
         inline explicit title_bar(QWidget* const _parent_window) noexcept :
             QWidget { _parent_window },
-            _stayontop { "Stay on Top", _parent_window },
-            _minimize { "Minimize", _parent_window },
-            _close { "Close", _parent_window },
-            _about { "About", _parent_window },
+            _minimize_btn { "Minimize", _parent_window },
+            _close_btn { "Close", _parent_window },
+            _stayontop_btn { "Stay on Top", _parent_window },
+            _launch_picker_btn { "Picker", _parent_window },
+            _about_btn { "About", _parent_window },
             _layout { _parent_window } {
             //
-            setFixedWidth(configs::titlebar::WIDTH);
-            setFixedHeight(configs::titlebar::HEIGHT);
+            // setFixedWidth(configs::titlebar::WIDTH);
+            // setFixedHeight(configs::titlebar::HEIGHT);
             setGeometry(QRect { 0, 0, configs::titlebar::WIDTH, configs::titlebar::HEIGHT });
 
-            _layout.addWidget(&_stayontop);
-            _layout.addWidget(&_minimize);
-            _layout.addWidget(&_close);
-            _layout.addWidget(&_about);
+            _layout.addWidget(&_stayontop_btn);
+            _layout.addWidget(&_minimize_btn);
+            _layout.addWidget(&_close_btn);
+            _layout.addWidget(&_about_btn);
         }
 
     private:
