@@ -45,7 +45,8 @@ class main_window final : public QFrame {
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _slider_values {},
             _hexstring { this },
-            _palette {} {
+            _palette {},
+            _mouse_pos {} {
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
             // the color used is defined by the QPalette::Window color role from the widget's palette.
@@ -108,19 +109,16 @@ class main_window final : public QFrame {
         Q_SLOT inline void __attribute__((__always_inline__)) on_rslider_move(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
             _slider_values[configs::rgb_offsets::RED] = _new_value;
-            // __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) on_gslider_move(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
             _slider_values[configs::rgb_offsets::GREEN] = _new_value;
-            // __update_bg();
         }
 
         Q_SLOT inline void __attribute__((__always_inline__)) on_bslider_move(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
-            // __update_bg();
         }
 
         [[deprecated]] virtual inline void paintEvent(QPaintEvent* const _paint_event) noexcept override {
@@ -144,7 +142,7 @@ class main_window final : public QFrame {
 
             // when the paint event occurs, the update() region has normally been erased, so you are painting on the widget's background
             // this background can be set using setBackgroundRole() and setPalette()
-            __update_bg();
+            __update_background();
 
             // generally, you should refrain from calling update() or repaint() inside a paintEvent()
             // for example, calling update() or repaint() on children inside a paintEvent() results in undefined behavior; the child may or may not get a paint event.
@@ -188,7 +186,7 @@ class main_window final : public QFrame {
             connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::on_bslider_move);
         }
 
-        [[maybe_unused]] inline void __attribute__((__always_inline__)) __update_bg() noexcept {
+        [[maybe_unused]] inline void __attribute__((__always_inline__)) __update_background() noexcept {
             // update the colour palette with the current state of the sliders
             _palette.setColor(
                 QPalette::Window,
