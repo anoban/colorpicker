@@ -6,6 +6,7 @@
 #include <array>
 
 #include <colorpicker.hpp>
+#include <QtCore/QSize>
 
 namespace configs {
 
@@ -44,8 +45,12 @@ namespace configs {
     }
 
     namespace titlebar {
+        enum button_offsets : unsigned char { MINIMIZE, CLOSE, STAYONTOP, COLOURPICKER, ABOUT };
+
+        static constexpr unsigned long NBUTTONS { 5 };
+        static constexpr QSize         ICON_SHAPE { 30, 30 };
         static constexpr unsigned long WIDTH { main_window::WIDTH }; // we need these two to have matching widths
-        static constexpr unsigned long HEIGHT { 25 };
+        static constexpr unsigned long HEIGHT { 30 };
     }
 
 } // namespace configs

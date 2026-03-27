@@ -7,7 +7,10 @@
 #include <cstdio>
 #include <optional>
 
+// clang-format off
 #include <config.hpp>
+// clang-format on
+
 #include <QtCore/QFile>
 #include <QtCore/QString>
 
