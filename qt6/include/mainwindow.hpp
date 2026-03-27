@@ -7,7 +7,6 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 #include <QtWidgets/QFrame>
-#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
@@ -33,12 +32,11 @@ class main_window final : public QFrame {
         QPointF                                   _mouse_pos;
 
     public:
-        explicit inline main_window(QWidget* const _parent_window = nullptr) noexcept :
+        explicit inline main_window() noexcept :
             QFrame {
-                _parent_window,
-                Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
+                nullptr, Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
             },
-            _custom_titlebar { _parent_window },
+            _custom_titlebar { this },
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
             // no need to call .show() on every widget inside the main window
             _rgbsliders { QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this), QSlider(Qt::Orientation::Horizontal, this) },
