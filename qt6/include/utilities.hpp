@@ -36,9 +36,13 @@ namespace utilities {
         ::printf("Colorpicker %s, built with Qt %s, using g++ %s\n", COLORPICKER_FULL_VERSION, QT_FULL_VERSION, CXX_FULL_VERSION);
     }
 
-    static inline double constexpr __attribute__((__always_inline__)) rgb_to_greyscale(const double& _red, const double& _green, const double& _blue) noexcept {
-        // pixel.rgbBlue * 0.299L + pixel.rgbGreen * 0.587L + pixel.rgbRed * 0.114L
-        return _red * 0.114 + _green * 0.587 + _blue * 0.299; // NOLINT(readability-magic-numbers)
+    static inline bool constexpr __attribute__((__always_inline__)) is_black_text_needed(
+        const double& _red, const double& _green, const double& _blue
+    ) noexcept {
+        // this equation expects the colour values to be in the range (0.0, 1.0)
+        return (0.2126 * ::pow(_red / std::numeric_limits<unsigned char>::max(), 2.200 /* the gamma value */) +
+                0.7152 * ::pow(_green / std::numeric_limits<unsigned char>::max(), 2.200) +
+                0.0722 * ::pow(_blue / std::numeric_limits<unsigned char>::max(), 2.200)) > 0.5000; // 0.5 is the threshold
     }
 
 } // namespace utilities

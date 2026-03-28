@@ -191,14 +191,17 @@ class main_window final : public QFrame {
             setPalette(_bgpalette); // set the updated palette, triggering a window redraw
 
             // handle contrasting the text colour with the background colour
-            if (utilities::rgb_to_greyscale(
+            if (utilities::is_black_text_needed(
                     _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
-                ) > 0.500) {
+                )) {
                 _txtpalette.setColor(QPalette::ColorRole::Text, Qt::GlobalColor::black);
                 for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setPalette(_txtpalette);
+                ::puts("black text!");
             } else {
                 _txtpalette.setColor(QPalette::ColorRole::Text, Qt::GlobalColor::white);
                 for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setPalette(_txtpalette);
+                ::puts("white text!");
             }
+            // NOT WORKING THOUGH????
         }
 };
