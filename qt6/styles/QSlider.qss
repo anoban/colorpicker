@@ -1,6 +1,5 @@
 QSlider::groove:horizontal {
-    border: 1px solid black;
-    background: white;
+    border: 1px solid transparent;
     height: 10px;
     border-radius: 4px;
 }
@@ -24,8 +23,8 @@ QSlider.blue::sub-page:horizontal {
 }
 
 QSlider::add-page:horizontal {
-    background: white;
-    border: 1px solid black;
+    background: rgba(0, 0, 0, 80);
+    border: 1px solid transparent;
     height: 10px;
     border-radius: 4px;
 }

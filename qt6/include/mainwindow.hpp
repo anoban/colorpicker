@@ -28,13 +28,12 @@ class main_window final : public QFrame {
         // so we use QSpinBox and hide their increment and decrement buttons
         std::array<int, configs::sliders::N>      _slider_values; // RGB QSlider values
         rgb_hexstring                             _hexstring;     // the RGB colour combination in hex format e.g. #9F25E9
-        QPalette                                  _palette;       // colour palette to paint the main window background with
         QPointF                                   _mouse_pos;
 
     public:
         explicit inline main_window() noexcept :
             QFrame {
-                nullptr, Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
+                nullptr, Qt::WindowType::Window // | Qt::WindowType::FramelessWindowHint /* Qt::WindowType::FramelessWindowHint hides the default title bar */
             },
             _custom_titlebar { this },
             // when child widgets inherit from the parent widget, calling QWidget::show() on the parent will automatically draw the children too
@@ -43,23 +42,21 @@ class main_window final : public QFrame {
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _slider_values {},
             _hexstring { this },
-            _palette {},
             _mouse_pos {} {
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
-            // the color used is defined by the QPalette::Window color role from the widget's palette.
+            // the colour used is defined by the QPalette::Window colour role from the widget's palette.
             setFixedWidth(configs::main_window::WIDTH); // the main window will have a fixed size, with no options to enlarge
             setFixedHeight(configs::main_window::HEIGHT);
             setAttribute(Qt::WA_TranslucentBackground); // hides the original rectangular window
 
             // stylesheet for the QSliders
-            const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
+            const auto _qslider_stylesheet  = utilities::read_qss(R"(./styles/QSlider.qss)");
             // the order of CSS box model styling is top-left, top-right, bottom-right and bottom-left
             // https://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 
             // don't need this anymore
-            // const auto _qframe_stylesheet  = utilities::read_qss(R"(./styles/QFrame.qss)"); // style sheet for the main window (QFrame)
-            // if (_qframe_stylesheet) setStyleSheet(_qframe_stylesheet.value());
+            const auto _qspinbox_stylesheet = utilities::read_qss(R"(./styles/QSpinBox.qss)"); // style sheet for the main window (QFrame)
 
             for (unsigned i = 0; i < configs::sliders::N; ++i) {
                 //---------------------
@@ -71,10 +68,7 @@ class main_window final : public QFrame {
                 _rgbsliders[i].setMinimumWidth(configs::sliders::WIDTH);
                 _rgbsliders[i].setMinimumHeight(configs::sliders::HEIGHT);
                 _rgbsliders[i].setGeometry(
-                    configs::sliders::HPAD,
-                    configs::sliders::VSPACE_TITLEBAR + i * configs::sliders::VSPACE_SLIDERS,
-                    configs::sliders::WIDTH,
-                    configs::sliders::HEIGHT
+                    configs::sliders::HPAD, configs::sliders::VSPACE + i * configs::sliders::VSPACE_SLIDERS, configs::sliders::WIDTH, configs::sliders::HEIGHT
                 );
 
                 _rgbsliders[i].setRange(
@@ -83,8 +77,8 @@ class main_window final : public QFrame {
                     std::numeric_limits<unsigned char>::max()
                 );
 
-                if (_qslider_stylesheet) _rgbsliders[i].setStyleSheet(_qslider_stylesheet.value()); // styling for the slider button groove
                 _rgbsliders[i].setProperty("class", configs::sliders::QSS_CLASS_NAMES[i]);          // css property to be leveraged in QSlider.qss
+                if (_qslider_stylesheet) _rgbsliders[i].setStyleSheet(_qslider_stylesheet.value()); // styling for the slider button groove
 
                 //---------------------
                 // spin boxes
@@ -92,34 +86,36 @@ class main_window final : public QFrame {
 
                 _rgbspinboxes[i].setGeometry(
                     configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::labels::HPAD,
-                    configs::sliders::VSPACE_TITLEBAR + i * configs::sliders::VSPACE_SLIDERS,
+                    configs::sliders::VSPACE + i * configs::sliders::VSPACE_SLIDERS,
                     configs::sliders::labels::WIDTH,
                     configs::sliders::labels::HEIGHT
                 );
                 _rgbspinboxes[i].setButtonSymbols(QAbstractSpinBox::NoButtons); // hide the spin box buttons
                 _rgbspinboxes[i].setRange(std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max());
                 _rgbspinboxes[i].setAlignment(Qt::AlignmentFlag::AlignCenter);
+
+                if (_qspinbox_stylesheet) _rgbspinboxes[i].setStyleSheet(_qspinbox_stylesheet.value());
             }
 
             __connect_signals_to_slots();
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) on_rslider_move(int _new_value) noexcept {
+        Q_SLOT void __attribute__((__noinline__)) on_rslider_move(int _new_value) noexcept {
             // will be signalled to when the red slider is moved
             _slider_values[configs::rgb_offsets::RED] = _new_value;
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) on_gslider_move(int _new_value) noexcept {
+        Q_SLOT void __attribute__((__noinline__)) on_gslider_move(int _new_value) noexcept {
             // will be signalled to when the green slider is moved
             _slider_values[configs::rgb_offsets::GREEN] = _new_value;
         }
 
-        Q_SLOT inline void __attribute__((__always_inline__)) on_bslider_move(int _new_value) noexcept {
+        Q_SLOT void __attribute__((__noinline__)) on_bslider_move(int _new_value) noexcept {
             // will be signalled to when the blue slider is moved
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
         }
 
-        [[deprecated]] virtual inline void paintEvent(QPaintEvent* const _paint_event) noexcept override {
+        virtual inline void paintEvent(QPaintEvent* const _paint_event) noexcept override {
             // setting border-radius in stylesheets for QFrame results in botched corners - round corners overlaid on rectangular corners
             // this will create a main window with clean, smooth and round corners
             // https://runebook.dev/en/docs/qt/qwidget/paintEvent
@@ -184,12 +180,25 @@ class main_window final : public QFrame {
             connect(&_rgbsliders[configs::rgb_offsets::BLUE], &QSlider::valueChanged, this, &main_window::on_bslider_move);
         }
 
-        [[maybe_unused]] inline void __attribute__((__always_inline__)) __update_background() noexcept {
+        inline void __attribute__((__always_inline__)) __update_background() noexcept {
+            static QPalette _bgpalette {};  // colour palette to paint the main window background with
+            static QPalette _txtpalette {}; // contrasting colour palette for texts
             // update the colour palette with the current state of the sliders
-            _palette.setColor(
-                QPalette::Window,
+            _bgpalette.setColor(
+                QPalette::ColorRole::Window,
                 QColor { _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE] }
             );
-            setPalette(_palette); // set the updated palette, triggering a window redraw
+            setPalette(_bgpalette); // set the updated palette, triggering a window redraw
+
+            // handle contrasting the text colour with the background colour
+            if (utilities::rgb_to_greyscale(
+                    _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
+                ) > 0.500) {
+                _txtpalette.setColor(QPalette::ColorRole::Text, Qt::GlobalColor::black);
+                for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setPalette(_txtpalette);
+            } else {
+                _txtpalette.setColor(QPalette::ColorRole::Text, Qt::GlobalColor::white);
+                for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setPalette(_txtpalette);
+            }
         }
 };

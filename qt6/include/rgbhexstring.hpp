@@ -33,25 +33,28 @@ class rgb_hexstring final : public QLineEdit {
             setGeometry( // since we have control over this class's implementation, let's do this inside the ctor, instead of having main window do this
                 configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::labels::HPAD + configs::sliders::labels::WIDTH +
                     configs::sliders::labels::HPAD,
-                configs::sliders::VSPACE_TITLEBAR + 2 * configs::sliders::VSPACE_SLIDERS,
+                configs::sliders::VSPACE + 2 * configs::sliders::VSPACE_SLIDERS,
                 configs::hexstring::WIDTH,
                 configs::hexstring::HEIGHT
             );
-            setAlignment(Qt::AlignmentFlag::AlignHCenter | Qt::AlignmentFlag::AlignVCenter); // not working????
-            setReadOnly(true); // disables user input (just act like a QLabel), while allowing copying
+            const auto _qlinedit_stylesheet = utilities::read_qss(R"(./styles/QLineEdit.qss)");
+            if (_qlinedit_stylesheet) setStyleSheet(_qlinedit_stylesheet.value());
+
+            setAlignment(Qt::AlignmentFlag::AlignHCenter); // not working????
+            setReadOnly(true);                             // disables user input (just act like a QLabel), while allowing copying
         }
 
-        Q_SLOT inline void on_rslider_move(int _new_value) noexcept {
+        Q_SLOT void __attribute__((__noinline__)) on_rslider_move(int _new_value) noexcept {
             _slider_values[configs::rgb_offsets::RED] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void on_gslider_move(int _new_value) noexcept {
+        Q_SLOT void __attribute__((__noinline__)) on_gslider_move(int _new_value) noexcept {
             _slider_values[configs::rgb_offsets::GREEN] = _new_value;
             __update_hexstring();
         }
 
-        Q_SLOT inline void on_bslider_move(int _new_value) noexcept {
+        Q_SLOT void __attribute__((__noinline__)) on_bslider_move(int _new_value) noexcept {
             _slider_values[configs::rgb_offsets::BLUE] = _new_value;
             __update_hexstring();
         }

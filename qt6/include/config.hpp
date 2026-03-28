@@ -10,23 +10,36 @@
 
 namespace configs {
 
-    static const char* const APPLICATION_TITLE { "Colorpicker" };
+    static constexpr unsigned long FONTSIZE { 16 };
+    static const char* const       APPLICATION_TITLE { "Colorpicker" };
 
     enum rgb_offsets : unsigned char { RED, GREEN, BLUE }; // to conveniently index into RGB arrays without using numbers
 
+    namespace titlebar {
+        // to index into the array of push buttons our title bar has
+        enum button_offsets : unsigned char { MINIMIZE, CLOSE, STAYONTOP, COLOURPICKER, ABOUT };
+
+        static constexpr unsigned long NBUTTONS { 5 };
+        static constexpr QSize         BUTTON_SIZE { 36, 36 };
+        static constexpr QSize         ICON_SIZE { 30, 30 };
+        static constexpr unsigned long WIDTH { 610 }; // we need these two to have matching widths
+        static constexpr unsigned long HEIGHT { 32 };
+    }
+
     namespace main_window {
-        static constexpr unsigned long HEIGHT { 170 }; // height of the application window
-        static constexpr unsigned long WIDTH { 610 };  // width of the application window
+        static constexpr unsigned long HEIGHT { 170 + titlebar::HEIGHT }; // height of the application window
+        static constexpr unsigned long WIDTH { titlebar::WIDTH };         // width of the application window, must match with the custom title bar
     }
 
     namespace sliders {
 
-        static constexpr unsigned long                    N { 3 };     // number of track bars used in the application
-        static constexpr unsigned long                    HPAD { 20 }; // padding between the left end of the track bars and the left edge of the main window
-        static constexpr unsigned long                    WIDTH { 282 };
-        static constexpr unsigned long                    HEIGHT { 25 };
-        static constexpr unsigned long                    VSPACE_SLIDERS { 44 };  // vertical separation between subsequent track bars
-        static constexpr unsigned long                    VSPACE_TITLEBAR { 34 }; // margin betwen the first track bar and the bottom edge of the title bar
+        static constexpr unsigned long N { 3 };     // number of track bars used in the application
+        static constexpr unsigned long HPAD { 20 }; // padding between the left end of the track bars and the left edge of the main window
+        static constexpr unsigned long WIDTH { 282 };
+        static constexpr unsigned long HEIGHT { 25 };
+        static constexpr unsigned long VSPACE_SLIDERS { 44 };            // vertical separation between subsequent track bars
+        static constexpr unsigned long VSPACE { 34 + titlebar::HEIGHT }; // margin betwen the first track bar and the top edge of the main window
+        // this space should be big enough to accomodate the custom title bar
         static constexpr std::array<const char* const, N> QSS_CLASS_NAMES { "red", "green", "blue" };
 
         namespace labels {
@@ -41,16 +54,6 @@ namespace configs {
     namespace hexstring {
         static constexpr unsigned long SIZE { 64 }; // max length of the hexadecimal colour code string e.g. "#00AEEF"
         static constexpr unsigned long WIDTH { 140 };
-        static constexpr unsigned long HEIGHT { 30 };
+        static constexpr unsigned long HEIGHT { 32 };
     }
-
-    namespace titlebar {
-        enum button_offsets : unsigned char { MINIMIZE, CLOSE, STAYONTOP, COLOURPICKER, ABOUT };
-
-        static constexpr unsigned long NBUTTONS { 5 };
-        static constexpr QSize         ICON_SHAPE { 30, 30 };
-        static constexpr unsigned long WIDTH { main_window::WIDTH }; // we need these two to have matching widths
-        static constexpr unsigned long HEIGHT { 30 };
-    }
-
 } // namespace configs
