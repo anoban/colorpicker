@@ -42,7 +42,7 @@ namespace configs {
         // this space should be big enough to accomodate the custom title bar
         static constexpr std::array<const char* const, N> QSS_CLASS_NAMES { "red", "green", "blue" };
 
-        namespace labels {
+        namespace spinboxes {
             // padding between the right end of the track bar and the left edge of it's cognate label box
             static constexpr unsigned long HPAD { 28 };
             static constexpr unsigned long WIDTH { 60 };

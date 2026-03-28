@@ -29,6 +29,7 @@ class main_window final : public QFrame {
         std::array<int, configs::sliders::N>      _slider_values; // RGB QSlider values
         rgb_hexstring                             _hexstring;     // the RGB colour combination in hex format e.g. #9F25E9
         QPointF                                   _mouse_pos;
+        bool                                      _is_text_black;
 
     public:
         explicit inline main_window() noexcept :
@@ -85,10 +86,10 @@ class main_window final : public QFrame {
                 //---------------------
 
                 _rgbspinboxes[i].setGeometry(
-                    configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::labels::HPAD,
+                    configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::spinboxes::HPAD,
                     configs::sliders::VSPACE + i * configs::sliders::VSPACE_SLIDERS,
-                    configs::sliders::labels::WIDTH,
-                    configs::sliders::labels::HEIGHT
+                    configs::sliders::spinboxes::WIDTH,
+                    configs::sliders::spinboxes::HEIGHT
                 );
                 _rgbspinboxes[i].setButtonSymbols(QAbstractSpinBox::NoButtons); // hide the spin box buttons
                 _rgbspinboxes[i].setRange(std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max());
@@ -181,27 +182,21 @@ class main_window final : public QFrame {
         }
 
         inline void __attribute__((__always_inline__)) __update_background() noexcept {
-            static QPalette _bgpalette {};  // colour palette to paint the main window background with
-            static QPalette _txtpalette {}; // contrasting colour palette for texts
+            QPalette _palette {}; // colour palette to paint the main window background with
+
             // update the colour palette with the current state of the sliders
-            _bgpalette.setColor(
-                QPalette::ColorRole::Window,
+            _palette.setColor( // background colour
+               backgroundRole(),// should be same as QPalette::ColorRole::Window
                 QColor { _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE] }
             );
-            setPalette(_bgpalette); // set the updated palette, triggering a window redraw
 
-            // handle contrasting the text colour with the background colour
-            if (utilities::is_black_text_needed(
-                    _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
-                )) {
-                _txtpalette.setColor(QPalette::ColorRole::Text, Qt::GlobalColor::black);
-                for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setPalette(_txtpalette);
-                ::puts("black text!");
-            } else {
-                _txtpalette.setColor(QPalette::ColorRole::Text, Qt::GlobalColor::white);
-                for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setPalette(_txtpalette);
-                ::puts("white text!");
-            }
-            // NOT WORKING THOUGH????
+            // _palette.setColor( // text colour
+            //  _rgbspinboxes[configs::rgb_offsets::RED].backgroundRole(),// none worked (QPalette::ColorRole::WindowText, QPalette::ColorRole::Text & QPalette::ColorRole::ButtonText)
+            //     utilities::text_colour(
+            //         _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
+            //     )
+            // );
+
+            setPalette(_palette); // set the updated palette, triggering a window redraw
         }
 };

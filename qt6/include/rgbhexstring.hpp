@@ -22,7 +22,7 @@ class rgb_hexstring final : public QLineEdit {
         QTextStream                          _hex_strstream;
 
     public:
-        inline rgb_hexstring(QWidget* const _parent_window) noexcept :
+        inline explicit rgb_hexstring(QWidget* const _parent_window) noexcept :
             QLineEdit { _parent_window }, _slider_values {}, _hexstring {}, _hex_strstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
             _hex_strstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
@@ -32,8 +32,8 @@ class rgb_hexstring final : public QLineEdit {
                            << ::qSetFieldWidth(2);                     // we want fixed width of 2 characters
 
             setGeometry( // since we have control over this class's implementation, let's do this inside the ctor, instead of having main window do this
-                configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::labels::HPAD + configs::sliders::labels::WIDTH +
-                    configs::sliders::labels::HPAD,
+                configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::spinboxes::HPAD + configs::sliders::spinboxes::WIDTH +
+                    configs::sliders::spinboxes::HPAD,
                 configs::sliders::VSPACE + 2 * configs::sliders::VSPACE_SLIDERS,
                 configs::hexstring::WIDTH,
                 configs::hexstring::HEIGHT
@@ -41,8 +41,8 @@ class rgb_hexstring final : public QLineEdit {
             const auto _qlinedit_stylesheet = utilities::read_qss(R"(./styles/QLineEdit.qss)");
             if (_qlinedit_stylesheet) setStyleSheet(_qlinedit_stylesheet.value());
 
-            setAlignment(Qt::AlignmentFlag::AlignHCenter); // not working????
-            setReadOnly(true);                             // disables user input (just act like a QLabel), while allowing copying
+            setAlignment(Qt::AlignmentFlag::AlignHCenter | Qt::AlignmentFlag::AlignVCenter); // center the text inside the widget
+            setReadOnly(true); // disables user input (just act like a QLabel), while allowing copying
         }
 
         Q_SLOT void __attribute__((__noinline__)) on_rslider_move(int _new_value) noexcept {
@@ -71,8 +71,7 @@ class rgb_hexstring final : public QLineEdit {
             // static_assert(sizeof(QChar) == sizeof(wchar_t));                   // QChar is equivalent to unsigned short
             // the above requires -fshort-wchar compiler flag because by default, wchar_t is 4 bytes on linux??? not 2 bytes
             // ::memset(_hexstring.data(), 0, sizeof(QChar) * _hexstring.size()); // clean up the buffer before every write
-            _hexstring.clear();            // this is what we need to reset the QString before every new write
-                                           // memset didn't help
+            _hexstring.clear();            // this is what we need to reset the QString before every new write, memset didn't help
             if (!_hex_strstream.seek(0)) { // get to the beginning of the stream buffer
                 ::fprintf(stderr, "Error inside %s, call to QTextStream::seek() failed!\n", __PRETTY_FUNCTION__);
                 return;
