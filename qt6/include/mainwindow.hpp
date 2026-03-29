@@ -29,7 +29,7 @@ class main_window final : public QFrame {
         std::array<int, configs::sliders::N>      _slider_values; // RGB QSlider values
         rgb_hexstring                             _hexstring;     // the RGB colour combination in hex format e.g. #9F25E9
         QPointF                                   _mouse_pos;
-        bool                                      _is_text_black;
+        Qt::GlobalColor                           _textcolour;
 
     public:
         explicit inline main_window() noexcept :
@@ -43,7 +43,8 @@ class main_window final : public QFrame {
             _rgbspinboxes { QSpinBox(this), QSpinBox(this), QSpinBox(this) },
             _slider_values {},
             _hexstring { this },
-            _mouse_pos {} {
+            _mouse_pos {},
+            _textcolour { Qt::GlobalColor::white } {
             setAutoFillBackground(true); // https://doc.qt.io/archives/qt-6.2/qwidget.html#autoFillBackground-prop
             // if enabled, setAutoFillBackground will cause Qt to fill the background of the widget before invoking the paint event
             // the colour used is defined by the QPalette::Window colour role from the widget's palette.
@@ -52,12 +53,12 @@ class main_window final : public QFrame {
             setAttribute(Qt::WA_TranslucentBackground); // hides the original rectangular window
 
             // stylesheet for the QSliders
-            const auto _qslider_stylesheet  = utilities::read_qss(R"(./styles/QSlider.qss)");
+            const auto _qslider_stylesheet = utilities::read_qss(R"(./styles/QSlider.qss)");
             // the order of CSS box model styling is top-left, top-right, bottom-right and bottom-left
             // https://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 
             // don't need this anymore
-            const auto _qspinbox_stylesheet = utilities::read_qss(R"(./styles/QSpinBox.qss)"); // style sheet for the main window (QFrame)
+            // const auto _qspinbox_stylesheet = utilities::read_qss(R"(./styles/QSpinBox.qss)"); // style sheet for the main window (QFrame)
 
             for (unsigned i = 0; i < configs::sliders::N; ++i) {
                 //---------------------
@@ -95,7 +96,8 @@ class main_window final : public QFrame {
                 _rgbspinboxes[i].setRange(std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max());
                 _rgbspinboxes[i].setAlignment(Qt::AlignmentFlag::AlignCenter);
 
-                if (_qspinbox_stylesheet) _rgbspinboxes[i].setStyleSheet(_qspinbox_stylesheet.value());
+                // if (_qspinbox_stylesheet) _rgbspinboxes[i].setStyleSheet(_qspinbox_stylesheet.value());
+                _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::WHITETEXT);
             }
 
             __connect_signals_to_slots();
@@ -196,6 +198,25 @@ class main_window final : public QFrame {
             //         _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
             //     )
             // );
+
+            const auto _needed_textcolour = utilities::text_colour(
+                _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
+            );
+            // if we are using a single stylesheet with two different classes, we need to reset the same stylesheet after updating the class, for the text colour change to take effect
+            // which is messy, so opting to use separate hardcoded stylesheets instead
+            if (_needed_textcolour != _textcolour) {
+                switch (_needed_textcolour) {
+                    case Qt::GlobalColor::black :
+                        _textcolour = Qt::GlobalColor::black; // update the current text colour
+                        for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::BLACKTEXT);
+                        break;
+                    case Qt::GlobalColor::white :
+                        _textcolour = Qt::GlobalColor::white;
+                        for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::WHITETEXT);
+                        break;
+                    default : ::fputs("only variants Qt::GlobalColor::black and Qt::GlobalColor::white are accepted!\n", stderr); break;
+                }
+            }
 
             setPalette(_palette); // set the updated palette, triggering a window redraw
         }
