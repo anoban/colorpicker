@@ -209,10 +209,12 @@ class main_window final : public QFrame {
                     case Qt::GlobalColor::black :
                         _textcolour = Qt::GlobalColor::black; // update the current text colour
                         for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::BLACKTEXT);
+                        _hexstring.setStyleSheet(configs::hexstring::BLACKTEXT);
                         break;
                     case Qt::GlobalColor::white :
                         _textcolour = Qt::GlobalColor::white;
                         for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::WHITETEXT);
+                        _hexstring.setStyleSheet(configs::hexstring::WHITETEXT);
                         break;
                     default : ::fputs("only variants Qt::GlobalColor::black and Qt::GlobalColor::white are accepted!\n", stderr); break;
                 }

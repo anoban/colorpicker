@@ -20,11 +20,10 @@ class rgb_hexstring final : public QLineEdit {
         std::array<int, configs::sliders::N> _slider_values;
         QString                              _hexstring; // QString is equivalent to std::wstring on Windows where wchar_t is 16 bits wide
         QTextStream                          _hex_strstream;
-        Qt::GlobalColor                      _textcolour;
 
     public:
         inline explicit rgb_hexstring(QWidget* const _parent_window) noexcept :
-            QLineEdit { _parent_window }, _slider_values {}, _hexstring {}, _hex_strstream { &_hexstring }, _textcolour { Qt::GlobalColor::white } {
+            QLineEdit { _parent_window }, _slider_values {}, _hexstring {}, _hex_strstream { &_hexstring } {
             _hexstring.resize(configs::hexstring::SIZE);
             _hex_strstream.setPadChar('0');                            // pad the hex representation with zeroes to make it two digits when the value is < 16
             _hex_strstream.setFieldAlignment(QTextStream::AlignRight); // when we only have one digit, pad with a zero on the left
@@ -94,24 +93,25 @@ class rgb_hexstring final : public QLineEdit {
             //     ::printf("%03u) %d - %c\n", i, _stdstr[i], _stdstr[i]); // looks like the buffer has zeroes at the front
             // the problem is with each << to the QString, through the QTextStream, the string keeps growing, with more and more null bytes at the front
 
-            const auto _needed_textcolour = utilities::text_colour(
-                _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
-            );
-            // if we are using a single stylesheet with two different classes, we need to reset the same stylesheet after updating the class, for the text colour change to take effect
-            // which is messy, so opting to use separate hardcoded stylesheets instead
-            if (_needed_textcolour != _textcolour) {
-                switch (_needed_textcolour) {
-                    case Qt::GlobalColor::black :
-                        _textcolour = Qt::GlobalColor::black; // update the current text colour
-                        setStyleSheet(configs::hexstring::BLACKTEXT);
-                        break;
-                    case Qt::GlobalColor::white :
-                        _textcolour = Qt::GlobalColor::white;
-                        setStyleSheet(configs::hexstring::WHITETEXT);
-                        break;
-                    default : ::fputs("only variants Qt::GlobalColor::black and Qt::GlobalColor::white are accepted!\n", stderr); break;
-                }
-            }
+            // let the mainwindow handle this together with the spin boxes - avoid redundant performance overheads
+            // const auto _needed_textcolour = utilities::text_colour(
+            //     _slider_values[configs::rgb_offsets::RED], _slider_values[configs::rgb_offsets::GREEN], _slider_values[configs::rgb_offsets::BLUE]
+            // );
+            // // if we are using a single stylesheet with two different classes, we need to reset the same stylesheet after updating the class, for the text colour change to take effect
+            // // which is messy, so opting to use separate hardcoded stylesheets instead
+            // if (_needed_textcolour != _textcolour) {
+            //     switch (_needed_textcolour) {
+            //         case Qt::GlobalColor::black :
+            //             _textcolour = Qt::GlobalColor::black; // update the current text colour
+            //             setStyleSheet(configs::hexstring::BLACKTEXT);
+            //             break;
+            //         case Qt::GlobalColor::white :
+            //             _textcolour = Qt::GlobalColor::white;
+            //             setStyleSheet(configs::hexstring::WHITETEXT);
+            //             break;
+            //         default : ::fputs("only variants Qt::GlobalColor::black and Qt::GlobalColor::white are accepted!\n", stderr); break;
+            //     }
+            // }
 
             setText(_hexstring);
         }
