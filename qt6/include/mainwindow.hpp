@@ -87,17 +87,17 @@ class main_window final : public QFrame {
                 //---------------------
 
                 _rgbspinboxes[i].setGeometry(
-                    configs::sliders::HPAD + configs::sliders::WIDTH + configs::sliders::spinboxes::HPAD,
+                    configs::sliders::HPAD + configs::sliders::WIDTH + configs::spinboxes::HPAD,
                     configs::sliders::VSPACE + i * configs::sliders::VSPACE_SLIDERS,
-                    configs::sliders::spinboxes::WIDTH,
-                    configs::sliders::spinboxes::HEIGHT
+                    configs::spinboxes::WIDTH,
+                    configs::spinboxes::HEIGHT
                 );
                 _rgbspinboxes[i].setButtonSymbols(QAbstractSpinBox::NoButtons); // hide the spin box buttons
                 _rgbspinboxes[i].setRange(std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max());
                 _rgbspinboxes[i].setAlignment(Qt::AlignmentFlag::AlignCenter);
 
                 // if (_qspinbox_stylesheet) _rgbspinboxes[i].setStyleSheet(_qspinbox_stylesheet.value());
-                _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::WHITETEXT);
+                _rgbspinboxes[i].setStyleSheet(configs::spinboxes::WHITETEXT);
             }
 
             __connect_signals_to_slots();
@@ -208,12 +208,12 @@ class main_window final : public QFrame {
                 switch (_needed_textcolour) {
                     case Qt::GlobalColor::black :
                         _textcolour = Qt::GlobalColor::black; // update the current text colour
-                        for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::BLACKTEXT);
+                        for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::spinboxes::BLACKTEXT);
                         _hexstring.setStyleSheet(configs::hexstring::BLACKTEXT);
                         break;
                     case Qt::GlobalColor::white :
                         _textcolour = Qt::GlobalColor::white;
-                        for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::sliders::spinboxes::WHITETEXT);
+                        for (unsigned i = 0; i < configs::sliders::N; ++i) _rgbspinboxes[i].setStyleSheet(configs::spinboxes::WHITETEXT);
                         _hexstring.setStyleSheet(configs::hexstring::WHITETEXT);
                         break;
                     default : ::fputs("only variants Qt::GlobalColor::black and Qt::GlobalColor::white are accepted!\n", stderr); break;

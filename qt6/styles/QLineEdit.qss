@@ -1,6 +1,0 @@
-QLineEdit {
-    border: 1px solid transparent;
-    background: rgba(0, 0, 0, 30);
-    color: white;
-    border-radius: 2px;
-}

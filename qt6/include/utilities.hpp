@@ -36,15 +36,18 @@ namespace utilities {
         ::printf("Colorpicker %s, built with Qt %s, using g++ %s\n", COLORPICKER_FULL_VERSION, QT_FULL_VERSION, CXX_FULL_VERSION);
     }
 
+    static inline constexpr double __attribute__((__always_inline__)) gamma(double _colour) noexcept {
+        // sRGB is widely used in display devices as opposed to the plain RGB colour channels used commonly in images
+        // in sRGB, each colour channel is subjected to this gamma correction
+        _colour /= std::numeric_limits<unsigned char>::max(); // scale it to the range (0, 1.0) from (0, 255)
+        return (_colour <= 0.0031308) ? 12.92 * _colour : 1.055 * ::pow(_colour, 1 / 2.400) - 0.055;
+    }
+
     static inline constexpr Qt::GlobalColor __attribute__((__always_inline__)) text_colour(
-        const double& _red, const double& _green, const double& _blue
+        const double& _red, const double& _green, const double& _blue // this function assumes the inputs will be in the range (0, 255)
     ) noexcept {
-        // this equation expects the colour values to be in the range (0.0, 1.0)
-        return (0.2126 * ::pow(_red / std::numeric_limits<unsigned char>::max(), 2.200 /* the gamma value */) +
-                0.7152 * ::pow(_green / std::numeric_limits<unsigned char>::max(), 2.200) +
-                0.0722 * ::pow(_blue / std::numeric_limits<unsigned char>::max(), 2.200)) > 0.5000 ?
-                   Qt::GlobalColor::black :
-                   Qt::GlobalColor::white; // 0.5 is the threshold
+        return (0.2126 * gamma(_red) + 0.7152 * gamma(_green) + 0.0722 * gamma(_blue) > 0.700 /* the cutoff */) ? Qt::GlobalColor::black :
+                                                                                                                  Qt::GlobalColor::white;
     }
 
 } // namespace utilities

@@ -42,22 +42,22 @@ namespace configs {
         // this space should be big enough to accomodate the custom title bar
         static constexpr std::array<const char* const, N> QSS_CLASS_NAMES { "red", "green", "blue" };
 
-        namespace spinboxes {
-            // padding between the right end of the track bar and the left edge of it's cognate label box
-            static constexpr unsigned long HPAD { 28 };
-            static constexpr unsigned long WIDTH { 60 };
-            static constexpr unsigned long HEIGHT { 30 };
-            static const QString WHITETEXT { "QSpinBox {border: 1px solid transparent; background: rgba(0, 0, 0, 30); color: white; border-radius: 2px;}" };
-            static const QString BLACKTEXT { "QSpinBox {border: 1px solid transparent; background: rgba(0, 0, 0, 30); color: black; border-radius: 2px;}" };
-        }
-
     } // namespace sliders
+
+    namespace spinboxes {
+        // padding between the right end of the track bar and the left edge of it's cognate label box
+        static constexpr unsigned long HPAD { 28 };
+        static constexpr unsigned long WIDTH { 60 };
+        static constexpr unsigned long HEIGHT { 30 };
+        static const char* const WHITETEXT { "QSpinBox {border: 1px solid transparent; background: rgba(0, 0, 0, 30); color: white; border-radius: 2px;}" };
+        static const char* const BLACKTEXT { "QSpinBox {border: 1px solid transparent; background: rgba(0, 0, 0, 30); color: black; border-radius: 2px;}" };
+    }
 
     namespace hexstring {
         static constexpr unsigned long SIZE { 64 }; // max length of the hexadecimal colour code string e.g. "#00AEEF"
         static constexpr unsigned long WIDTH { 140 };
         static constexpr unsigned long HEIGHT { 32 };
-        static const QString WHITETEXT { "QLineEdit {border: 1px solid transparent; background: rgba(0, 0, 0, 30); border-radius: 2px; color: white}" };
-        static const QString BLACKTEXT { "QLineEdit {border: 1px solid transparent; background: rgba(0, 0, 0, 30); border-radius: 2px; color: black}" };
+        static const char* const WHITETEXT { "QLineEdit {border: 1px solid transparent; background: rgba(0, 0, 0, 30); border-radius: 2px; color: white}" };
+        static const char* const BLACKTEXT { "QLineEdit {border: 1px solid transparent; background: rgba(0, 0, 0, 30); border-radius: 2px; color: black}" };
     }
 } // namespace configs
