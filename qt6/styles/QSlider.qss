@@ -11,15 +11,15 @@ QSlider::sub-page:horizontal {
 }
 
 QSlider.red::sub-page:horizontal {
-    background: #FF0000;
+    background: #ff0000;
 }
 
 QSlider.green::sub-page:horizontal {
-    background: #00FF00;
+    background: #00ff00;
 }
 
 QSlider.blue::sub-page:horizontal {
-    background: #0000FF;
+    background: #0000ff;
 }
 
 QSlider::add-page:horizontal {
@@ -30,7 +30,7 @@ QSlider::add-page:horizontal {
 }
 
 QSlider::handle:horizontal {
-    background: #E5E6E6;
+    background: #e5e6e6;
     border: 1px solid black;
     width: 16px;
     height: 16px;

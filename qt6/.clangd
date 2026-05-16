@@ -1,6 +1,20 @@
 CompileFlags:
-  Add: [-Wall, -Wextra, -Wpedantic, -O0, -std=c++20, -fshort-wchar, -c, -DDEBUG, -D_DEBUG, -I./include, -I/usr/include/qt6]
-  Compiler:  clang.exe
+  Add:
+    [
+      -Wall,
+      -Wextra,
+      -Wpedantic,
+      -O0,
+      -std=c++20,
+      -fshort-wchar,
+      -c,
+      -DDEBUG,
+      -D_DEBUG,
+      -I./,
+      -I./include,
+      -I/usr/include/qt6,
+    ]
+  Compiler: clang.exe
   CompilationDatabase: None
 
 Completion:

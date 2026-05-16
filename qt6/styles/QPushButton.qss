@@ -3,7 +3,8 @@ QPushButton {
     border-radius: 4px;
 }
 
-QPushButton:hover {}
+QPushButton:hover {
+}
 
 QPushButton:pressed {
     border: 2px inset black;
